@@ -1,0 +1,231 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+<div class="content-wrapper pl-2 pr-1">
+    <div style="margin: 10px;">
+        <form [formGroup]="FormConsultaKardex">
+            <!-- Contenedor feneral de la página -->
+            <div class="my-2 ml-2 titulo text-center">
+                <!--menu -->
+                <h5>
+                    Consulta de Kardex
+                </h5>
+            </div>
+            <div class="card border-primary" style="padding: 5px;">
+                <div class="form-row mt-2">
+                    <div class="form-group col-md-3">
+                        <label for="boddestino">Bodega *</label>
+                        <select name="boddestino" class='form-control form-control-sm'
+                            (change)="BuscaPeriodoBodega(FormConsultaKardex.value.boddestino)"
+                            formControlName='boddestino'>
+                            <option *ngFor='let listaBodegasSolictante of bodegasdestino'
+                                [ngValue]='listaBodegasSolictante.bodcodigo'>
+                                {{ listaBodegasSolictante.boddescripcion }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="periodo">Período *</label>
+                        <select id="periodo" name="periodo" class="form-control form-control-sm"
+                            (change)="ActivaBotonBusqueda(FormConsultaKardex.value.boddestino,FormConsultaKardex.value.periodo)"
+                            aria-describedby="helpAccountId" formControlName="periodo">
+                            <option *ngFor="let periodo of periodosmedskardex" [ngValue]="periodo.ckarid">
+                                {{ periodo.ckarperiodo }} {{periodo.ckarfechacierre}}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-1"> <!--*ngIf="muestracoddes"-->
+                        <label for="codigo">Código *</label>
+                        <input type="text" class="form-control form-control-sm" formControlName="codigo"
+                        (focusout)="getProducto($event.target.value)">
+                    </div>
+                    <div class="form-group col-md-2"> <!--*ngIf="muestracoddes"-->
+                        <label for="descripcion">Descripción  *</label>
+                        <input type="text" class="form-control form-control-sm" formControlName="descripcion"
+                        (input)="setDatabusqueda($event.target.value, 2)">
+                    </div>
+                    <!-- <div class="form-group col-md-2">
+                        <label for="marca">Todos los Productos *</label>
+                        <input class="mr-2 form-control form-control-sm" type="checkbox"
+                        formControlName="marca"
+                        (change)="cambio_check('todoslosproductos', $event)" name="marca">
+                    </div> -->
+                    <div class="form-group col-md-2  align-self-end text-right">
+                        <button type="button" id="btnbuscar" class="btn btn-primary btn-sm"
+                            [disabled]="!activbusqueda" (click)="BuscaProducto()">
+                            Buscar Producto <i class="fas fa-search ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- <div class="form-row mt-2">
+                  
+          
+                <div class="form-group col-md-3 align-self-end">
+                    <button type="button" id="btnevento" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
+                      [disabled]="(FormCreaSolicitud.value.numsolicitud == null) " (click)="eventosSolicitud()">Eventos
+                    </button>
+                </div>
+            </div> -->
+            </div>
+        </form>
+        <div class="card border-primary mt-0" style="padding: 5px;height: 990px;">
+            <!-- <tabset> -->
+            <!-- <tab heading="Detalle Kardex" id="tab1"> -->
+            <div class="table-responsive mt-3" style="height: 900px;">
+                <table class="table table-sm  table-primary table-bordered"*ngIf="!muestragrillacoddes">
+                    <tr>
+                        <th class="text-center">Fecha Hora</th>
+                        <th class="text-center">Bodega</th>
+                        <th class="text-center">Tipo Movimiento</th>
+                        <!-- <th class="text-center">Saldo Período Anterior</th> -->
+                        <th class="text-center">Rut Paciente</th>
+                        <th class="text-center">Nombre Paciente</th>
+                        <th class="text-center">Cantidad Entrada</th>
+                        <th class="text-center">Cantidad Salida</th>
+                        <th class="text-center">Saldo</th>
+                    </tr>
+                    <tr class="table-secondary" *ngFor="let kardex of datoskardexpaginacion; let id = index"
+                        style="cursor:pointer;">
+                        <td>
+                            <small><span>{{kardex.movimfecha}}</span></small>
+                        </td>
+                        <td>
+                            <small><span> {{kardex.fbodexternadesc | slice:0:30 }}</span></small>
+                        </td>
+                        <td>
+                            <small><span> {{kardex.movimdescri}}</span></small>
+                        </td>
+                        <!-- <td>
+                            <span>{{kardex.saldoanterior}} </span>
+                        </td> -->
+                        <td class="text-nowrap">
+                            <small><span> {{kardex.rutpaciente}} </span></small>
+                        </td>
+                        <td class="text-nowrap" tooltip="{{kardex.nombrepaciente }}">
+                            <small><span> {{kardex.nombrepaciente | slice:0:20}} </span></small>
+                        </td>
+                        <td>
+                            <small><span>{{kardex.cantidadentrada}} </span></small>
+                        </td>
+                        <td>
+                            <small><span>{{kardex.cantidadsalida}} </span></small>
+                        </td>
+                        <td>
+                            <small><span>{{kardex.cantidadsaldo}} </span></small>
+                        </td>
+
+                        <!-- <td>
+                                <span><button type="button" id="btnVerEventosDet" class="btn btn-info btn-rounded btn-sm ml-2"
+                                        (click)="eventosDetalleSolicitud(registro)">Eventos
+                                    </button></span>
+                            </td> -->
+                        <!--                           <td>
+                                            <span> {{registro.cantadespachar}}</span>
+                                        </td> -->
+                    </tr>
+                </table>
+                <table *ngIf="muestragrillacoddes"
+                    class="table table-sm table-condensed table-bordered table-responsive-md table-striped text-center">
+                    <tr class="table table-sm  table-primary table-bordered ">
+                        <th class="text-center">Código</th>
+                        <th class="text-center">Descripción</th> 
+                        <th class="text-center">Fecha Movimiento</th> 
+                        <th class="text-center">Movimiento </th>  
+                        <th class="text-center">Motivo</th>                         
+                        <!-- <th class="text-center">N° Receta</th>
+                        <th class="text-center">Rut Médico</th>
+                        <th class="text-center">Nombre Médico</th> -->
+                        <th class="text-center">Rut Paciente</th>
+                        <th class="text-center">Nombre Paciente</th>
+                        <th class="text-center">Cantidad Entrada</th>
+                        <th class="text-center">Cantidad Salida</th>
+                        <th class="text-center">Saldo</th>                           
+                    </tr>
+                    <tr class="table-secondary" *ngFor="let registro of datoskardexpaginacion; let id = index">
+                        <td>
+                            <small><span>{{registro.meincodmei}}</span></small>
+                        </td>
+                        <td class="text-nowrap help   " tooltip="{{registro.meindescri }}">
+                            <small><span> {{registro.meindescri| slice:0:20 }}</span></small>
+                        </td>
+                        <td>
+                            <small><span>{{registro.movimfecha }}</span></small>
+                        </td>
+                        <td class="text-nowrap" tooltip="{{registro.movimdescri }}">
+                            <small><span>{{registro.movimdescri | slice:0:20}} </span></small>
+                        </td>
+                        <td class="text-nowrap" tooltip="{{registro.tipomotivodes }}">
+                            <small><span> {{registro.tipomotivodes | slice:0:20}} </span></small>
+                        </td>
+                        <!-- <td class="text-nowrap">
+                            <small><span> {{registro.nroreceta}}</span>      </small>                          
+                        </td>
+                        <td class="text-nowrap">
+                            <small><span > {{registro.rutprof}}   </span></small>
+                        </td>
+                        <td class="text-nowrap" tooltip="{{registro.nombreprof }}">
+                            <small><span> {{registro.nombreprof | slice:0:20}} </span></small>
+                        </td> -->
+                        <td class="text-nowrap">
+                            <small><span> {{registro.rutpaciente}} </span></small>
+                        </td>
+                        <td class="text-nowrap" tooltip="{{registro.nombrepaciente }}">
+                            <small><span> {{registro.nombrepaciente | slice:0:20}} </span></small>
+                        </td>
+                        <td class="text-nowrap">
+                            <small><span> {{registro.cantidadentrada}} </span></small>
+                        </td>
+                        <td class="text-nowrap">
+                            <small><span> {{registro.cantidadsalida}} </span></small>
+                        </td>
+                        <td class="text-nowrap">
+                            <small><span> {{registro.cantidadsaldo}} </span></small>
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+            <div class="row m-1">
+                <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="6"
+                    [totalItems]="datoskardex.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                    [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
+                    (pageChanged)="pageChanged($event)">
+                </pagination>
+            </div>
+            <!-- </tab> -->
+
+            <!-- </tabset> -->
+        </div>
+
+        <!--  Botones de página -->
+        <div class="form-row float-right mt-2">
+            <div class="form-group col-md-3 align-self-end">
+                <button type="button" id="btnguardar" class="btn btn-primary btn-sm button-my-styles-busqueda_02"
+                (click)="onImprimir('pdf')" [disabled]="!btnimprime">IMPRIMIR PDF
+                    <!--*ngIf="modelopermisos.btnbuscakardex"-->
+                    <i class="fas fa-file-pdf ml-1"></i>
+                </button>
+            </div>
+            <div class="form-group col-md-3 align-self-end">
+                <button type="button" id="btnguardar" class="btn btn-primary btn-sm button-my-styles-busqueda_02"
+                (click)="onImprimir('xls')" [disabled]="!btnimprime">IMPRIMIR EXCEL
+                    <!--*ngIf="modelopermisos.btnbuscakardex"-->
+                    <i class="fas fa-file-excel ml-1"></i>
+                </button>
+            </div>
+            <div class="form-group col-md-3 align-self-end">
+                <button type="button" id="btnlimpiar" class="btn btn-primary btn-sm button-my-styles-busqueda_02"
+                    (click)="Limpiar()">LIMPIAR <i class="fas fa-eraser ml-1"></i>
+                </button>
+            </div>
+            <div class="form-group col-md-3 align-self-end">
+                <button type="button" id="btnsalir" class="btn btn-primary btn-sm button-my-styles-busqueda_02"
+                    routerLink='../home'>SALIR <i class="fas fa-window-close ml-1"></i>
+                </button>
+            </div>
+        </div>
+        <swal #alertSwal title="" text="" type="success" [showCancelButton]="false"> </swal>
+        <swal #alertSwalAlert title="" text="" type="warning" [showCancelButton]="false"> </swal>
+        <swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
+    </div>
+</div>

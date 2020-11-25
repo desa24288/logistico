@@ -1,0 +1,479 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="content-wrapper pl-2">
+    <div class="row">
+        <div *ngIf="opcion_hospitalizado" class="card text-white bg-primary mb-2" style="max-width: 12rem;">
+
+            <div class="card-header">
+                RECETAS
+                <p>HOSPITALIZADOS</p>
+            </div>
+            <div class="card-body">
+                <p>{{ this.canidad_recetas_hospitalizados}}</p>
+            </div>
+        </div>
+
+        <div *ngIf="!opcion_hospitalizado" class="card bg-light mb-2" style="max-width: 12rem;">
+            <div class="card-header">
+                RECETAS
+                <p>HOSPITALIZADOS</p>
+            </div>
+            <div class="card-body">
+                <div>
+                    <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false"
+                        autocomplete="off" (click)="eleccionopcion('HOSPITALIZADOS' )"> {{ this.canidad_recetas_hospitalizados}}
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="opcion_ambulatorio" class="card text-white bg-primary mb-2" style="max-width: 12rem;">
+            <div class="card-header">
+                RECETAS
+                <p>AMBULATORIOS</p>
+            </div>
+            <div class="card-body">
+                <p>{{this.canidad_recetas_ambulatorio}}</p>
+            </div>
+        </div>
+
+        <div *ngIf="!opcion_ambulatorio" class="card bg-light mb-2" style="max-width: 12rem;">
+            <div class="card-header">
+                RECETAS
+                <p>AMBULATORIOS</p>
+            </div>
+            <div class="card-body">
+                <div>
+                    <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false"
+                        autocomplete="off" (click)="eleccionopcion('AMBULATORIOS' )">
+                        {{this.canidad_recetas_ambulatorio}}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <div *ngIf="opcion_urgencia" class="card text-white bg-primary mb-2" style="max-width: 12rem;">
+            <div class="card-header">
+                RECETAS
+                <p>URGENCIAS</p>
+            </div>
+            <div class="card-body">
+                <p>{{this.canidad_recetas_urgencia}}</p>
+            </div>
+        </div>
+
+        <div *ngIf="!opcion_urgencia" class="card bg-light mb-2" style="max-width: 12rem;">
+            <div class="card-header">
+                RECETAS
+                <p>URGENCIAS</p>
+            </div>
+            <div class="card-body">
+                <div>
+                    <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false"
+                        autocomplete="off" (click)="eleccionopcion('URGENCIAS' )">
+                        {{this.canidad_recetas_urgencia}}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div *ngIf="opcion_solicituddespacho" class="card text-white bg-primary mb-2" style="max-width: 12rem;">
+            <div class="card-header">
+                SOLICITUDES
+                <p>DESPACHOS</p>
+            </div>
+            <div class="card-body">
+                <p>{{this.canidad_despachos}}</p>
+            </div>
+        </div>
+
+        <div *ngIf="!opcion_solicituddespacho" class="card bg-light mb-2" style="max-width: 12rem;">
+            <div class="card-header">
+                SOLICITUDES
+                <p>DESPACHO</p>
+            </div>
+            <div class="card-body">
+                <div>
+                    <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false"
+                        autocomplete="off" (click)="eleccionopcion('SOLICITUDDESPACHO' )">
+                        {{this.canidad_despachos}}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="opcion_solicitudurgente" class="card text-white bg-primary mb-2" style="max-width: 12rem;">
+            <div class="card-header">
+                SOLICITUDES
+                <p>URGENTES</p>
+            </div>
+            <div class="card-body">
+                <p>{{this.canidad_despacho_urgente}}</p>
+            </div>
+        </div>
+
+        <div *ngIf="!opcion_solicitudurgente" class="card bg-light mb-2" style="max-width: 12rem;">
+            <div class="card-header">
+                SOLICITUDES
+                <p>URGENTE</p>
+            </div>
+            <div class="card-body">
+                <div>
+                    <button type="button" class="btn btn-danger" data-toggle="button" aria-pressed="false"
+                        autocomplete="off" (click)="eleccionopcion('SOLICITUDURGENTE' )">
+                        {{this.canidad_despacho_urgente}}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <div *ngIf="opcion_solictudrecepcion" class="card text-white bg-primary mb-2" style="max-width: 12rem;">
+            <div class="card-header">
+                SOLICITUDES
+                <p>RECEPCIÓN</p>
+            </div>
+            <div class="card-body">
+                <p>{{this.canidad_recepcion}}</p>
+            </div>
+        </div>
+
+        <div *ngIf="!opcion_solictudrecepcion" class="card bg-light mb-2" style="max-width: 12rem;">
+            <div class="card-header">
+                SOLICITUDES
+                <p>RECEPCIÓN</p>
+            </div>
+            <div class="card-body">
+                <div>
+                    <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false"
+                        autocomplete="off" (click)="eleccionopcion('SOLICITUDRECEPCION' )">
+                          {{this.canidad_recepcion}}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+       
+        <div class="card-body">
+            <div>
+                <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false"
+                    autocomplete="off" (click)="refrescar()">  <i class="fa fa-refresh" aria-hidden="true"></i> Refrescar
+                </button>
+            </div>
+        </div>
+
+    </div>
+    
+
+
+    <div *ngIf="opcion_hospitalizado">
+        <div class="card border-primary mt-1" style="padding: 5px;height: 1200px;">
+            <div class="table-responsive mt-1" style="height: 1200px;">
+                <table class="table table-sm  table-primary table-bordered">
+                    <tr>
+                        <th scope="col">#Receta</th>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Unidad</th>
+                        <th scope="col">Servicio</th>
+                        <th scope="col">Rut</th>
+                        <th scope="col">Paciente</th>
+                        <th scope="col">Cama</th>
+                        <th scope="col">Médico</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">Acción</th>
+                    </tr>
+                    <tr class="table-secondary" *ngFor="let receta_hopitalizado of listarecetashospitalizadosPaginacion"
+                        style="cursor: pointer;">
+                        <td><small>{{receta_hopitalizado.recenumero}}</small></td>
+                        <td><small>{{receta_hopitalizado.recefechaentrega}}</small></td>
+                        <td><small>{{receta_hopitalizado.receglosaunidad}}</small></td>
+                        <td><small>{{receta_hopitalizado.receglosaservicio}}</small></td>
+                        <td><small>{{receta_hopitalizado.recedocumpac}}</small></td>
+                        <td><small>{{receta_hopitalizado.recenombrepaciente}}</small></td>
+                        <td><small>{{receta_hopitalizado.receglosacama}} </small></td>
+                        <td><small>{{receta_hopitalizado.recenombremedico}}</small></td>
+                        <td><small> </small></td>
+                        <td><span><button type="button" id="btnEditar" class="btn btn-info btn-sm ml-2"
+                                        (click)="EditarDespacho(0,receta_hopitalizado.receid ,receta_hopitalizado.cliid )"><small>Dispensar</small>
+                                    </button>
+
+                            </span>
+                        </td>
+                        
+                    </tr>
+
+                </table>
+                <div class="row m-1 mt-3">
+                    <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="6"
+                        [totalItems]="listarecetashospitalizados.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
+                        (pageChanged)="pageChangedRecetaHospitalizados($event)">
+                    </pagination>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div *ngIf="opcion_ambulatorio">
+        <div class="card border-primary mt-1" style="padding: 5px;height: 1200px;">
+            <div class="table-responsive mt-1" style="height: 1200px;">
+                <table class="table table-sm  table-primary table-bordered">
+                    <tr>
+                        <th scope="col">#Receta</th>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Unidad</th>
+                        <th scope="col">Servicio</th>
+                        <th scope="col">Rut</th>
+                        <th scope="col">Paciente</th>
+                        <th scope="col">Cama</th>
+                        <th scope="col">Médico</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">Acción</th>
+                    </tr>
+                    <tr class="table-secondary" *ngFor="let receta_ambulatorio of listarecetasambulatoriasPaginacion"
+                        style="cursor: pointer;">
+                        <td><small>{{receta_ambulatorio.recenumero}}</small></td>
+                        <td><small>{{receta_ambulatorio.recefechaentrega}}</small></td>
+                        <td><small>{{receta_ambulatorio.receglosaunidad}}</small></td>
+                        <td><small>{{receta_ambulatorio.receglosaservicio}}</small></td>
+                        <td><small>{{receta_ambulatorio.recedocumpac}}</small></td>
+                        <td><small>{{receta_ambulatorio.recenombrepaciente}}</small></td>
+                        <td><small>{{receta_ambulatorio.receglosacama}} </small></td>
+                        <td><small>{{receta_ambulatorio.recenombremedico}}</small></td>
+                        <td><small> </small></td>
+                        <td><span><button type="button" id="btnEditar" class="btn btn-primary btn-sm ml-2"
+                                        (click)="EditarDespacho(0,receta_ambulatorio.receid ,receta_ambulatorio.cliid )"><small>Despachar</small>
+                                    </button>
+
+                            </span>
+                        </td>
+                        
+                    </tr>
+
+                </table>
+                <div class="row m-1 mt-3">
+                    <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
+                        [totalItems]="listarecetasambulatorias.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
+                        (pageChanged)="pageChangedRecetaAmbulatoria($event)">
+                    </pagination>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div *ngIf="opcion_urgencia">
+        <div class="card border-primary mt-1" style="padding: 5px;height: 1200px;">
+            <div class="table-responsive mt-1" style="height: 1200px;">
+                <table class="table table-sm  table-primary table-bordered">
+                    <tr>
+                        <th scope="col">#Receta</th>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Unidad</th>
+                        <th scope="col">Servicio</th>
+                        <th scope="col">Rut</th>
+                        <th scope="col">Paciente</th>
+                        <th scope="col">Cama</th>
+                        <th scope="col">Médico</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">Acción</th>
+                    </tr>
+                    <tr class="table-secondary" *ngFor="let receta_urgencia of listarecetasurgenciaPaginacion"
+                        style="cursor: pointer;">
+                        <td><small>{{receta_urgencia.recenumero}}</small></td>
+                        <td><small>{{receta_urgencia.recefechaentrega}}</small></td>
+                        <td><small>{{receta_urgencia.receglosaunidad}}</small></td>
+                        <td><small>{{receta_urgencia.receglosaservicio}}</small></td>
+                        <td><small>{{receta_urgencia.recedocumpac}}</small></td>
+                        <td><small>{{receta_urgencia.recenombrepaciente}}</small></td>
+                        <td><small> </small></td>
+                        <td><small>{{receta_urgencia.recenombremedico}}</small></td>
+                        <td><small> </small></td>
+                        <td><span><button type="button " id="btnEditar" class="btn btn-info btn-sm ml-2"
+                                        (click)="EditarDespacho(0,receta_urgencia.receid ,receta_urgencia.cliid )"><small>Dispensar</small>
+                                    </button>
+
+                            </span>
+                        </td>
+                        
+                    </tr>
+
+                </table>
+                <div class="row m-1 mt-3">
+                    <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
+                        [totalItems]="listarecetasurgencia.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
+                        (pageChanged)="pageChangedRecetaUrgencia($event)">
+                    </pagination>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    
+    <div *ngIf="opcion_solicituddespacho">
+        <div class="card border-primary mt-1" style="padding: 5px;height: 1200px;">
+            <div class="table-responsive mt-1" style="height: 1200px;">
+                <table class="table table-sm  table-primary table-bordered">
+                    <tr>
+                        <th scope="col">#Solicitud</th>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Servicio</th>
+                        <th scope="col">Rut</th>
+                        <th scope="col">Paciente</th>
+                        <th scope="col">Cama</th>
+                        <th scope="col">Médico</th>
+                        <th scope="col">Bodega Solicitante</th>
+                        <th scope="col">Bodega Suministro</th>
+                        <th scope="col">Acción</th>
+                    </tr>
+                    <tr class="table-secondary" *ngFor="let solicitud_despacho of listasolicitudespordespacharPaginacion"
+                        style="cursor: pointer;">
+                        <td><small>{{solicitud_despacho.soliid}}</small></td>
+                        <td><small>{{solicitud_despacho.fechacreacion | date:'dd/MM/yyyy HH:MM' }}</small></td>
+                        <td><small>{{solicitud_despacho.undglosa}}</small></td>
+                        <td><small>{{solicitud_despacho.numdocpac}}</small></td>
+                        <td><small>{{solicitud_despacho.nombrecompletopaciente}}</small></td>
+                        <td><small>{{solicitud_despacho.camglosa}}</small></td>
+                        <td><small>{{solicitud_despacho.nombremedico}}</small></td>
+                        <td><small>{{solicitud_despacho.bodorigendesc}} </small></td>
+                        <td><small>{{solicitud_despacho.boddestinodesc}} </small></td>
+                        <td><span><button type="button" id="btnEditar" class="btn btn-info btn-sm ml-2"
+                                        (click)="EditarDespacho(solicitud_despacho.soliid,0 ,solicitud_despacho.cliid )"><small>Dispensar</small>
+                                    </button>
+
+                            </span>
+                        </td>
+                        
+                    </tr>
+
+                </table>
+                <div class="row m-1 mt-3">
+                    <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
+                        [totalItems]="listasolicitudespordespachar.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
+                        (pageChanged)="pageChangedSolicitudDespacho($event)">
+                    </pagination>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+
+
+       
+    <div *ngIf="opcion_solicitudurgente">
+        <div class="card border-primary mt-1" style="padding: 5px;height: 1200px;">
+            <div class="table-responsive mt-1" style="height: 1200px;">
+                <table class="table table-sm  table-primary table-bordered">
+                    <tr>
+                        <th scope="col">#Solicitud</th>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Unidad</th>
+                        <th scope="col">Servicio</th>
+                        <th scope="col">Rut</th>
+                        <th scope="col">Paciente</th>
+                        <th scope="col">Cama</th>
+                        <th scope="col">Médico</th>
+                        <th scope="col">Bodega Solicitante</th>
+                        <th scope="col">Bodega Suministro</th>
+                        <th scope="col">Acción</th>
+                    </tr>
+                    <tr class="table-secondary" *ngFor="let solicitud_urgente of listasolicitudesurgenciapaginacion"
+                        style="cursor: pointer;">
+                        <td><small>{{solicitud_urgente.soliid}}</small></td>
+                        <td><small>{{solicitud_urgente.fechacreacion | date:'dd/MM/yyyy HH:MM' }}</small></td>
+                        <td><small>{{solicitud_urgente.undglosa}}</small></td>
+                        <td><small>{{solicitud_urgente.receglosaservicio}}</small></td>
+                        <td><small>{{solicitud_urgente.numdocpac}}</small></td>
+                        <td><small>{{solicitud_urgente.nombrecompletopaciente}}</small></td>
+                        <td><small>{{solicitud_urgente.camglosa}}</small></td>
+                        <td><small>{{solicitud_urgente.nombremedico}}</small></td>
+                        <td><small>{{solicitud_urgente.bodorigendesc}} </small></td>
+                        <td><small>{{solicitud_urgente.boddestinodesc}} </small></td>
+                        <td><span><button type="button" id="btnEditar" class="btn btn-danger btn-sm ml-2"
+                                        (click)="EditarDespacho(solicitud_urgente.soliid,0,0 )"><small>Dispensar</small>
+                                    </button>
+
+                            </span>
+                        </td>
+                        
+                    </tr>
+
+                </table>
+                <div class="row m-1 mt-3">
+                    <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
+                        [totalItems]="listasolicitudesurgencia.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
+                        (pageChanged)="pageChangedSolicitudUrgencia($event)">
+                    </pagination>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+       
+    <div *ngIf="opcion_solictudrecepcion">
+        <div class="card border-primary mt-1" style="padding: 5px;height: 1200px;">
+            <div class="table-responsive mt-1" style="height: 1200px;">
+                <table class="table table-sm  table-primary table-bordered">
+                    <tr>
+                        <th scope="col">#Solicitud</th>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Unidad</th>
+                        <th scope="col">Servicio</th>
+                        <th scope="col">Rut</th>
+                        <th scope="col">Paciente</th>
+                        <th scope="col">Cama</th>
+                        <th scope="col">Médico</th>
+                        <th scope="col">Bodega Solicitante</th>
+                        <th scope="col">Bodega Suministro</th>
+                        <th scope="col">Acción</th>
+                    </tr>
+                    <tr class="table-secondary" *ngFor="let solicitud_despacho of listasolicitudesporrecepcionarPaginacion"
+                        style="cursor: pointer;">
+                        <td><small>{{solicitud_despacho.soliid}}</small></td>
+                        <td><small>{{solicitud_despacho.fechacreacion | date:'dd/MM/yyyy HH:MM' }}</small></td>
+                        <td><small>{{solicitud_despacho.undglosa}}</small></td>
+                        <td><small>{{solicitud_despacho.receglosaservicio}}</small></td>
+                        <td><small>{{solicitud_despacho.numdocpac}}</small></td>
+                        <td><small>{{solicitud_despacho.nombrecompletopaciente}}</small></td>
+                        <td><small>{{solicitud_despacho.camglosa}}</small></td>
+                        <td><small>{{solicitud_despacho.nombremedico}}</small></td>
+                        <td><small>{{solicitud_despacho.bodorigendesc}} </small></td>
+                        <td><small>{{solicitud_despacho.boddestinodesc}} </small></td>
+                        <td><span><button type="button" id="btnEditar" class="btn btn-info btn-sm ml-2"
+                                        (click)="EditarRecepcion(solicitud_despacho.soliid )"><small>Recepcionar</small>
+                                    </button>
+
+                            </span>
+                        </td>
+                        
+                    </tr>
+
+                </table>
+                <div class="row m-1 mt-3">
+                    <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
+                        [totalItems]="listasolicitudesporrecepcionar.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
+                        (pageChanged)="pageChangedRecepcion($event)">
+                    </pagination>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <swal #alertSwal title="" text="" type="success" [showCancelButton]="false"> </swal>
+    <swal #alertSwalAlert title="" text="" type="warning" [showCancelButton]="false"> </swal>
+    <swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
+    <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '3px' }"> </ngx-loading>
+</div>

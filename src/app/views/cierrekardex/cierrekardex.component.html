@@ -1,0 +1,114 @@
+<app-navbar ></app-navbar>
+<app-sidebar></app-sidebar>
+<div class="content-wrapper pl-2">
+    <div style="margin: 10px;">
+        <form [formGroup]="FormCierreKardex">
+            <!-- Contenedor general de la página -->
+            <div class="my-2 ml-2 titulo text-center">
+                <!--menu -->
+                <h3>
+                    Cierre Kardex
+                </h3>
+            </div>
+            <div class="card border-primary" style="padding: 5px;">
+                <div class="form-row mt-2">
+                    <div class="form-group col-md-3">
+                        <label for="bodcodigo">Bodega *</label>
+                        <select name="bodcodigo" class='form-control form-control-sm' formControlName='bodcodigo'
+                            (change)="ActivaBotonBusqueda()">
+                            <option *ngFor='let bodega of bodegasSolicitantes'
+                                [ngValue]='bodega.bodcodigo'>
+                                {{ bodega.boddescripcion }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="fecha">Fecha *</label>
+                        <input appSelecttext type="text" placeholder="DD/MM/YYYY" id="fecha" class='form-control form-control-sm'
+                          [bsConfig]="bsConfig" bsDatepicker formControlName="fecha">
+                      </div>
+                      <div class="form-group col-md-3 align-self-end">
+                        <button type="button" id="btnbuscar" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
+                          (click)="BuscarProductos()"[disabled]="!activbusqueda">Buscar <i
+                          class="fas fa-search ml-1" aria-hidden="true"></i>
+                        </button>
+                      </div>
+                </div>
+            </div>
+        </form>
+        <div class="card border-primary" style="padding: 5px;margin-top: 10px;height: 1200px;">
+            <div id="table" class="table-editable">
+                <div id="table" class="table-editable table-responsive mt-2" style="height: 1120px;">
+                    <table
+                        class="table table-sm table-condensed table-bordered table-responsive-md table-striped text-center">
+                        <tr class="table table-sm  table-primary table-bordered ">
+                            <th class="text-center">Código</th>
+                            <th class="text-center">Descripción</th>                            
+                            <th class="text-center">Principio Activo</th>
+                            <th class="text-center">Presentación</th>
+                            <th class="text-center">Forma Farmaceutica</th>
+                            <th class="text-center">Stock Actual</th>
+                        </tr>
+                        <tr class="table-secondary" *ngFor="let registro of prodsbodegaskardexpaginacion; let id = index">     
+                            <td>
+                                <small><span>{{registro.meincodmei}}</span></small>
+                            </td>
+                            <td class="text-nowrap help   " tooltip="{{registro.meindescri }}">
+                                <small><span> {{registro.meindescri| slice:0:20 }}</span></small>
+                            </td>
+                            <td>
+                                <small><span>{{registro.pactdescri}}</span></small>
+                            </td>
+                            <td>
+                                <small><span>{{registro.presdescri}}</span></small>
+                            </td>
+                            <td>
+                                <small><span>{{registro.ffardescri}}</span></small>
+                            </td>
+                            <td>
+                                <small><span>{{registro.fboistockactual}}</span></small>
+                            </td>                            
+                        </tr>
+                    </table>
+                </div>
+                <div class="row m-1">
+                    <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="11"
+                        [totalItems]="prodsbodegaskardex.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
+                        (pageChanged)="pageChanged($event)">
+                    </pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--  Botones de página -->
+    <div class="row float-right mr-1 mt-2">
+        <!--Al agregarle col-md-3 queda el espacio entre botones cuando aparece generar solicitud-->
+        <div class="form-group  align-self-end" > <!--*ngIf="modelopermisos.btngrabacierrekardex"-->
+            <button type="button" id="btnguardar" [disabled]="!cierrakardex"
+                class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+                (click)="ConfirmaGenerarCierreKardex()"> CIERRE
+                <i class="fas fa-save ml-1"></i>
+            </button>
+        </div>
+        <div class="form-group   align-self-end" > <!--*ngIf="modelopermisos.btnimpcierrekardex"-->
+            <button type="button" id="btnguardar" class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+                (click)="onImprimir()"[disabled]="!imprimecierrekardex">IMPRIMIR KARDEX
+                <i class="fas fa-file-pdf ml-1"></i>
+            </button>
+        </div>
+        <div class="form-group  align-self-end">
+            <button type="button" id="btnlimpiar" class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+                (click)="limpiar()">LIMPIAR<i class="fas fa-eraser ml-1"></i>
+            </button>
+        </div>
+        <div class="form-group  align-self-end">
+            <button type="button" id="btnsalir" class="btn btn-primary btn-sm button-my-styles-busqueda_02"
+                routerLink='../home'>SALIR <i class="fas fa-window-close ml-1"></i>
+            </button>
+        </div>
+    </div>
+    <swal #alertSwal title="" text="" type="success" [showCancelButton]="false"> </swal>
+    <swal #alertSwalAlert title="" text="" type="warning" [showCancelButton]="false"> </swal>
+    <swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
+</div>

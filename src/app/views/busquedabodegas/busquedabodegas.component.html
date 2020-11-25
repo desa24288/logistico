@@ -1,0 +1,120 @@
+<div class="card">
+    <!--menu - Búsqueda de productos-->
+    <div class="card-header">
+        {{titulo}}
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="onCerrarSalir()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="card m-2 border-primary" style="padding: 10px; background-color:azure;">
+        <form novalidate [formGroup]='FormBusquedaBodega' autocomplete="off" spellcheck="false">
+            <div class="form-row">
+                <div class="form-group col-md-2">
+                    <label for="codbodega">Código Bodega *</label>
+                    <input type="number" class="form-control form-control-sm" formControlName="codbodega"  (focusout)="getBodega($event.target.value)"  >
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="descripcion">Descripción Bodega *</label>
+                    <input type="text" class="form-control form-control-sm" formControlName="descripcion"
+                    (focusout)="getNombreBodega($event.target.value)">
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="estado">Estado *</label>
+                    <select name="estadobodega" class='form-control form-control-sm' formControlName='estadobodega'>
+                        <option value="S">VIGENTE</option>
+                        <option value="N">NO VIGENTE </option>
+                    </select>
+                </div>
+                <div class="form-group col-md-2 align-self-end">
+                    <button type="button" id="btnbuscar" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
+                        (click)="BuscaBodegas(FormBusquedaBodega.value.codbodega,FormBusquedaBodega.value.estadobodega,
+                        FormBusquedaBodega.value.tipobodega,FormBusquedaBodega.value.servicio,FormBusquedaBodega.value.unidad,
+                        FormBusquedaBodega.value.descripcion,FormBusquedaBodega.value.tipoproducto)">Buscar Bodega
+                        <i class="fas fa-search ml-1"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label for="tipobodega">Tipo Bodega *</label>
+                    <select name="tipobodega" class='form-control form-control-sm' formControlName='tipobodega'>
+                        <option *ngFor='let registrotipobdega of arreglotipobodega'
+                            [ngValue]='registrotipobdega.fparvalor'>
+                            {{ registrotipobdega.fpardescripcion }}
+                        </option>
+                    </select>
+
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="tipoproducto">Tipo Productos *</label>
+                    <select name="tipoproducto" class='form-control form-control-sm' formControlName='tipoproducto'>
+                        <option *ngFor='let registrotipoproducto of arreglotipoproducto'
+                            [ngValue]='registrotipoproducto.fparvalor'>
+                            {{ registrotipoproducto.fpardescripcion }}
+                        </option>
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="servicioid">Servicio *</label>
+                    <select name="servicioid" class='form-control form-control-sm' formControlName='servicioid'>
+                        <option *ngFor='let listaservicio of arregloservicios' [ngValue]='listaservicio.servicioid'>
+                            {{ listaservicio.serviciodesc }}
+                        </option>
+                    </select>
+                </div>
+
+            </div>
+            <table class="table table-stripped table-condensed table-hovered">
+                <thead>
+                    <tr>
+                        <th>CÓDIGO</th>
+                        <th>DESCRIPCIÓN</th>
+                        <th>ESTADO</th>
+                        <th>TIPO BODEGA</th>
+                        <th>TIPO PRODUCTO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let bodega of listaEstructuraBodegasPaginacion" (click)="onCerrar(bodega)" let id=index
+                        style="cursor: pointer;">
+                        <td>{{bodega.codbodega}}</td>
+                        <td>{{bodega.desbodega}}</td>
+                        <div *ngIf="bodega.estado=='S'">
+                            <td>VIGENTE</td>
+                        </div>
+                        <div *ngIf="bodega.estado!='S'">
+                            <td>NO VIGENTE</td>
+                        </div>
+                        <td>{{bodega.glosatipobodega}}</td>
+                        <td>{{bodega.glosatiproducto}}</td>
+
+                    </tr>
+                </tbody>
+            </table>
+            <div class="row m-1">
+                <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="10"
+                    [totalItems]="listaEstructuraBodegas.length" [itemsPerPage]=10 [previousText]="'Anterior'"
+                    [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
+                    (pageChanged)="pageChanged($event)">
+                </pagination>
+            </div>
+        </form>
+    </div>
+    <!--  Botones de página -->
+    <div class="form-row float-right text-right mt-2">
+        <div class="form-group col-md-5 text-right align-self-end">
+            <button type="button" id="btnlimpiar" class="btn btn-primary btn-sm button-my-styles-busqueda_02"
+                (click)="Limpiar()">LIMPIAR <i class="fas fa-eraser ml-1"></i>
+            </button>
+        </div>
+        <div class="form-group col-md-5 text-right mr-2 align-self-end">
+            <button type="button" id="btnsalir" class="btn btn-primary btn-sm button-my-styles-busqueda_02"
+                (click)="onCerrarSalir()">SALIR <i class="fas fa-window-close ml-1"></i>
+            </button>
+        </div>
+    </div>
+    <swal #alertSwal title="" text="" type="success" [showCancelButton]="false"> </swal>
+    <swal #alertSwalAlert title="" text="" type="warning" [showCancelButton]="false"> </swal>
+    <swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
+    <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '3px' }"> </ngx-loading>
+</div>

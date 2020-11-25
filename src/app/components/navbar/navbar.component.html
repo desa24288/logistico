@@ -1,0 +1,58 @@
+<!-- Navbar -->
+<nav class="main-header navbar-expand navbar-white navbar-light pt-1" style="background-color:rgb(109, 175, 175); ">
+  <div class="form-row" style="height: 80px">
+    <div class="form-group col-md-1">
+        <h3 class="col-md-2"><a class="nav-link" id="sidebtn" data-widget="pushmenu" data-toggle="collapse" href="#" style="color:white" >
+          &#9776;</a></h3>
+        <!-- <h3 class="col-md-2"><a class="nav-link" id="sidebtn" data-widget="pushmenu" data-toggle="collapse" href="#" style="color:white" 
+          (click)="onMenubtn()">&#9776;</a></h3> -->
+    </div>
+    <div class="form-group col-dm-1">
+      <a>
+        <img src="./assets/images/sonda.png" alt="Logo" class="brand-image pl-1" style="opacity: .8">
+      </a>
+    </div>
+    <div class="form-group">
+      <form [formGroup]="FormConexion" autocomplete="off" spellcheck="false">
+          <ul class="border-primary text-center" style="width: 900px;">
+
+          <div class="form-row">
+            <div class="form-group col-sm-3">
+              <label for="f_esacodigo"><small><strong>EMPRESA</strong></small> *</label>
+              <select class='form-control form-control-sm' name='f_esacodigo' formControlName='f_esacodigo'
+                (change)="BuscaSucursal(FormConexion.value.f_hdgcodigo,FormConexion.value.f_esacodigo)">
+                <option *ngFor='let empresa of lista_empresas' [ngValue]='empresa.esacodigo'>
+                  <small>{{ empresa.esanombre }}</small>
+                </option>
+              </select>
+            </div>
+            
+            <div class="form-group col-sm-3">
+              <label for="f_cmecodigo"><small><strong>SUCURSAL</strong></small> *</label>
+              <select class='form-control form-control-sm' name='f_cmecodigo' formControlName='f_cmecodigo'
+                (change)="sucursal(FormConexion.value.f_cmecodigo)">
+                <option *ngFor='let sucursal of lista_sucursales' [ngValue]='sucursal.cmecodigo'>
+                  <small>{{ sucursal.cmenombre }}</small>
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group col-sm-3">
+              <p><strong>{{FormConexion.value.f_usuario}}</strong></p>
+            </div>
+    
+            <div class="form-group col-sm-3">
+              <a routerLink="../login"><strong>X CERRAR SESIÓN</strong></a>
+            </div>
+   
+
+          </div>
+        </ul>
+
+      
+
+      </form>
+    </div>
+
+  </div>
+</nav>

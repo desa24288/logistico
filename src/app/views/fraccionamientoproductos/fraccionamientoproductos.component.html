@@ -1,0 +1,160 @@
+<app-navbar ></app-navbar>
+<app-sidebar></app-sidebar>
+<div class="content-wrapper pl-2">
+    <div style="margin: 10px;">
+        <form [formGroup]="FormFraccionamiento">
+            <!-- Contenedor feneral de la página -->
+            <div class="my-2 ml-2 titulo text-center">
+                <!--menu -->
+                <h3>
+                    Fraccionamiento de Productos
+                </h3>
+            </div>
+            <div class="card border-primary" style="padding: 5px;">
+                <div class="form-row mt-2">
+                    <div class="form-group col-md-3">
+                        <label for="bodcodigo">Bodega *</label>
+                        <select name="bodcodigo" class='form-control form-control-sm' formControlName='bodcodigo' 
+                            (change)="ActivaBotonBusqueda()">
+                            <option *ngFor='let boddespachadora of bodegasdespachadoras'
+                                [ngValue]='boddespachadora.codbodegaperi'>
+                                {{ boddespachadora.desbodegaperi }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="codigo">Código *</label>
+                        <input type="text" class="form-control form-control-sm" formControlName="codigo"
+                        (focusout)="getProducto($event.target.value)">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="descripcion">Descripción *</label>
+                        <input type="text" class="form-control form-control-sm" formControlName="descripcion"
+                        (focusout)="setDatabusqueda($event.target.value, 2)">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="cantidad">Stock Origen *</label>
+                        <input type="number" class="form-control form-control-sm" formControlName="cantidad">
+                    </div>
+                    <div class="form-group col-md-2 align-self-end text-right">
+                        <button type="button" id="btnbuscar" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
+                            [disabled]="!activbusqueda" (click)="BuscarProductosParaFraccionar()"> Buscar Producto <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="card border-primary" style="padding: 5px;margin-top: 10px;height: 990px;">
+            <div id="table" class="table-editable">
+                <a class="btn-floating btn-lg purple-gradient"></a>
+                <button type="button" class="btn btn-info btn-rounded btn-sm ml-2"[disabled]="!agregaprod"
+                    (click)="addArticuloGrilla()"> Agregar<i class="fas fa-plus ml-2" aria-hidden="true"></i>
+                </button>
+                <div id="table" class="table-editable table-responsive mt-2" style="height: 900px;">
+                    <table
+                        class="table table-sm table-condensed table-bordered table-responsive-md table-striped text-center">
+                        <tr class="table table-sm  table-primary table-bordered ">
+                            <th class="text-center">Código</th>
+                            <th class="text-center">Descripción</th>
+                            <th class="text-center">Stock Actual</th>
+                            <th class="text-center">Factor de Distribución*</th>
+                            <th class="text-center">Cantidad a Fraccionar*</th>
+                            <th class="text-center">Producción</th>
+                            <th class="text-center">Eliminar</th>
+                        </tr>
+                        <tr class="table-secondary"
+                            *ngFor="let registro of detallefraccionamientopaginacion; let id = index">
+                            <td>
+                                <small><span>{{registro.codmei}}</span></small>
+                            </td>
+                            <td class="text-nowrap help   " tooltip="{{registro.meindescri }}">
+                                <small><span> {{registro.meindescri| slice:0:20 }}</span></small>
+                            </td>
+                            <td>
+                                <small><span>{{registro.stockactual}}</span></small>
+                            </td>
+                            <td class="text-nowrap">
+                                <small>
+                                    <input type="number" class="form-control form-control-sm text-right" min="1" max="100"
+                                    [(ngModel)]="registro.factordist"  
+                                    (input)="cambio_cantidad(id, 'factordist', $event)">
+                                </small>
+                                <!-- <span contenteditable="true" (keyup)="cambio_cantidad(id, 'factordist', $event)"
+                                    (blur)="updateList(id, 'factordist', $event)"> {{registro.factordist}}
+                                </span> -->
+                            </td>
+                            <td class="text-nowrap">
+                                <small>
+                                    <input type="number" class="form-control form-control-sm text-right" min="1" max="100"
+                                    [(ngModel)]="registro.cantidad"  
+                                    (focusout)="updateList2(id, 'cantidaddest', $event, registro)">
+                                    <!--(input)="cambio_cantidad2(id, 'cantidad', $event)"-->
+                                </small>
+                                <!-- <span contenteditable="true" (keyup)="cambio_cantidad2(id, 'cantidad', $event)"
+                                    (blur)="updateList2(id, 'cantidad', $event)"> {{registro.cantidad}}
+                                </span> -->
+                            </td>
+                            <td class="text-nowrap"> <!--(keyup)="cambio_cantidad2(id, 'cantidaddest', $event)"-->
+                                <small><span contenteditable="true" >
+                                     {{registro.cantidad * registro.factordist}}
+                                </span></small>
+                            </td>
+                            <td>
+                                <small><span><button type="button" id="btnElinaRegistro"
+                                        class="btn btn-info btn-rounded btn-sm ml-2"
+                                        (click)="ConfirmaEliminaProductoDeLaGrilla(registro,id)">Eliminar
+                                        <i class="fas fa-trash-restore-alt  ml-1"></i>
+                                    </button></span>
+                                </small>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="row m-1">
+                    <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
+                        [totalItems]="detallefraccionamiento.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
+                        (pageChanged)="pageChanged($event)">
+                    </pagination>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!--  Botones de página -->
+    <div class="row float-right mr-1 mt-2">
+        <!--Al agregarle col-md-3 queda el espacio entre botones cuando aparece generar solicitud-->
+        <div class="form-group  align-self-end" *ngIf="modelopermisos.btngrabafrac">
+            <button type="button" id="btnguardar" [disabled]="!activabtngraba"
+                class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+                (click)="ConfirmaGenerarFraccionamiento()"> GUARDAR
+                <i class="fas fa-save ml-1"></i>
+            </button>
+        </div>
+        <!-- <div class="form-group  align-self-end" *ngIf="btnmodificafrac">
+            <button type="button" id="btnmodificar" [disabled]="(FormFraccionamiento.value.codigo == null) "
+                class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+                (click)="ConfirmaModificarFraccionamiento()">MODIFICAR <i class="fas fa-refresh ml-1"></i>
+            </button>
+        </div> -->
+        <!-- <div class="form-group  align-self-end">
+            <button type="button" id="btneliminar" [disabled]="(FormFraccionamiento.value.codigo != null) "
+                class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+                (click)="ConfirmaEliminarFraccionamiento()">ELIMINAR<i class="fas fa-trash-restore-alt  ml-1"></i>
+            </button>
+        </div> -->
+        <div class="form-group  align-self-end">
+            <button type="button" id="btnlimpiar" class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+                (click)="limpiar()">LIMPIAR <i class="fas fa-eraser ml-1"></i>
+            </button>
+        </div>
+        <div class="form-group  align-self-end">
+            <button type="button" id="btnsalir" class="btn btn-primary btn-sm button-my-styles-busqueda_02"
+                routerLink='../home'>SALIR <i class="fas fa-window-close ml-1"></i>
+            </button>
+        </div>
+    </div>
+    <swal #alertSwal title="" text="" type="success" [showCancelButton]="false"> </swal>
+    <swal #alertSwalAlert title="" text="" type="warning" [showCancelButton]="false"> </swal>
+    <swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
+</div>

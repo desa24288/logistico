@@ -1,0 +1,317 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="content-wrapper pl-2">
+    <form [formGroup]="lForm">
+    <div class="row">
+        <div *ngIf="opcion_hospitalizado" class="card text-white bg-primary mb-2" style="max-width: 12rem;">
+
+            <div class="card-header">
+                CARGOS
+                <p>HOSPITALIZADOS</p>
+            </div>
+            <div class="card-body">
+                <p>{{ this.canidad_movimiento_hospitalizados}}</p>
+            </div>
+        </div>
+
+        <div *ngIf="!opcion_hospitalizado" class="card bg-light mb-2" style="max-width: 12rem;">
+            <div class="card-header">
+                CARGOS
+                <p>HOSPITALIZADOS</p>
+            </div>
+            <div class="card-body">
+                <div>
+                    <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false"
+                        autocomplete="off" (click)="eleccionopcion('HOSPITALIZADOS' )"> {{ this.canidad_movimiento_hospitalizados}}
+                    </button>
+                </div>
+            </div>
+        </div>
+      <!--
+        <div *ngIf="opcion_ambulatorio" class="card text-white bg-primary mb-2" style="max-width: 12rem;">
+            <div class="card-header">
+                CARGOS
+                <p>AMBULATORIOS</p>
+            </div>
+            <div class="card-body">
+                <p>{{this.canidad_movimiento_ambulatorio}}</p>
+            </div>
+        </div>
+
+        <div *ngIf="!opcion_ambulatorio" class="card bg-light mb-2" style="max-width: 12rem;">
+            <div class="card-header">
+                CARGOS
+                <p>AMBULATORIOS</p>
+            </div>
+            <div class="card-body">
+                <div>
+                    <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false"
+                        autocomplete="off" (click)="eleccionopcion('AMBULATORIOS' )">
+                        {{this.canidad_movimiento_ambulatorio}}
+                    </button>
+                </div>
+            </div>
+        </div>
+    -->
+
+        <div *ngIf="opcion_urgencia" class="card text-white bg-primary mb-2" style="max-width: 12rem;">
+            <div class="card-header">
+                CARGOS
+                <p>URGENCIAS</p>
+            </div>
+            <div class="card-body">
+                <p>{{this.canidad_movimiento_urgencia}}</p>
+            </div>
+        </div>
+
+        <div *ngIf="!opcion_urgencia" class="card bg-light mb-2" style="max-width: 12rem;">
+            <div class="card-header">
+                CARGOS
+                <p>URGENCIAS</p>
+            </div>
+            <div class="card-body">
+                <div>
+                    <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false"
+                        autocomplete="off" (click)="eleccionopcion('URGENCIAS' )">
+                        {{this.canidad_movimiento_urgencia}}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group col-md-1">
+            <label for="fechadesde">Fecha Desde *</label>
+            <input appSelecttext type="text" placeholder="DD/MM/YYYY" class="form-control form-control-sm"
+                [bsConfig]="bsConfig" bsDatepicker formControlName="fechadesde" />
+        </div>
+        <div class="form-group col-md-1">
+            <label for="fechahasta">Fecha Hasta *</label>
+            <input appSelecttext type="text" placeholder="DD/MM/YYYY" class="form-control form-control-sm"
+                [bsConfig]="bsConfig" bsDatepicker formControlName="fechahasta" />
+        </div>
+        <div class="form-group col-md-1">
+            <label for="cuenta">Cuenta</label>
+            <input type="number" class="form-control form-control-sm" formControlName="cuenta">
+          </div>
+
+        <div class="card-body">
+            <div>
+                <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false"
+                    autocomplete="off" (click)="refrescar()">  <i class="fa fa-refresh" aria-hidden="true"></i> Refrescar
+                </button>
+            </div>
+        </div>
+
+
+    </div>
+    <div *ngIf="opcion_hospitalizado">
+        <div class="card border-primary mt-1" style="padding: 5px;height: 600px;">
+            <div class="table-responsive mt-1" style="height: 550px;">
+                <table class="table table-sm  table-primary table-bordered">
+                    <tr>
+                        <th scope="col">#ID</th>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Tipo operación</th>
+                        <th scope="col">Receta</th>
+                        <th scope="col">Cuenta</th>
+                        <th scope="col">Rut </th>
+                        <th scope="col">Paciente</th>
+                        <th scope="col">Servicio</th>  
+                        <th scope="col">Cama</th>  
+                        <th scope="col">Código</th>
+                        <th scope="col">Descripción</th>
+                        <th scope="col">Cantidad</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Observación</th>
+                        <th scope="col">Acción</th>
+                    </tr>
+                    <tr class="table-secondary" *ngFor="let movimiento of listahospitalizadosPaginacion"
+                        style="cursor: pointer;">
+                        <td><small>{{movimiento.fdeid}}</small></td>
+                        <td><small>{{movimiento.fecha}}</small></td>
+                        <td><small>{{movimiento.tipomovimiento}}</small></td>
+                        <td><small>{{movimiento.numeroreceta}}</small></td>
+                        <td><small>{{movimiento.ctanumcuenta}}</small></td>
+                        <td><small>{{movimiento.identificacion}}</small></td>
+                        <td class="text-nowrap help   " tooltip="{{movimiento.paciente}}"  >
+                            <small>{{movimiento.paciente| slice:0:30 }}</small>
+                        </td>
+                        <td class="text-nowrap help   " tooltip="{{movimiento.servicio}}"  >
+                            <small>{{movimiento.servicio| slice:0:30 }}</small>
+                        </td>
+                        <td><small>{{movimiento.camaactual}} </small></td>                    
+                        <td><small>{{movimiento.mfdemeincodmei}} </small></td>
+                        <td class="text-nowrap help   " tooltip="{{movimiento.descripcionproducto}}"  >
+                            <small>{{movimiento.descripcionproducto| slice:0:20 }}</small>
+                        </td>
+                        <td><small>{{movimiento.mfdecantidad}}</small></td>
+                        <td><small>{{movimiento.intcargoestado}} </small></td>
+                        <td class="text-nowrap help   " tooltip="{{movimiento.intcargoerror}}"  >
+                            <small>{{movimiento.intcargoerror| slice:0:20 }}</small>
+                        </td>
+
+                        <td>
+                             <span><button type="button" id="btnenviar" class="btn btn-info btn-sm ml-2" *ngIf="movimiento.intcargoestado =='ERROR'"
+                                        (click)="Enviar(movimiento)"><small>Enviar</small>
+                                    </button>
+
+                            </span>
+                        </td>
+
+                    </tr>
+
+                </table>
+                <div class="row m-1 mt-3">
+                    <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="6"
+                        [totalItems]="listahospitalizados.length" [itemsPerPage]=10 [previousText]="'Anterior'"
+                        [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
+                        (pageChanged)="pageChangedCargosHospitalizados($event)">
+                    </pagination>
+                </div>
+            </div>
+
+        </div>
+    </div>
+  <!--
+    <div *ngIf="opcion_ambulatorio">
+        <div class="card border-primary mt-1" style="padding: 5px;height: 600px;">
+            <div class="table-responsive mt-1" style="height: 550px;">
+                <table class="table table-sm  table-primary table-bordered">
+                    <tr>
+                        <th scope="col">#ID</th>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Tipo operación</th>
+                        <th scope="col">Receta</th>
+                        <th scope="col">Cuenta</th>
+                        <th scope="col">Rut </th>
+                        <th scope="col">Paciente</th>
+                        <th scope="col">Servicio</th>   
+                        <th scope="col">Código</th>
+                        <th scope="col">Descripción</th>
+                        <th scope="col">Cantidad</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Observación</th>
+                        <th scope="col">Acción</th>
+                    </tr>
+                    <tr class="table-secondary" *ngFor="let movimiento of listaambulatorioPaginacion"
+                        style="cursor: pointer;">
+                        <td><small>{{movimiento.fdeid}}</small></td>
+                        <td><small>{{movimiento.fecha}}</small></td>
+                        <td><small>{{movimiento.tipomovimiento}}</small></td>
+                        <td><small>{{movimiento.numeroreceta}}</small></td>
+                        <td><small>{{movimiento.ctanumcuenta}}</small></td>
+                        <td><small>{{movimiento.identificacion}}</small></td>
+                        <td class="text-nowrap help   " tooltip="{{movimiento.paciente}}"  >
+                            <small>{{movimiento.paciente| slice:0:30 }}</small>
+                        </td>
+                        <td class="text-nowrap help   " tooltip="{{movimiento.servicio}}"  >
+                            <small>{{movimiento.servicio| slice:0:30 }}</small>
+                        </td>              
+                        <td><small>{{movimiento.mfdemeincodmei}} </small></td>
+                        <td class="text-nowrap help   " tooltip="{{movimiento.descripcionproducto}}"  >
+                            <small>{{movimiento.descripcionproducto| slice:0:20 }}</small>
+                        </td>
+                        <td><small>{{movimiento.mfdecantidad}}</small></td>
+                        <td><small>{{movimiento.intcargoestado}} </small></td>
+                        <td class="text-nowrap help   " tooltip="{{movimiento.intcargoerror}}"  >
+                            <small>{{movimiento.intcargoerror| slice:0:20 }}</small>
+                        </td>
+                        <td>
+                            <span><button type="button" id="btnenviar" class="btn btn-info btn-sm ml-2" *ngIf="movimiento.intcargoestado =='ERROR'"
+                                       (click)="Enviar(movimiento)"><small>Enviar</small>
+                                   </button>
+
+                           </span>
+                       </td>
+                        
+                    </tr>
+
+                </table>
+                <div class="row m-1 mt-3">
+                    <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="6"
+                        [totalItems]="listaambulatorio.length" [itemsPerPage]=10 [previousText]="'Anterior'"
+                        [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
+                        (pageChanged)="paginacionAmbulatorio($event)">
+                    </pagination>
+                </div>
+            </div>
+
+        </div>
+    </div>
+-->
+    <div *ngIf="opcion_urgencia">
+        <div class="card border-primary mt-1" style="padding: 5px;height: 600px;">
+            <div class="table-responsive mt-1" style="height: 550px;">
+                <table class="table table-sm  table-primary table-bordered">
+                    <tr>
+                        <th scope="col">#ID</th>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Tipo operación</th>
+                        <th scope="col">Receta</th>
+                        <th scope="col">Cuenta</th>
+                        <th scope="col">Rut </th>
+                        <th scope="col">Paciente</th>
+                        <th scope="col">Servicio</th>   
+                        <th scope="col">Código</th>
+                        <th scope="col">Descripción</th>
+                        <th scope="col">Cantidad</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Observación</th>
+                        <th scope="col">Acción</th>
+                    </tr>
+                    <tr class="table-secondary" *ngFor="let movimiento of listaurgenciaPaginacion"
+                        style="cursor: pointer;">
+                        <td><small>{{movimiento.fdeid}}</small></td>
+                        <td><small>{{movimiento.fecha}}</small></td>
+                        <td><small>{{movimiento.tipomovimiento}}</small></td>
+                        <td><small>{{movimiento.numeroreceta}}</small></td>
+                        <td><small>{{movimiento.ctanumcuenta}}</small></td>
+                        <td><small>{{movimiento.identificacion}}</small></td>
+                        <td class="text-nowrap help   " tooltip="{{movimiento.paciente}}"  >
+                            <small>{{movimiento.paciente| slice:0:30 }}</small>
+                        </td>
+                        <td class="text-nowrap help   " tooltip="{{movimiento.servicio}}"  >
+                            <small>{{movimiento.servicio| slice:0:30 }}</small>
+                        </td>              
+                        <td><small>{{movimiento.mfdemeincodmei}} </small></td>
+                        <td class="text-nowrap help   " tooltip="{{movimiento.descripcionproducto}}"  >
+                            <small>{{movimiento.descripcionproducto| slice:0:20 }}</small>
+                        </td>
+                        <td><small>{{movimiento.mfdecantidad}}</small></td>
+                        <td><small>{{movimiento.intcargoestado}} </small></td>
+                        <td class="text-nowrap help   " tooltip="{{movimiento.intcargoerror}}"  >
+                            <small>{{movimiento.intcargoerror| slice:0:20 }}</small>
+                        </td>
+                        <td>
+                            <span><button type="button" id="btnenviar" class="btn btn-info btn-sm ml-2" *ngIf="movimiento.intcargoestado =='ERROR'"
+                                       (click)="Enviar(movimiento)"><small>Enviar</small>
+                                   </button>
+
+                           </span>
+                       </td>
+                        
+                    </tr>
+
+
+                </table>
+                <div class="row m-1 mt-3">
+                    <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="6"
+                        [totalItems]="listaurgencia.length" [itemsPerPage]=10 [previousText]="'Anterior'"
+                        [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
+                        (pageChanged)="pageChangedCargosUrgencia($event)">
+                    </pagination>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    
+    </form>
+    <swal #alertSwal title="" text="" type="success" [showCancelButton]="false"> </swal>
+    <swal #alertSwalAlert title="" text="" type="warning" [showCancelButton]="false"> </swal>
+    <swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
+
+
+</div>

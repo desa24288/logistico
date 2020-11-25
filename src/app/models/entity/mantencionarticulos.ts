@@ -1,0 +1,41 @@
+export class Articulos{
+    constructor (
+        public mein             ?: number,
+        public codigo           ?: string,
+        public descripcion      ?: string,
+        public tiporegistro     ?: string,
+        public tipomedicamento  ?: number,
+        public valorcosto       ?: number,
+        public margenmedicamento?: number,
+        public valorventa       ?: number,
+        public unidadcompra     ?: number,
+        public unidaddespacho   ?: number,
+        public incobfonasa      ?: string,
+        public tipoincob        ?: string,
+        public estado           ?: number,
+        public clasificacion    ?: number,
+        public recetaretenida   ?: string,
+        public solocompra       ?: string,
+        public preparados       ?: string,
+        public familia          ?: number,
+        public subfamilia       ?: number,
+        public hdgcodigo        ?: number,
+        public esacodigo        ?: number,
+        public cmecodigo        ?: number,
+        public usuario          ?: string,
+        public servidor         ?: string,
+        public codpact          ?: number,
+        public codpres          ?: number,
+        public codffar          ?: number,
+        public controlado       ?: string,
+        public principioactivo  ?: string,
+        public presentacion     ?: string, 
+        public formafarma       ?: string, 
+        public glosaunidaddespacho ?: string,
+        public desunidaddespacho?: string,
+        public desctiporegistro ?: string,
+        public consignacion     ?: string
+        
+        
+    ) {}
+}

@@ -1,0 +1,441 @@
+<!-- respaldo adm sol html -->
+<app-navbar ></app-navbar>
+<app-sidebar></app-sidebar>
+<div class="content-wrapper pl-2">
+    <div style="margin: 10px;">
+        <div class="my-2 ml-2 titulo text-center">
+            <!--menu -->
+            <h5>
+                Crea / Dispensa Solicitud Pacientes
+            </h5>
+        </div>
+        <div class="card-body" [hidden]="this.alerts.length <= 0">
+            <div *ngFor="let alert of alerts">
+              <alert [type]="alert.type" [dismissOnTimeout]="alert.timeout" (onClosed)="onClosed(alert)">{{ alert.msg }}
+              </alert>
+            </div>
+        </div>
+        <!-- lineas de edición y bpusqueda -->
+        <div class="card border-primary mt-0" style="padding: 5px; height: 300px;">
+
+            <tabset>
+                <tab heading="Datos Paciente" id="tab1" style="height: 300px;">
+                    <form [formGroup]="FormDatosPaciente" autocomplete="off" spellcheck="false">
+                        <div class="table-responsive mt-1" style="height: 360px;">
+                            <div class="form-row">
+                                <div class="form-group col-sm-1">
+                                    <label for="numsolicitud"># Solicitud *</label>
+                                    <input type="text" class="form-control form-control-sm"
+                                        formControlName="numsolicitud">
+                                </div>
+                                <div class="form-group col-sm-1">
+                                    <label for="tipoDocumento">Tipo Doc. *</label>
+                                    <input type="text" class="form-control form-control-sm"
+                                        formControlName="tipodocumento">
+                                </div>
+                                <div class="form-group col-sm-1">
+                                    <label for="numidentificacion">N° Doc. *</label>
+                                    <input type="text" class="form-control form-control-sm"
+                                        formControlName="numidentificacion">
+                                </div>
+                                <div class="form-group col-sm-5">
+                                    <label for="nombrepaciente">Paciente *</label>
+                                    <input type="text" class="form-control form-control-sm"
+                                        formControlName="nombrepaciente">
+                                </div>
+                                <div class="form-group col-sm-1">
+                                    <label for="sexo">Sexo *</label>
+                                    <input type="text" class="form-control form-control-sm" formControlName="sexo">
+                                </div>
+
+                                <div class="form-group col-sm-1">
+                                    <label for="edad">Edad *</label>
+                                    <input type="text" class="form-control form-control-sm" formControlName="edad">
+                                </div>
+                                <div class="form-group col-sm-2 align-self-end text-right">
+                                    <button type="button" id="paciente"
+                                        class="btn btn-primary btn-sm button-my-styles-busqueda_01"
+                                        (click)="onBuscar('Paciente')">Buscar Paciente
+                                        <i class="fas fa-search ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-row">
+
+                                <div class="form-group col-sm-1">
+                                    <label for="numcuenta">N° Cuenta *</label>
+                                    <input type="text" class="form-control form-control-sm" formControlName="numcuenta">
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <label for="unidad">Unidad *</label>
+                                    <input type="text" class="form-control form-control-sm" formControlName="unidad">
+                                </div>
+                                <div class="form-group col-sm-1">
+                                    <label for="pieza">Pieza *</label>
+                                    <input type="text" class="form-control form-control-sm" formControlName="pieza">
+                                </div>
+                                <div class="form-group col-sm-1">
+                                    <label for="cama">Cama *</label>
+                                    <input type="text" class="form-control form-control-sm" formControlName="cama">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="medico">Médico Tratante *</label>
+                                    <input type="text" class="form-control form-control-sm" formControlName="medico">
+                                </div>
+                                <div class="form-group col-sm-2 align-self-end text-right">
+                                    <button type="button" id="solicitud" (click)="onBuscar('Solicitud')"
+                                         class="btn btn-primary btn-sm button-my-styles-busqueda_01">
+                                        Buscar Solicitud <i class="fas fa-search ml-1"></i>
+                                    </button>
+                                    <!-- [disabled]="!busquedasolic" -->
+                                </div>
+
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-2">
+                                    <label for="fechahora">Fecha y Hora *</label>
+                                    <input type="text" appSelecttext placeholder="DD/MM/YYYY HH:MM:SS" [bsConfig]="bsConfig"
+                                        bsDatepicker id="fechahora" class="form-control form-control-sm"
+                                        formControlName="fechahora">
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <label for="ambito">Ambito *</label>
+                                    <select class="form-control form-control-sm" formControlName="ambito">
+                                        <option *ngFor="let tipoambito of tipoambitos"
+                                            [ngValue]='tipoambito.ambitocodigo'>
+                                            {{ tipoambito.ambitodescripcion }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <label for="estado">Estado Sol.*</label>
+                                    <select class="form-control form-control-sm" formControlName="estado">
+                                        <option *ngFor="let estadosolicitud of estadosolicitudes"
+                                            [ngValue]='estadosolicitud.estsolcodigo'>
+                                            {{ estadosolicitud.estsoldescripcion }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-6 align-self-end text-right">
+                                    <button type="button" id="btnevento" class="btn btn-primary btn-sm
+                                    button-my-styles-busqueda_01" [disabled]="(tipobusqueda==='Paciente'||tipobusqueda===null)?true:false"
+                                        (click)="eventosSolicitud()">
+                                        Eventos
+                                    </button> 
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </tab>
+            </tabset>
+        </div>
+
+        <div class="card border-primary mt-1" style="padding: 5px;height: 1200px;">
+            <tabset #tabProducto>
+                
+                <tab heading="Medicamentos" customClass="tabClass" id="tabMed">
+                    <form [formGroup]="FormDatosProducto" autocomplete="off" spellcheck="false">
+                        <div class="row form-group align-self-end ml-1">
+                            <div class="form-group col-md-1">
+                                <label for="codigo">Código *</label>
+                                <input type="text" class="form-control form-control-sm" (focusout)="validaCodigo($event.target.value)"
+                                     formControlName="codigo">
+                            </div>
+                            <div class="row form-group align-self-end ml-1">
+                                <button [disabled]="!ActivaBotonAgregarProducto()" type="button"  class="btn btn-info btn-sm"
+                                    (click)="getProducto()">Agregar Producto<i class="fas fa-plus ml-1"></i>
+                                </button>
+                                <!-- <button [disabled]="!FormDatosProducto.valid" type="button"  class="btn btn-info btn-sm"
+                                    (click)="getProducto()">Agregar Producto<i class="fas fa-plus ml-1"></i>
+                                </button> -->
+                                <button [disabled]="!ActivaBotonAgregarPlantilla()" type="button" class="btn btn-info btn-sm ml-4"
+                                    (click)="onBuscarPlantillas()">Agregar Plantilla<i class="fas fa-plus ml-1"></i>
+                                </button>
+                                <button type="button" class="btn btn-danger text-right btn-sm mr-2 float-right"
+                                    [disabled]="(tipobusqueda==='Solicitud'||tipobusqueda===null)?true:false" style="position: absolute; right: 0;"
+                                    (click)="limpiarGrillamedicamento()">Limpiar grilla<i class="fas fa-brush ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="table-responsive mt-3" style="height: 1010px;">
+                        <table id="tbldatosordendevolucion"
+                            class="table ml-1 table-condensed table-responsive-md table-bordered ">
+                            <thead class="table-primary  table-sm">
+                                <!-- da color de fondo a la columna-->
+                                <tr class="text-center table-sm">
+                                    <th>Código</th>
+                                    <th>Descripción</th>
+                                    <th>Dosifica*</th>
+                                    <th>Veces al Día* </th>
+                                    <th>Cantidad días*</th>
+                                    <th>Total</th>
+                                    <!-- <th>U Medida</th> -->
+                                    <!-- <th>Vía</th> -->
+                                    <th>Dispensado</th>
+                                    <th>Pend.</th>
+                                    <!-- <th>Recepcionado</th> -->
+                                    <th>Nom. Plantilla </th>
+                                    <th>Lote</th>
+                                    <th>F.Vencimiento</th>
+                                    <th>Eventos</th>
+                                    <th>Eliminar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let detalle of arrMedicamentopaginacion; let id = index"
+                                    class="table-secondary">
+                                    <td><small>{{ detalle.codmei }}</small></td>
+                                    <td class="text-nowrap help" tooltip="{{detalle.meindescri }}">
+                                        <small>{{ detalle.meindescri | slice:0:20 }}</small>
+                                    </td>
+                                    <td>
+                                        <small>
+                                            <input type="number" class="form-control form-control-sm text-right" min="1"
+                                            max="100" [(ngModel)]="detalle.dosis"  (input)="cantidadsolicitada(detalle,id,'disis')"  >
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <small>
+                                            <input type="number" class="form-control form-control-sm text-right" min="1"
+                                            max="100" [(ngModel)]="detalle.formulacion"
+                                            (input)="cantidadsolicitada(detalle,id,'formulacion')" maxlength="2">
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <small>
+                                            <input type="number" class="form-control form-control-sm text-right" min="1"
+                                            max="1000" [(ngModel)]="detalle.dias" (input)="cantidadsolicitada(detalle,id,'dias')">
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <small>
+                                            <input type="number" *ngIf="detalle.nomplantilla===null" class="form-control form-control-sm text-right" min="1"
+                                            max="1000" [(ngModel)]="detalle.cantsoli" (ngValue)="detalle.cantsoli"
+                                            (input)="cantidadsolicitada(detalle,id,'cantsoli')" disabled>
+
+                                            <input type="number" *ngIf="detalle.nomplantilla!==null" class="form-control form-control-sm text-right" min="1"
+                                            max="1000" [(ngModel)]="detalle.cantsoli" (ngValue)="detalle.cantsoli">
+                                        </small>
+                                    </td>
+                                    <!-- <td>
+                                        <small>{{ detalle.descunidadmedida }}</small>
+                                    </td> -->
+                                    <!-- <td></td> -->
+                                    <td><small>{{detalle.cantdespachada}} </small></td>
+                                    <td><small>{{detalle.cantsoli- detalle.cantdespachada}}</small> </td>
+                                    <!-- <td><small>{{detalle.cantrecepcionado}} </small></td> -->
+                                    <!-- <td><small>{{detalle.cantdevolucion}} </small></td> -->
+                                    <td><small>{{detalle.nomplantilla}} </small></td>
+                                    <td>
+                                        <select name="lote" class='form-control form-control-sm'
+                                        (change)="setLote($event.target.value, id)">
+                                            <option *ngFor="let detalleprod of detalle.detallelote" [ngValue]='detalleprod'
+                                            value="{{ detalleprod.fechavto }}">
+                                                {{ detalleprod.lote }}
+                                            </option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control form-control-sm text-right"
+                                         value="{{ detalle.fechavto }}" disabled>
+                                    </td>
+                                    <td>
+                                        <small>
+                                            <span>
+                                                <button type="button" id="btnVerEventos"
+                                                class="btn btn-info btn-rounded btn-sm ml-2"
+                                                (click)="eventosDetalleSolicitud(detalle)"
+                                                [disabled]="(tipobusqueda==='Paciente'||tipobusqueda===null)?true:false">
+                                                Eventos</button>
+                                            </span>
+                                        </small>    
+                                    </td>
+                                    <td>
+                                        <small>
+                                            <span><button type="button" id="btnEliminar"
+                                                class="btn btn-danger btn-rounded btn-sm ml-2"
+                                                [disabled] ="desactivabtneliminar()"
+                                                (click)="onEliminarMed(detalle,id)">Eliminar
+                                            </button></span>
+                                        </small>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row m-1">
+                        <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
+                            [totalItems]="arrdetalleMedicamentos.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                            [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
+                            (pageChanged)="pageChangedmedicamento($event)">
+                        </pagination>
+                    </div>
+                
+                </tab>
+            
+                <tab heading="Insumos" customClass="tabClass" id="tabIns">
+                    <form [formGroup]="FormDatosProducto" autocomplete="off" spellcheck="false">
+                        <div class="row form-group align-self-end ml-1">
+                            <div class="form-group col-md-1">
+                                <label for="codigo">Código *</label>
+                                <input type="text" class="form-control form-control-sm" (focusout)="validaCodigo($event.target.value)"
+                                     formControlName="codigo">
+                            </div>
+                            <div class="form-group col-md-1">
+                                <label for="cantidad">Cantidad *</label>
+                                <input type="text" class="form-control form-control-sm"  (focusout)="validaCantidadDispensada($event.target.value)"
+                                     formControlName="cantidad">
+                            </div>
+                            <div class="row form-group align-self-end ml-1">
+                                <button [disabled]="tipobusqueda===null" type="button"  class="btn btn-info btn-sm"
+                                    (click)="getProducto()">Agregar Producto<i class="fas fa-plus ml-1"></i>
+                                </button>
+                                <!-- <button [disabled]="(tipobusqueda===null || !FormDatosProducto.valid)?true:false" type="button"  class="btn btn-info btn-sm"
+                                    (click)="getProducto()">Agregar Producto<i class="fas fa-plus ml-1"></i>
+                                </button> -->
+                                <button [disabled]="tipobusqueda===null" type="button" class="btn btn-info btn-sm ml-4"
+                                    (click)="onBuscarPlantillas()">Agregar Plantilla<i class="fas fa-plus ml-1"></i>
+                                </button>
+                                <button type="button" class="btn btn-danger text-right btn-sm mr-2 float-right"
+                                    [disabled]="(tipobusqueda==='Solicitud'||tipobusqueda===null)?true:false" style="position: absolute; right: 0;"
+                                    (click)="limpiarGrillainsumo()">Limpiar grilla<i class="fas fa-brush ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="table-responsive mt-3" style="height: 1010px;">
+                        <!-- <div class="form-group col-md-12 align-self-end">
+                            <button [disabled]="tipobusqueda===null" type="button"  class="btn btn-info btn-sm"
+                                (click)="onBuscarProducto()">Agregar Producto<i class="fas fa-plus ml-1"></i>
+                            </button>
+                            <button [disabled]="tipobusqueda===null" type="button" class="btn btn-info btn-sm ml-4"
+                                (click)="onBuscarPlantillas()">Agregar Plantilla<i class="fas fa-plus ml-1"></i>
+                            </button>
+                            <button type="button" class="btn btn-danger btn-sm ml-4 float-right"
+                                [disabled]="(tipobusqueda==='Solicitud'||tipobusqueda===null)?true:false"
+                                (click)="limpiarGrillainsumo()">Limpiar grilla<i class="fas fa-brush ml-1"></i>
+                            </button>
+                        </div> -->
+                        <table id="tbldatosordendevolucion"
+                            class="table ml-1 table-condensed table-responsive-md table-bordered ">
+                            <thead class="table-primary  table-sm">
+                                <!-- da color de fondo a la columna-->
+                                <tr class="text-center table-sm">
+                                    <th>Código</th>
+                                    <th>Descripción</th>
+                                    <th>Cantidad *</th>
+                                    <th>U Medida</th>
+                                    <th>Dispensado</th>
+                                    <th>Pend.</th>
+                                    <th>Recepcionado</th>
+                                    <th>Cant. Devuelta </th>
+                                    <th>Nom. Plantilla </th>
+                                    <th>Eventos</th>
+                                    <th>Eliminar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let detalle of arrInsumospaginacion; let id = index"
+                                    class="table-secondary">
+                                    <td><small>{{ detalle.codmei }}</small></td>
+                                    <td class="text-nowrap help" tooltip="{{detalle.meindescri }}">
+                                        <small>{{ detalle.meindescri | slice:0:20 }}</small>
+                                    </td>
+                                    <td> 
+                                        <small>
+                                            <input type="number" class="form-control form-control-sm text-right" min="1"
+                                            max="1000" [(ngModel)]="detalle.cantsoli"
+                                            (input)="cantidadInsumo(detalle)"    
+                                            (blur)="validacantidadgrillaInsumos(id)" >
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <small>{{ detalle.descunidadmedida }}</small>
+                                    </td>
+                                    <td><small>{{detalle.cantdespachada}}</small> </td>
+                                    <td><small>{{detalle.cantsoli- detalle.cantdespachada}} </small></td>
+                                    <td><small>{{detalle.cantrecepcionado}}</small> </td>
+                                    <td><small>{{detalle.cantdevolucion}} </small></td>
+                                    <td><small>{{detalle.nomplantilla}} </small></td>
+                                    <td>
+                                        <small><span>
+                                            <button type="button" id="btnVerEventos"
+                                            class="btn btn-info btn-rounded btn-sm ml-2"
+                                            (click)="eventosDetalleSolicitud(detalle)"
+                                            [disabled]="(tipobusqueda==='Paciente'||tipobusqueda===null)?true:false">
+                                            Eventos</button> 
+                                            </span>
+                                            </small>
+                                    </td>
+                                    <td>
+                                        <small><span><button type="button" id="btnEliminar"
+                                                class="btn btn-danger btn-rounded btn-sm ml-2"
+                                                [disabled] ="desactivabtneliminar()"
+                                                (click)="onEliminarIns(detalle,id)">Eliminar
+                                            </button></span>
+                                        </small>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row m-1">
+                        <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="6"
+                            [totalItems]="arrdetalleInsumos.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                            [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
+                            (pageChanged)="pageChangedinsumo($event)">
+                        </pagination>
+                    </div>
+                </tab>
+            </tabset>
+        </div>
+
+        <!--  Botones de página -->
+        <div class="row float-right mr-1 mt-2">
+            <div class="form-group  align-self-end" *ngIf="modelopermisos.btngrabasolicpac">
+                <button type="button" 
+                    [disabled]="!ActivaBotonDispensar()" id="btnguardar"
+                    class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02" (click)="checkDuplicados(true)">DISPENSAR <i class="fas fa-save ml-1"></i>
+                </button>
+            </div>
+            <div class="form-group  align-self-end" *ngIf="modelopermisos.btnmodifsolicpac">
+                <button type="button" id="btnmodificar" 
+                    [disabled]="!ActivaBotonModificar()"
+                    class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02" (click)="checkDuplicados(false)">MODIFICAR
+                     <i class="fas fa-save ml-1"></i>
+                </button>
+            </div>
+            <div class="form-group  align-self-end" *ngIf="modelopermisos.btnimprimesolicpac">
+                <button type="button" id="btnimprimir" 
+                    [disabled]="(tipobusqueda==='Paciente'||tipobusqueda===null)?true:false"
+                    class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02" (click)="onImprimir()">IMPRIMIR
+                    <i class="fas fa-file-pdf ml-1"></i>
+                </button>
+            </div>
+            <div class="form-group  align-self-end" *ngIf="modelopermisos.btneliminasolicpac">
+                <button type="button" id="btneliminarsol" [disabled]="!ActivaBotoneliminar()"
+                    class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02" 
+                    (click)="onEliminarSolicitud()">ELIMINAR <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+            <div class="form-group  align-self-end">
+                <button type="button" id="btnlimpiar" (click)="limpiar()"
+                    class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02">LIMPIAR
+                    <i class="fas fa-eraser ml-1"></i>
+
+                </button>
+            </div>
+            <div class="form-group  align-self-end">
+                <button type="button" id="btnsalir" class="btn btn-primary btn-sm button-my-styles-busqueda_02"
+                    routerLink='../home'>SALIR <i class="fas fa-window-close ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<swal #alertSwal title="" text="" type="success" [showCancelButton]="false"> </swal>
+<swal #alertSwalAlert title="" text="" type="warning" [showCancelButton]="false"> </swal>
+<swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
+<swal #alertSwalConfirmar title="" text="" type="question" [showCancelButton]="true"> </swal>
+<ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '3px' }"> </ngx-loading>
