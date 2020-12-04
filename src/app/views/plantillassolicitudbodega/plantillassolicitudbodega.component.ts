@@ -220,7 +220,7 @@ export class PlantillassolicitudbodegaComponent implements OnInit {
                 this.detalleplantilla = [];
 
                 this.detalleplantilla = this._Plantilla.plantillasdet;
-                this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 50);
+                this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
 
                 console.log("Plantilla seleccionada",this._Plantilla)
               }
@@ -276,7 +276,7 @@ export class PlantillassolicitudbodegaComponent implements OnInit {
           DetallePantilla.planid = this._Plantilla.planid;
         }
         this.detalleplantilla.unshift(DetallePantilla);
-        this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 50);
+        this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
 
       }
     });
@@ -434,7 +434,7 @@ export class PlantillassolicitudbodegaComponent implements OnInit {
               this.detalleplantilla = [];
 
               this.detalleplantilla = this._Plantilla.plantillasdet;
-              this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 50);
+              this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
             }),
           error => {
             console.log("Error :", error)
@@ -451,7 +451,7 @@ export class PlantillassolicitudbodegaComponent implements OnInit {
         this.detalleplantilla = [];
 
         this.detalleplantilla = this._Plantilla.plantillasdet;
-        this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 50);
+        this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
       },
       error => {
         console.log("Error :", error)
@@ -505,7 +505,7 @@ export class PlantillassolicitudbodegaComponent implements OnInit {
     if (registro.acciond == "I" && id >= 0 && registro.pldeid == 0) {
       // Eliminar registro nuevo la grilla
       this.detalleplantilla.splice(id, 1);
-      this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 50);
+      this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
       // nthis.activabtncreaplant = false; //DESACTIVA BTN CREAR?? //@MLobos
       this.alertSwal.title = "Producto Eliminado de la Plantilla";//.concat(response['solbodid']);
       this.alertSwal.show();
@@ -661,7 +661,7 @@ export class PlantillassolicitudbodegaComponent implements OnInit {
                   this.detalleplantilla = [];
 
                   this.detalleplantilla = this._Plantilla.plantillasdet;
-                  this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 50);
+                  this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
                 },
                 error => {
                   console.log("Error :", error)
@@ -677,7 +677,7 @@ export class PlantillassolicitudbodegaComponent implements OnInit {
             this.detalleplantilla = [];
 
             this.detalleplantilla = this._Plantilla.plantillasdet;
-            this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 50);
+            this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
             // },
             error => {
               console.log("Error :", error)
@@ -717,7 +717,7 @@ export class PlantillassolicitudbodegaComponent implements OnInit {
                   this.detalleplantilla = [];
 
                   this.detalleplantilla = this._Plantilla.plantillasdet;
-                  this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 50);
+                  this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
                 },
                 error => {
                   console.log("Error :", error)
@@ -733,7 +733,7 @@ export class PlantillassolicitudbodegaComponent implements OnInit {
             this.detalleplantilla = [];
 
             this.detalleplantilla = this._Plantilla.plantillasdet;
-            this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 50);
+            this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
             
             // },
             error => {

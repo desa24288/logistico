@@ -146,7 +146,7 @@ export class PlantillaConsumoComponent implements OnInit {
 
                 if (this._PlantillaConsumo.detplantillaconsumo != null) {
                   this.arregloDetalleProductoPlantilla = this._PlantillaConsumo.detplantillaconsumo;
-                  this.arregloDetalleProductoPlantillaPaginacion = this.arregloDetalleProductoPlantilla.slice(0, 50);
+                  this.arregloDetalleProductoPlantillaPaginacion = this.arregloDetalleProductoPlantilla.slice(0, 20);
                 }
 
 
@@ -222,7 +222,7 @@ export class PlantillaConsumoComponent implements OnInit {
 
 
           this.arregloDetalleProductoPlantilla.push(DetalleMovimiento);
-          this.arregloDetalleProductoPlantillaPaginacion = this.arregloDetalleProductoPlantilla.slice(0, 50);
+          this.arregloDetalleProductoPlantillaPaginacion = this.arregloDetalleProductoPlantilla.slice(0, 20);
 
 
         }
@@ -306,7 +306,7 @@ export class PlantillaConsumoComponent implements OnInit {
     if (registro.accion == "I") {
       // Eliminar registro nuevo la grilla
       this.arregloDetalleProductoPlantilla.splice(id, 1);
-      this.arregloDetalleProductoPlantillaPaginacion = this.arregloDetalleProductoPlantilla.slice(0, 50);
+      this.arregloDetalleProductoPlantillaPaginacion = this.arregloDetalleProductoPlantilla.slice(0, 20);
     } else {
       // elimina uno que ya existe
       registro.servidor = this.servidor;
@@ -326,7 +326,7 @@ export class PlantillaConsumoComponent implements OnInit {
               this.arregloDetalleProductoPlantilla = [];
 
               this.arregloDetalleProductoPlantilla = this._PlantillaConsumo.detplantillaconsumo;
-              this.arregloDetalleProductoPlantillaPaginacion = this.arregloDetalleProductoPlantilla.slice(0, 50);
+              this.arregloDetalleProductoPlantillaPaginacion = this.arregloDetalleProductoPlantilla.slice(0, 20);
             },
             error => {
               console.log("Error :", error)
@@ -399,7 +399,7 @@ export class PlantillaConsumoComponent implements OnInit {
             this.arregloDetalleProductoPlantilla = [];
 
             this.arregloDetalleProductoPlantilla = this._PlantillaConsumo.detplantillaconsumo;
-            this.arregloDetalleProductoPlantillaPaginacion = this.arregloDetalleProductoPlantilla.slice(0, 50);
+            this.arregloDetalleProductoPlantillaPaginacion = this.arregloDetalleProductoPlantilla.slice(0, 20);
           },
           error => {
             console.log("Error :", error)
@@ -498,7 +498,7 @@ export class PlantillaConsumoComponent implements OnInit {
             this.arregloDetalleProductoPlantilla = [];
             if (this._PlantillaConsumo.detplantillaconsumo != null) {
               this.arregloDetalleProductoPlantilla = this._PlantillaConsumo.detplantillaconsumo;
-              this.arregloDetalleProductoPlantillaPaginacion = this.arregloDetalleProductoPlantilla.slice(0, 50);
+              this.arregloDetalleProductoPlantillaPaginacion = this.arregloDetalleProductoPlantilla.slice(0, 20);
             }
           },
           error => {

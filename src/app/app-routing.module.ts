@@ -46,7 +46,8 @@ import { BodegaspruebaComponent } from './views/pruebas/bodegasprueba/bodegaspru
 import { PanelIntegracionCargosComponent } from './views/panel-integracion-cargos/panel-integracion-cargos.component';
 import { CreadispensasolicitudpruebaComponent } from './views/pruebas/creadispensasolicitudprueba/creadispensasolicitudprueba.component';
 import { PanelIntegracionERPComponent } from './views/panel-integracion-erp/panel-integracion-erp.component';
-
+import { DevolucionautopedidoComponent } from './views/devolucionautopedido/devolucionautopedido.component';
+import { BusquedacuentasComponent } from './views/busquedacuentas/busquedacuentas.component';
 
 const mi_routas: Routes = [
   { path: '', component: AppComponent },
@@ -99,10 +100,13 @@ const mi_routas: Routes = [
   { path: 'consultarecetasambulatoria', component: ConsultarecetaambulatoriaComponent},
   { path: 'despachocostoservicio', component: DespachocostoservicioComponent},
   { path: 'cierrekardex', component: CierrekardexComponent},
-  { path: 'creadispensasolicitudpaciente', component: CreadispensasolicitudpacienteComponent},  
+  { path: 'creadispensasolicitudpaciente', component: CreadispensasolicitudpacienteComponent},
+  { path: 'devolucionautopedido', component: DevolucionautopedidoComponent},
+  { path: 'busquedacuentas', component: BusquedacuentasComponent},
   //**Pruebas */
   { path: 'bodegasprueba', component: BodegaspruebaComponent},
   { path: 'creadispensasolicitudprueba', component: CreadispensasolicitudpruebaComponent},  
+  /***/
   { path: '**', component: NotFoundPAgeComponent },
 
 ];

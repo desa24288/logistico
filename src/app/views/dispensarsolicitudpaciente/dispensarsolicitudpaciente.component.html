@@ -190,7 +190,7 @@
                 </div>
                 <div class="row m-1">
                     <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-                        [totalItems]="detallesolicitudpaciente.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [totalItems]="detallesolicitudpaciente.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                         [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                         (pageChanged)="pageChanged($event)">
                     </pagination>
@@ -213,11 +213,11 @@
                                     (blur)="valida_cantidad(FormDispensaDetalle.value.cantidad,FormDispensaDetalle.value)"
                                         formControlName="cantidad">
                                 </div>
-                                <div class="form-group col-md-2" *ngIf="!validacombolote">
+                                <!-- <div class="form-group col-md-2" *ngIf="!validacombolote">
                                     <label for="numsolicitud">Lote *</label>
                                     <input type="text" class="form-control form-control-sm" formControlName="lote">
-                                </div>
-                                <div class="form-group col-md-2" *ngIf="validacombolote">
+                                </div>  --> <!--*ngIf="validacombolote"-->
+                                <div class="form-group col-md-2" >
                                     <label for="lote">Lote *</label>
                                     <select name="lote" class='form-control form-control-sm' formControlName='lote'
                                         (change)="LlamaFecha(FormDispensaDetalle.value.lote)">
@@ -233,7 +233,7 @@
                                         formControlName="fechavto">
                                 </div>
                                 <div class="form-group col-md-3 align-self-end">
-                                    <button type="button" class="btn btn-info btn-rounded btn-sm ml-2"
+                                    <button type="button" class="btn btn-info btn-rounded btn-sm ml-2"[disabled]="btnagregar"
                                         (click)="addArticuloGrillaDispensacion(FormDispensaDetalle.value)">
                                         Agregar <i class="fas fa-plus ml-1" aria-hidden="true"></i>
                                     </button>
@@ -275,7 +275,7 @@
                 </div>
                 <div class="row m-1">
                     <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-                        [totalItems]="detallessolicitudes.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [totalItems]="detallessolicitudes.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                         [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                         (pageChanged)="pageChangedDespacho($event)">
                     </pagination>

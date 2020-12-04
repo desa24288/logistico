@@ -85,11 +85,11 @@
 
 
   
-  <div class="card border-primary" style="padding: 5px;margin-top: 10px;height: 1200px;">
+  <div class="card border-primary" style="padding: 5px;margin-top: 10px;height: 990px;">
  
       <h6 class="card-header text-center ">Detalle Artículo</h6>
 
-      <div id="table" class="table-editable table-responsive mt-2" style="height:1100px;">  
+      <div id="table" class="table-editable table-responsive mt-2" style="height:950px;">  
         <table class="table table-sm  table-primary table-bordered table-responsive-md table-striped text-center">
           <tr class="table-primary">
             <th scope="col">Fecha</th>
@@ -159,7 +159,7 @@
       
       <div class="row m-1">
         <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-          [totalItems]="arreglomovimientos.length" [itemsPerPage]=50 [previousText]="'Anterior'" [nextText]="'Siguiente'"
+          [totalItems]="arreglomovimientos.length" [itemsPerPage]=20 [previousText]="'Anterior'" [nextText]="'Siguiente'"
           [firstText]="'&laquo;'" [lastText]="'&raquo;'" (pageChanged)="pageChanged($event)">
         </pagination>
       </div>

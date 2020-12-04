@@ -229,16 +229,16 @@
                                     <td><small>{{detalle.nomplantilla}} </small></td>
                                     <td>
                                         <select name="lote" class='form-control form-control-sm'
-                                        (change)="setLote($event.target.value, id)">
+                                        (change)="setLote($event.target.value, id, 1)">
                                             <option *ngFor="let detalleprod of detalle.detallelote" [ngValue]='detalleprod'
-                                            value="{{ detalleprod.fechavto }}">
+                                            value="{{ detalleprod.fechavto }}/{{ detalleprod.lote }}">
                                                 {{ detalleprod.lote }}
                                             </option>
                                         </select>
                                     </td>
                                     <td>
                                         <input type="text" class="form-control form-control-sm text-right"
-                                         value="{{ detalle.fechavto }}" disabled>
+                                         value="{{ detalle.fechavto | date:'dd/MM/yyyy' }}" disabled>
                                     </td>
                                     <td>
                                         <small>
@@ -266,7 +266,7 @@
                     </div>
                     <div class="row m-1">
                         <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-                            [totalItems]="arrdetalleMedicamentos.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                            [totalItems]="arrdetalleMedicamentos.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                             [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                             (pageChanged)="pageChangedmedicamento($event)">
                         </pagination>
@@ -305,22 +305,9 @@
                         </div>
                     </form>
                     <div class="table-responsive mt-3" style="height: 1010px;">
-                        <!-- <div class="form-group col-md-12 align-self-end">
-                            <button [disabled]="tipobusqueda===null" type="button"  class="btn btn-info btn-sm"
-                                (click)="onBuscarProducto()">Agregar Producto<i class="fas fa-plus ml-1"></i>
-                            </button>
-                            <button [disabled]="tipobusqueda===null" type="button" class="btn btn-info btn-sm ml-4"
-                                (click)="onBuscarPlantillas()">Agregar Plantilla<i class="fas fa-plus ml-1"></i>
-                            </button>
-                            <button type="button" class="btn btn-danger btn-sm ml-4 float-right"
-                                [disabled]="(tipobusqueda==='Solicitud'||tipobusqueda===null)?true:false"
-                                (click)="limpiarGrillainsumo()">Limpiar grilla<i class="fas fa-brush ml-1"></i>
-                            </button>
-                        </div> -->
                         <table id="tbldatosordendevolucion"
                             class="table ml-1 table-condensed table-responsive-md table-bordered ">
                             <thead class="table-primary  table-sm">
-                                <!-- da color de fondo a la columna-->
                                 <tr class="text-center table-sm">
                                     <th>Código</th>
                                     <th>Descripción</th>
@@ -331,6 +318,8 @@
                                     <th>Recepcionado</th>
                                     <th>Cant. Devuelta </th>
                                     <th>Nom. Plantilla </th>
+                                    <th>Lote</th>
+                                    <th>F.Vencimiento</th>
                                     <th>Eventos</th>
                                     <th>Eliminar</th>
                                 </tr>
@@ -359,6 +348,20 @@
                                     <td><small>{{detalle.cantdevolucion}} </small></td>
                                     <td><small>{{detalle.nomplantilla}} </small></td>
                                     <td>
+                                        <select name="lote" class='form-control form-control-sm'
+                                        (change)="setLote($event.target.value, id, 2)">
+                                            <option *ngFor="let detalleprod of detalle.detallelote" [ngValue]='detalleprod'
+                                            value="{{ detalleprod.fechavto }}/{{ detalleprod.lote }}">
+                                                {{ detalleprod.lote }}
+                                            </option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control form-control-sm text-right"
+                                         value="{{ detalle.fechavto | date:'dd/MM/yyyy' }}" disabled>
+                                    </td>
+
+                                    <td>
                                         <small><span>
                                             <button type="button" id="btnVerEventos"
                                             class="btn btn-info btn-rounded btn-sm ml-2"
@@ -382,7 +385,7 @@
                     </div>
                     <div class="row m-1">
                         <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="6"
-                            [totalItems]="arrdetalleInsumos.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                            [totalItems]="arrdetalleInsumos.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                             [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                             (pageChanged)="pageChangedinsumo($event)">
                         </pagination>

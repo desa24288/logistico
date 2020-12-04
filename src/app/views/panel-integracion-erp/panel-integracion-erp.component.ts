@@ -15,6 +15,8 @@ import { InterfacesService } from 'src/app/servicios/interfaces.service';
 import { defineLocale } from 'ngx-bootstrap/chronos';
 import { esLocale } from 'ngx-bootstrap/locale';
 import { BsLocaleService, BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
+import { MovimientoInterfazBodegas } from 'src/app/models/entity/movimiento-interfaz-bodegas';
+import { EstructuraFin700 } from 'src/app/models/entity/estructura-fin700';
 
 
 
@@ -42,11 +44,11 @@ export class PanelIntegracionERPComponent implements OnInit {
 
 
 
-  public listabodegas: Array<MovimientoInterfaz> = [];
-  public listabodegasPaginacion: Array<MovimientoInterfaz> = [];
+  public listabodegas: Array<MovimientoInterfazBodegas> = [];
+  public listabodegasPaginacion: Array<MovimientoInterfazBodegas> = [];
 
-  public listapacientes: Array<MovimientoInterfaz> = [];
-  public listapacientesPaginacion: Array<MovimientoInterfaz> = [];
+  public listapacientes: Array<MovimientoInterfazBodegas> = [];
+  public listapacientesPaginacion: Array<MovimientoInterfazBodegas> = [];
 
 
 
@@ -66,7 +68,7 @@ export class PanelIntegracionERPComponent implements OnInit {
  
   //public tiempo_refresco = interval(120000);
   
-  public _MovimientoInterfaz: MovimientoInterfaz;
+  public _MovimientoInterfazBodegas: MovimientoInterfazBodegas;
 
   constructor(
     private _interfacesService : InterfacesService,
@@ -124,27 +126,24 @@ export class PanelIntegracionERPComponent implements OnInit {
           this.listabodegasPaginacion = [];
           this.canidad_movimiento_bodegas =0;
           
-          if (this.lForm.value.numerosolicitud != null && this.lForm.value.numerosolicitud  >0 ) {
-            var fechadesde = '';
-            var fechahasta = '';
-          } else {
-            var fechadesde = this.datePipe.transform(this.lForm.value.fechadesde, 'yyyy-MM-dd');
-            var fechahasta = this.datePipe.transform(this.lForm.value.fechahasta, 'yyyy-MM-dd');
+
+          var fechadesde = this.datePipe.transform(this.lForm.value.fechadesde, 'yyyy-MM-dd');
+          var fechahasta = this.datePipe.transform(this.lForm.value.fechahasta, 'yyyy-MM-dd');
           
-          }
+
           this.loading = true;
 
-          this._MovimientoInterfaz = new(MovimientoInterfaz)
+          this._MovimientoInterfazBodegas = new(MovimientoInterfazBodegas)
 
-          this._MovimientoInterfaz.hdgcodigo =  Number(sessionStorage.getItem('hdgcodigo').toString())
-          this._MovimientoInterfaz.esacodigo = Number(sessionStorage.getItem('cmecodigo').toString())
-          this._MovimientoInterfaz.cmecodigo = Number(sessionStorage.getItem('cmecodigo').toString())
-          this._MovimientoInterfaz.fechainicio = fechadesde
-          this._MovimientoInterfaz.fechatermino = fechahasta
-          this._MovimientoInterfaz.servidor     = this.servidor
-          this._MovimientoInterfaz.ctanumcuenta = this.lForm.value.cuenta
+          this._MovimientoInterfazBodegas.hdgcodigo =  Number(sessionStorage.getItem('hdgcodigo').toString())
+          this._MovimientoInterfazBodegas.esacodigo = Number(sessionStorage.getItem('cmecodigo').toString())
+          this._MovimientoInterfazBodegas.cmecodigo = Number(sessionStorage.getItem('cmecodigo').toString())
+          this._MovimientoInterfazBodegas.fechainicio = fechadesde
+          this._MovimientoInterfazBodegas.fechatermino = fechahasta
+          this._MovimientoInterfazBodegas.servidor     = this.servidor
 
-          this._interfacesService.listamovimientointerfaz(this._MovimientoInterfaz).subscribe(
+
+          this._interfacesService.listamovimientointerfaz(this._MovimientoInterfazBodegas).subscribe(
           response => {
  
                   if (response.length == 0) {
@@ -161,7 +160,7 @@ export class PanelIntegracionERPComponent implements OnInit {
           } )
 
 
-          this._interfacesService.listarmovimientointerfazbodegas(this._MovimientoInterfaz).subscribe(
+          this._interfacesService.listarmovimientointerfazbodegas(this._MovimientoInterfazBodegas).subscribe(
             response => {
    
                     if (response.length == 0) {
@@ -218,54 +217,96 @@ export class PanelIntegracionERPComponent implements OnInit {
   
   
   
-    Enviar(registro: MovimientoInterfaz) {
+    Enviar_bodegas(registro: MovimientoInterfazBodegas) {
+
+      this.alertSwalError.text = null;
+      this.alertSwalError.title = null;
+      this.alertSwalError.titleText = null;
+      this.alertSwal.title = null;
+      
 
       registro.usuario = sessionStorage.getItem('Usuario').toString();
       registro.servidor = this.servidor;
 
+      var _EstructuraFin700 = new(EstructuraFin700)
+      
+      _EstructuraFin700.hdgcodigo = registro.hdgcodigo
+      _EstructuraFin700.idagrupador = 0
+      _EstructuraFin700.numeromovimiento = registro.id
+      _EstructuraFin700.servidor = this.servidor
+      _EstructuraFin700.tipomovimiento = 0
 
 
-      this._interfacesService.enviacargossisalud(registro).subscribe(
+
+      this._interfacesService.enviarErp(_EstructuraFin700).subscribe(
         response => {
-            //recupero registro actualizado
-            this.loading = true;
-
-            this._MovimientoInterfaz = new(MovimientoInterfaz)
-            this._MovimientoInterfaz = registro
-            this._MovimientoInterfaz.hdgcodigo =  Number(sessionStorage.getItem('hdgcodigo').toString())
-            this._MovimientoInterfaz.esacodigo = Number(sessionStorage.getItem('cmecodigo').toString())
-            this._MovimientoInterfaz.cmecodigo = Number(sessionStorage.getItem('cmecodigo').toString())
-            this._MovimientoInterfaz.servidor     = this.servidor
-            if (this.lForm.value.numerosolicitud != null && this.lForm.value.numerosolicitud  >0 ) {
-              var fechadesde = '';
-              var fechahasta = '';
-            } else {
-              var fechadesde = this.datePipe.transform(this.lForm.value.fechadesde, 'yyyy-MM-dd');
-              var fechahasta = this.datePipe.transform(this.lForm.value.fechahasta, 'yyyy-MM-dd');
+          if (response.respuesta > "0") {
             
-            }
-            this._MovimientoInterfaz.hdgcodigo =  Number(sessionStorage.getItem('hdgcodigo').toString())
-            this._MovimientoInterfaz.esacodigo = Number(sessionStorage.getItem('cmecodigo').toString())
-            this._MovimientoInterfaz.cmecodigo = Number(sessionStorage.getItem('cmecodigo').toString())
-            this._MovimientoInterfaz.fechainicio = fechadesde
-            this._MovimientoInterfaz.fechatermino = fechahasta
-            this._MovimientoInterfaz.servidor     = this.servidor
-            this._MovimientoInterfaz.ctanumcuenta = this.lForm.value.cuenta
-            this._interfacesService.listamovimientointerfaz(this._MovimientoInterfaz).subscribe(
-              response => {
-                    //debería recuperar un solo movimiento dado que viaja el ID del detalle de movimiento
-                    this.alertSwal.title = "Resultado envío de cargo:".concat(response[0].intcargoerror);
-                    this.alertSwal.show();
-              })
+            this.alertSwal.title = "Envío al ERP exitoso";
+            this.alertSwal.show();
+            this.loading = false;
+            this.refrescar();
+            return;
 
+          }
+          else {
+            this.alertSwalError.title = "Envío al ERP con Observación";
+            this.alertSwalError.show();
+            this.loading = false;
+            this.refrescar();
+            return;
 
-
+          }
 
         }
       )
 
     }
   
+
+
+    
+    Enviar_pacientes(registro: MovimientoInterfaz) {
+
+      this.alertSwal.title = null
+      this.alertSwalError.title = null;
+
+      registro.usuario = sessionStorage.getItem('Usuario').toString();
+      registro.servidor = this.servidor;
+
+      var _EstructuraFin700 = new(EstructuraFin700)
+      
+      _EstructuraFin700.hdgcodigo = registro.hdgcodigo
+      _EstructuraFin700.idagrupador = 0
+      _EstructuraFin700.numeromovimiento = registro.fdeid 
+      _EstructuraFin700.servidor = this.servidor
+      _EstructuraFin700.tipomovimiento = 0
+
+
+
+      this._interfacesService.enviarErp(_EstructuraFin700).subscribe(
+        response => {
+          if (response.respuesta > "0") {
+            this.alertSwal.title = "Envío al ERP exitoso";
+            this.alertSwal.show();
+            this.loading = false;
+            this.refrescar();
+            return;
+
+          }
+          else {
+            this.alertSwalError.title = "Envío al ERP con ERRORES";
+            this.alertSwalError.show();
+            this.loading = false;
+            this.refrescar();
+            return;
+
+          }
+
+        }
+      )
+
+    }
   
     pageChangedMovimientosBodegas(event: PageChangedEvent): void {
       const startItem = (event.page - 1) * event.itemsPerPage;

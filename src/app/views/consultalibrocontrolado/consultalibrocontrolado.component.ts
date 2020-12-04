@@ -222,7 +222,7 @@ export class ConsultalibrocontroladoComponent implements OnInit {
         }else{
           if(response.length>0){
             this.periodosconsultados = response;
-            this.periodosconsultadospaginacion = this.periodosconsultados.slice(0,50);
+            this.periodosconsultadospaginacion = this.periodosconsultados.slice(0,20);
             this.muestracoddes = true;
             this.btnimprime =true;
             this.todoslosprod = false;
@@ -340,7 +340,7 @@ export class ConsultalibrocontroladoComponent implements OnInit {
               console.log("PErido:", response)
               this.btnimprime =true;
               this.periodosconsultados = response;
-              this.periodosconsultadospaginacion = this.periodosconsultados.slice(0,50);
+              this.periodosconsultadospaginacion = this.periodosconsultados.slice(0,20);
               this.muestragrillacoddes = true;
               // this.periodo= null;
               this.FormConsultaLibroControlado.get('codigo').setValue(response[0].meincodmei );

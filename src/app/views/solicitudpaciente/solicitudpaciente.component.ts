@@ -242,13 +242,13 @@ export class SolicitudpacienteComponent implements OnInit {
             if (element.tiporegmein == "I") {
               this.solins = true;
               this.arrdetalleInsumos = this.dataPacienteSolicitud.solicitudesdet
-              this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0, 50);
+              this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0, 20);
               this.loading = false;
             } else {
               if (element.tiporegmein == "M") {
                 this.solmedic = true;
                 this.arrdetalleMedicamentos = this.dataPacienteSolicitud.solicitudesdet;
-                this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0, 50)
+                this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0, 20)
                 this.loading = false;
               }
             }
@@ -450,13 +450,13 @@ export class SolicitudpacienteComponent implements OnInit {
     if (this.solins == true) {
 
       this.arrdetalleInsumos = this.dataPacienteSolicitud.solicitudesdet
-      this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0, 50); // <- Llamar Función paginación
+      this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0, 20); // <- Llamar Función paginación
       this.solins = false;
       this.solmedic = false;
     } else {
       if (this.solmedic == true) {
         this.arrdetalleMedicamentos = this.dataPacienteSolicitud.solicitudesdet;
-        this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0, 50)
+        this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0,20)
         this.solins = false;
         this.solmedic = false;
 
@@ -625,11 +625,11 @@ export class SolicitudpacienteComponent implements OnInit {
     detalleSolicitud.nomplantilla = this.nomplantilla;
     if (detalleSolicitud.tiporegmein == "M") {
       this.arrdetalleMedicamentos.unshift(detalleSolicitud);
-      this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0, 50);
+      this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0, 20);
     } else {
       if (detalleSolicitud.tiporegmein == "I") {
         this.arrdetalleInsumos.unshift(detalleSolicitud);
-        this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0, 50);
+        this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0, 20);
       }
     }
   }
@@ -673,11 +673,11 @@ export class SolicitudpacienteComponent implements OnInit {
     detalleSolicitud.acciond = 'I';
     if (detalleSolicitud.tiporegmein == "M") {
       this.arrdetalleMedicamentos.unshift(detalleSolicitud);
-      this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0, 50)
+      this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0, 20)
 
     } else if (detalleSolicitud.tiporegmein == "I") {
       this.arrdetalleInsumos.unshift(detalleSolicitud);
-      this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0, 50)
+      this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0, 20)
     }
   }
 
@@ -1089,7 +1089,7 @@ export class SolicitudpacienteComponent implements OnInit {
           if (detalle.acciond == "I" && id >= 0 && detalle.sodeid == 0) {
             // Eliminar registro nuevo la grilla
             this.arrdetalleMedicamentos.splice(id, 1);
-            this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0, 50);
+            this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0, 20);
             this.logicaVacios();
             this.loading = false;
             this.alertSwal.title = "Producto eliminado exitosamente";
@@ -1158,7 +1158,7 @@ export class SolicitudpacienteComponent implements OnInit {
           if (detalle.acciond == "I" && id >= 0 && detalle.sodeid == 0) {
             // Eliminar registro nuevo la grilla
             this.arrdetalleInsumos.splice(id, 1);
-            this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0, 50);
+            this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0, 20);
             this.logicaVacios();
             this.loading = false;
             this.alertSwal.title = "Producto eliminado exitosamente";

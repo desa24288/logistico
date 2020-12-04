@@ -66,7 +66,7 @@ export class VersionesComponent implements OnInit {
 
   LlamaVersionApp(){
     // console.log("llama version aplicacion")
-    this.FormVersiones.get('numversionapp').setValue("Aplicación Logístico Versión 20.11.23.1");
+    this.FormVersiones.get('numversionapp').setValue("Aplicación Logístico Versión 20.12.03.1");
   }
 
 }

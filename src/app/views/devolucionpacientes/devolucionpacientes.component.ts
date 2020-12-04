@@ -23,6 +23,7 @@ import { Recepciondevolucionpaciente } from './../../models/entity/Recepciondevo
 import { ParamDetDevolPaciente } from '../../models/entity/ParamDetDevolPaciente';
 import { InformesService } from '../../servicios/informes.service';
 import { Permisosusuario } from '../../permisos/permisosusuario';
+import { BusquedaproductosComponent } from '../busquedaproductos/busquedaproductos.component';
 
 @Component({
   selector: 'app-devolucionpacientes',
@@ -66,6 +67,7 @@ export class DevolucionpacientesComponent implements OnInit {
   public solicitudexist = false;
   public vacios         = false;
   public solicituddevuelta = false;
+  public descprod       = null;
 
   constructor(
     public datePipe         : DatePipe,
@@ -87,6 +89,7 @@ export class DevolucionpacientesComponent implements OnInit {
       fechavto: [{ value: null, disabled: true }, Validators.required],
       lote: [{ value: null, disabled: true }, Validators.required],
       cantidad: [{ value: null, disabled: true }, Validators.required],
+      descripcion : [{ value: null, disabled: true }, Validators.required]
     });
   }
 
@@ -111,6 +114,12 @@ export class DevolucionpacientesComponent implements OnInit {
     this.logicaGrabar();
     this.solicitudesgrillaPaginacion = [];
     this.solicitudesgrilla = []
+    this.descprod = null;this.dForm.get('codmei').disable();
+    this.dForm.get('soliid').disable();
+    this.dForm.get('cantidad').disable();
+    this.dForm.get('lote').disable();
+    this.dForm.get('fechavto').disable();
+    this.dForm.get('descripcion').disable();
   }
 
   datosUsuario() {
@@ -159,7 +168,7 @@ export class DevolucionpacientesComponent implements OnInit {
       this.solicitudeslista = await this.solicitudesPaciente();
     
       this.logicaGrabar();
-      this.solicitudeslistapag = this.solicitudeslista.slice(0, 50);
+      this.solicitudeslistapag = this.solicitudeslista.slice(0, 20);
       this.loading = false;
       this.alertSwalGrilla.reverseButtons = true;
       this.alertSwalGrilla.title = 'Seleccione Solicitud';
@@ -361,7 +370,7 @@ export class DevolucionpacientesComponent implements OnInit {
   onBorrar(solicitud: ParamDetDevolPaciente) {
     console.log("Elimina linea grilla",solicitud)
     this.solicitudesgrilla.splice(this.inArray(0, solicitud), 1);
-    this.solicitudesgrillaPaginacion = this.solicitudesgrilla.slice(0,50);
+    this.solicitudesgrillaPaginacion = this.solicitudesgrilla.slice(0,20);
     this.logicaGrabar();
   }
 
@@ -399,7 +408,7 @@ export class DevolucionpacientesComponent implements OnInit {
     this.solicitudesgrilla.forEach(element =>{
       element.cantidadadevolver = element.cantdispensada- element.cantdevuelta;
     });
-    this.solicitudesgrillaPaginacion = this.solicitudesgrilla.slice(0,50);
+    this.solicitudesgrillaPaginacion = this.solicitudesgrilla.slice(0,20);
     
     this.dForm.reset();
     this.logicaGrabar();
@@ -505,6 +514,7 @@ export class DevolucionpacientesComponent implements OnInit {
       this.dForm.get('cantidad').enable();
       this.dForm.get('lote').enable();
       this.dForm.get('fechavto').enable();
+      this.dForm.get('descripcion').enable();
       return true;
     } else {
       return false;
@@ -579,39 +589,87 @@ export class DevolucionpacientesComponent implements OnInit {
     })
   }
 
-ActivarBotonDevolver(){
+  ActivarBotonDevolver(){
+    // Identificado el pacinete y con datos en la grilla
+    if ( this.pForm.get('nompaciente').value != null 
+    && this.solicitudesgrilla.length >0
+  ) {
+    return true
+
+  } else {
+    return false
+
+  }
+
+  }
+
+
+
+
+  ActivarEliminar(){
+
   // Identificado el pacinete y con datos en la grilla
   if ( this.pForm.get('nompaciente').value != null 
-  && this.solicitudesgrilla.length >0
- ) {
-   return true
+    && this.solicitudesgrilla.length >0
+    ) {
+    return true
 
-} else {
-   return false
+    } else {
+    return false
 
-}
-
-}
+  }
 
 
+  }
 
+  SeleccionaDescripcion(event:any,descripcion: string){
+    console.log("Ingresa descripcion productp",descripcion,event)
+    this.descprod = descripcion;
+    if(this.descprod != null){
+      this._BSModalRef = this._BsModalService.show(BusquedaproductosComponent, this.setModalBusquedaProductos());
+      this._BSModalRef.content.onClose.subscribe((response: any) => {
+        if (response == undefined) { }
+        else {
+          console.log("respon del ´rpd buscado",response)
+          // this.productoselec = response;
+          this.dForm.controls['codmei'].setValue(response.codigo);
+          this.dForm.controls['descripcion'].setValue(response.descripcion);
+          
+          // this.StockProducto(this.productoselec.mein);
+          this.loading = false;
+         
+        }
+      },
+      error => {
+        this.loading = false;
+        this.alertSwalError.title = "Error: ";
+        this.alertSwalError.text = "No se encontró producto";
+        this.alertSwalError.show();
+      }
+      )
+    }
+    
+  }
 
-ActivarEliminar(){
-
-// Identificado el pacinete y con datos en la grilla
-if ( this.pForm.get('nompaciente').value != null 
-&& this.solicitudesgrilla.length >0
-) {
- return true
-
-} else {
- return false
-
-}
-
-
-}
-
+  setModalBusquedaProductos() {
+    let dtModal: any = {};
+    dtModal = {
+      keyboard: true,
+      backdrop: 'static',
+      class: 'modal-dialog-centered modal-xl',
+      initialState: {
+        titulo: 'Búsqueda de Productos', // Parametro para de la otra pantalla
+        hdgcodigo: this.hdgcodigo,
+        esacodigo: this.esacodigo,
+        cmecodigo: this.cmecodigo,
+        tipo_busqueda: 'Todo-Medico',
+        id_Bodega: 0,
+        descprod: this.descprod,//
+        codprod: null
+      }
+    };
+    return dtModal;
+  }
 
 }
 

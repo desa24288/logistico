@@ -57,7 +57,6 @@ export class NavbarComponent implements OnInit {
 
     router.events.subscribe((val) => {
       // see also 
-      console.log('cambio ruta');
       // this.menu = true;
       // document.getElementById('side-menu').style.display = 'block';
       // this.onMenubtn();

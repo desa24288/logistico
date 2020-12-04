@@ -219,21 +219,29 @@ export class BodegasComponent implements OnInit {
               this.FormBodegas.get('tipoproducto').setValue(this._bodega.tipoproducto);
               this.FormBodegas.get('tipobodega').setValue(this._bodega.tipobodega);
               this.FormBodegas.get('nuevabodega').setValue(0);
+              
               this.activabtnimprimebod = true;
-              this._bodega_productos = response_bodega[0].productosbodega;
-              this._bodega_productos_paginacion = this._bodega_productos.slice(0, 50);
+
+
+            
 
               this._bodega_servicios = response_bodega[0].serviciosunidadbodega;
-              this._bodega_servicios_paginacion = this._bodega_servicios.slice(0, 50);
+              this._bodega_servicios_paginacion = this._bodega_servicios.slice(0, 20);
 
               this._bodega_usuarios = response_bodega[0].usuariosbodega;
-              this._bodega_usuarios_paginacion = this._bodega_usuarios.slice(0, 50);
+              this._bodega_usuarios_paginacion = this._bodega_usuarios.slice(0, 20);
 
               this._bodega_relacion_bodegas = response_bodega[0].relacionbodegas;
-              this._bodega_relacion_bodegas_paginacion = this._bodega_relacion_bodegas.slice(0, 50);
+              this._bodega_relacion_bodegas_paginacion = this._bodega_relacion_bodegas.slice(0, 20);
+              
+              this._bodega_productos = response_bodega[0].productosbodega;
+              this._bodega_productos_paginacion = this._bodega_productos.slice(0, 20);
 
+             // this._bodega_productos_paginacion = response_bodega[0].productosbodega.slice(0, 20);   //this._bodega_productos.slice(0, 20);
 
             }
+
+
           );
 
       }
@@ -277,7 +285,7 @@ export class BodegasComponent implements OnInit {
             }
           });
           this._bodega_relacion_bodegas.unshift(nueva_bodega_asociada);
-          this._bodega_relacion_bodegas_paginacion = this._bodega_relacion_bodegas.slice(0, 50);
+          this._bodega_relacion_bodegas_paginacion = this._bodega_relacion_bodegas.slice(0, 20);
         }
       }
     });
@@ -325,7 +333,7 @@ export class BodegasComponent implements OnInit {
           usuario_nuevo.glosausuario = response.username;
           usuario_nuevo.bodegacodigo = this.FormBodegas.value.codigo;
           this._bodega_usuarios.unshift(usuario_nuevo);
-          this._bodega_usuarios_paginacion = this._bodega_usuarios.slice(0, 50);
+          this._bodega_usuarios_paginacion = this._bodega_usuarios.slice(0, 20);
         }
       }
     });
@@ -373,7 +381,7 @@ export class BodegasComponent implements OnInit {
           servicio_nuevo.descservicio = response.serviciodesc;
           servicio_nuevo.codbodega = this.FormBodegas.value.codigo;
           this._bodega_servicios.unshift(servicio_nuevo);
-          this._bodega_servicios_paginacion = this._bodega_servicios.slice(0, 50);
+          this._bodega_servicios_paginacion = this._bodega_servicios.slice(0, 20);
         }
       }
     });
@@ -473,7 +481,7 @@ export class BodegasComponent implements OnInit {
 
 
           this._bodega_productos.unshift(producto_nuevo);
-          this._bodega_productos_paginacion = this._bodega_productos.slice(0, 50);
+          this._bodega_productos_paginacion = this._bodega_productos.slice(0, 20);
         }
       }
     });
@@ -522,7 +530,7 @@ export class BodegasComponent implements OnInit {
 
 
     this._bodega_productos.unshift(producto_nuevo);
-    this._bodega_productos_paginacion = this._bodega_productos.slice(0, 50);
+    this._bodega_productos_paginacion = this._bodega_productos.slice(0, 20);
   }
 
   Limpiar() {
@@ -617,7 +625,7 @@ export class BodegasComponent implements OnInit {
 
     if (bodegaAsociada.accion == "I" && id >= 0) {
       this._bodega_relacion_bodegas.splice(id, 1);
-      this._bodega_relacion_bodegas_paginacion = this._bodega_relacion_bodegas.slice(0, 50);
+      this._bodega_relacion_bodegas_paginacion = this._bodega_relacion_bodegas.slice(0,20);
       this.alertSwal.title = "Relación Bodega No Asociado ";
       this.alertSwal.show();
     }
@@ -626,7 +634,7 @@ export class BodegasComponent implements OnInit {
       this._bodegasService.desasociaBodegaEstructuraBodegas(this.hdgcodigo, this.cmecodigo, bodegaAsociada.codbodegaorigen, bodegaAsociada.codbodegarelacion, this.servidor, this.usuario).subscribe(
         response => {
           this._bodega_relacion_bodegas.splice(id, 1);
-          this._bodega_relacion_bodegas_paginacion = this._bodega_relacion_bodegas.slice(0, 50);
+          this._bodega_relacion_bodegas_paginacion = this._bodega_relacion_bodegas.slice(0, 20);
           this.alertSwal.title = "Realción Entre Bodegas Eliminada";
           this.alertSwal.show();
 
@@ -646,7 +654,7 @@ export class BodegasComponent implements OnInit {
 
     if (usuario.accion == "I" && id >= 0) {
       this._bodega_usuarios.splice(id, 1);
-      this._bodega_usuarios_paginacion = this._bodega_usuarios.slice(0, 50);
+      this._bodega_usuarios_paginacion = this._bodega_usuarios.slice(0, 20);
       this.alertSwal.title = "Usuario No Asociado ";
       this.alertSwal.show();
     }
@@ -655,7 +663,7 @@ export class BodegasComponent implements OnInit {
       this._bodegasService.desasociaUsuarioEstructuraBodegas(this.hdgcodigo, this.cmecodigo, usuario.bodegacodigo, usuario.userid, usuario.bouid, this.servidor, this.usuario).subscribe(
         response => {
           this._bodega_usuarios.splice(id, 1);
-          this._bodega_usuarios_paginacion = this._bodega_usuarios.slice(0, 50);
+          this._bodega_usuarios_paginacion = this._bodega_usuarios.slice(0, 20);
           this.alertSwal.title = "Usaurio Desasociado de la Bodega";
           this.alertSwal.show();
 
@@ -675,7 +683,7 @@ export class BodegasComponent implements OnInit {
 
     if (servicio.accion == "I" && id >= 0) {
       this._bodega_servicios.splice(id, 1);
-      this._bodega_servicios_paginacion = this._bodega_servicios.slice(0, 50);
+      this._bodega_servicios_paginacion = this._bodega_servicios.slice(0, 20);
       this.alertSwal.title = "Servicio No Asociado ";
       this.alertSwal.show();
     }
@@ -684,7 +692,7 @@ export class BodegasComponent implements OnInit {
       this._bodegasService.desasociaServicioEstructuraBodegas(this.hdgcodigo, this.cmecodigo, servicio.codbodega, servicio.idservicio, this.servidor, this.usuario).subscribe(
         response => {
           this._bodega_servicios.splice(id, 1);
-          this._bodega_servicios_paginacion = this._bodega_servicios.slice(0, 50);
+          this._bodega_servicios_paginacion = this._bodega_servicios.slice(0, 20);
           this.alertSwal.title = "Servicio Desasociado de la Bodega";
           this.alertSwal.show();
 
@@ -735,16 +743,16 @@ export class BodegasComponent implements OnInit {
               this.FormBodegas.get('nuevabodega').setValue(0);
 
               this._bodega_productos = respuesta[0].productosbodega;
-              this._bodega_productos_paginacion = this._bodega_productos.slice(0, 50);
+              this._bodega_productos_paginacion = this._bodega_productos.slice(0, 20);
 
               this._bodega_servicios = respuesta[0].serviciosunidadbodega;
-              this._bodega_servicios_paginacion = this._bodega_servicios.slice(0, 50);
+              this._bodega_servicios_paginacion = this._bodega_servicios.slice(0, 20);
 
               this._bodega_usuarios = respuesta[0].usuariosbodega;
-              this._bodega_usuarios_paginacion = this._bodega_usuarios.slice(0, 50);
+              this._bodega_usuarios_paginacion = this._bodega_usuarios.slice(0, 20);
 
               this._bodega_relacion_bodegas = respuesta[0].relacionbodegas;
-              this._bodega_relacion_bodegas_paginacion = this._bodega_relacion_bodegas.slice(0, 50);
+              this._bodega_relacion_bodegas_paginacion = this._bodega_relacion_bodegas.slice(0, 20);
 
             }
           );
@@ -926,16 +934,16 @@ export class BodegasComponent implements OnInit {
             this.FormBodegas.get('nuevabodega').setValue(0);
 
             this._bodega_productos = respuesta[0].productosbodega;
-            this._bodega_productos_paginacion = this._bodega_productos.slice(0, 50);
+            this._bodega_productos_paginacion = this._bodega_productos.slice(0, 20);
 
             this._bodega_servicios = respuesta[0].serviciosunidadbodega;
-            this._bodega_servicios_paginacion = this._bodega_servicios.slice(0, 50);
+            this._bodega_servicios_paginacion = this._bodega_servicios.slice(0, 20);
 
             this._bodega_usuarios = respuesta[0].usuariosbodega;
-            this._bodega_usuarios_paginacion = this._bodega_usuarios.slice(0, 50);
+            this._bodega_usuarios_paginacion = this._bodega_usuarios.slice(0, 20);
 
             this._bodega_relacion_bodegas = respuesta[0].relacionbodegas;
-            this._bodega_relacion_bodegas_paginacion = this._bodega_relacion_bodegas.slice(0, 50);
+            this._bodega_relacion_bodegas_paginacion = this._bodega_relacion_bodegas.slice(0, 20);
 
           }
         );
@@ -1099,16 +1107,16 @@ export class BodegasComponent implements OnInit {
               this.activabtnimprimebod = true;
 
               this._bodega_productos = response[0].productosbodega;
-              this._bodega_productos_paginacion = this._bodega_productos.slice(0, 50);
+              this._bodega_productos_paginacion = this._bodega_productos.slice(0, 20);
 
               this._bodega_servicios = response[0].serviciosunidadbodega;
-              this._bodega_servicios_paginacion = this._bodega_servicios.slice(0, 50);
+              this._bodega_servicios_paginacion = this._bodega_servicios.slice(0, 20);
 
               this._bodega_usuarios = response[0].usuariosbodega;
-              this._bodega_usuarios_paginacion = this._bodega_usuarios.slice(0, 50);
+              this._bodega_usuarios_paginacion = this._bodega_usuarios.slice(0, 20);
 
               this._bodega_relacion_bodegas = response[0].relacionbodegas;
-              this._bodega_relacion_bodegas_paginacion = this._bodega_relacion_bodegas.slice(0, 50);
+              this._bodega_relacion_bodegas_paginacion = this._bodega_relacion_bodegas.slice(0, 20);
 
               this.loading = false;
             }
@@ -1223,7 +1231,7 @@ export class BodegasComponent implements OnInit {
     let codigoproductobuscar = this.FormDatosProducto.controls.codigo.value;
 
     if (codigoproductobuscar === null || codigoproductobuscar === '') {
-      this._bodega_productos_paginacion = this._bodega_productos.slice(0, 50);
+      this._bodega_productos_paginacion = this._bodega_productos.slice(0, 20);
     } else {
       indx = this._bodega_productos.findIndex(x => x.mameincodmei === codigoproductobuscar, 1);
       if (indx >= 0) {
@@ -1247,7 +1255,7 @@ export class BodegasComponent implements OnInit {
     let codigoproductobuscar = this.FormDatosProducto.controls.codigo.value;
     console.log(codigoproductobuscar);
     if (codigoproductobuscar === null || codigoproductobuscar === '') {
-      this._bodega_productos_paginacion = this._bodega_productos.slice(0, 50);
+      this._bodega_productos_paginacion = this._bodega_productos.slice(0, 20);
       encuentraprod = false;
     } else {
       indx = this._bodega_productos.findIndex(x => x.mameincodmei === codigoproductobuscar, 1);

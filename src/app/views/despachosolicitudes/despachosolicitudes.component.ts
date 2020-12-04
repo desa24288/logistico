@@ -159,7 +159,7 @@ export class DespachosolicitudesComponent implements OnInit {
               // element.servidor = this.servidor;
               // element.usuariodespacha = this.usuario;
               this.listaDetalleDespacho.unshift(element);
-              this.listaDetalleDespachopaginacion = this.listaDetalleDespacho.slice(0,50);
+              this.listaDetalleDespachopaginacion = this.listaDetalleDespacho.slice(0,20);
               this.activabtndespacho = true;
             }              
           }
@@ -167,7 +167,7 @@ export class DespachosolicitudesComponent implements OnInit {
         })
 
         this.listaDetalleSolicitud = this._Solicitud.solicitudesdet;
-        this.listaDetalleSolicitudpaginacion = this.listaDetalleSolicitud.slice(0, 50);
+        this.listaDetalleSolicitudpaginacion = this.listaDetalleSolicitud.slice(0, 20);
         this.FormDespachoSolicitud2.reset();
       })
   }
@@ -190,7 +190,7 @@ export class DespachosolicitudesComponent implements OnInit {
                                 this.listaDetalleDespacho = [];
                                 this._Solicitud = new (Solicitud);
                                 this._Solicitud = response[0];
-                              
+                                console.log("solciitud",this._Solicitud)
                                 this.FormDespachoSolicitud.get('numsolicitud').setValue(this._Solicitud.soliid);
                                 if (this._Solicitud.soliid > 0) {
                                   this.numsolic = true;
@@ -238,13 +238,13 @@ export class DespachosolicitudesComponent implements OnInit {
                                         this.activabtndespacho = true;
                                       }            
 
-                                      this.listaDetalleDespachopaginacion = this.listaDetalleDespacho.slice(0, 50);  
+                                      this.listaDetalleDespachopaginacion = this.listaDetalleDespacho.slice(0, 20);  
                                     }
                                   // }
                                 })
                                 
                                 this.listaDetalleSolicitud = response[0].solicitudesdet;
-                                this.listaDetalleSolicitudpaginacion = this.listaDetalleSolicitud.slice(0, 50);
+                                this.listaDetalleSolicitudpaginacion = this.listaDetalleSolicitud.slice(0, 20);
                               });
       }
     });
@@ -327,7 +327,7 @@ export class DespachosolicitudesComponent implements OnInit {
                   })
                   // element.backgroundcolor = (element.tienelote == "N")?'gris':'amarillo';
                   this.listaDetalleSolicitud = response[0].solicitudesdet;
-                  this.listaDetalleSolicitudpaginacion = this.listaDetalleSolicitud.slice(0, 50);
+                  this.listaDetalleSolicitudpaginacion = this.listaDetalleSolicitud.slice(0, 20);
                 },
                 error => {
                   console.log(error);
@@ -399,17 +399,17 @@ export class DespachosolicitudesComponent implements OnInit {
       if (element.codmei.trim() == datosIngresados.codigoproducto.trim()) {
         this.validadato = true;
         this.FormDespachoSolicitud2.get('cantidad').setValue(element.cantsoli - element.cantdespachada);
-        this.tiporegistro = "M";
-        if (element.tiporegmein == "M") {
+        // this.tiporegistro = "M";
+        // if (element.tiporegmein == "M") {
           this.validacombolote = true;
-          this.tiporegistro = "M";
+          // this.tiporegistro = "M";
           this._SolicitudService.BuscaLotesProductosxBod(this.servidor, this.hdgcodigo, this.esacodigo,
             this.cmecodigo, datosIngresados.codigoproducto, this._Solicitud.bodorigen, this._Solicitud.boddestino).subscribe(
               response => {
-                // console.log("Trae lotes encontrados",response)
+                console.log("Trae lotes encontrados",response)
                 this.detalleslotes = response;
                 if (this.detalleslotes.length == 1) {
-                  // console.log("2 lote encontrado",this.detalleslotes)
+                  console.log("2 lote encontrado",this.detalleslotes)
                   this.FormDespachoSolicitud2.get('fechavto').setValue(this.datePipe.transform(this.detalleslotes[0].fechavto, 'dd-MM-yyyy'));
                   this.FormDespachoSolicitud2.get('lote').setValue(this.detalleslotes[0].lote);
                   this.lote = this.detalleslotes[0].lote;
@@ -417,10 +417,10 @@ export class DespachosolicitudesComponent implements OnInit {
                 }
               }
             )
-        } else {
-          this.validacombolote = false;
-          this.tiporegistro = "I";
-        }
+        // } else {
+        //   this.validacombolote = false;
+        //   this.tiporegistro = "I";
+        // }
       } else {
         // console.log("No existe el dato en la solicitud")
         // this.validadato= false;
@@ -507,12 +507,12 @@ export class DespachosolicitudesComponent implements OnInit {
             // this.varDespachoDetalleSolicitud
             // console.log("this.vardespachodetalee soli.lote",this.varDespachoDetalleSolicitud)
             // console.log("despacho.lote",despacho.lote);
-            if (this.tiporegistro == "I") {
+            // if (this.tiporegistro == "I") {
               this.varDespachoDetalleSolicitud.fechavto = this.fechavto;//this.datePipe.transform(despacho.fechavto, 'yyyy-MM-dd');
-            }
-            if (this.tiporegistro == "M") {
-              this.varDespachoDetalleSolicitud.fechavto = this.fechavto;//this.datePipe.transform(despacho.fechavto, 'yyyy-MM-dd');//this.fechavto;
-            }
+            // }
+            // if (this.tiporegistro == "M") {
+            //   this.varDespachoDetalleSolicitud.fechavto = this.fechavto;//this.datePipe.transform(despacho.fechavto, 'yyyy-MM-dd');//this.fechavto;
+            // }
             
             this.varDespachoDetalleSolicitud.servidor = this.servidor;
             this.varDespachoDetalleSolicitud.usuariodespacha = this.usuario;
@@ -520,7 +520,7 @@ export class DespachosolicitudesComponent implements OnInit {
             // console.log("mostrar grilla temporal",this.varDespachoDetalleSolicitud)
             // if()
             this.listaDetalleDespacho.unshift(this.varDespachoDetalleSolicitud);
-            this.listaDetalleDespachopaginacion = this.listaDetalleDespacho.slice(0,50);
+            this.listaDetalleDespachopaginacion = this.listaDetalleDespacho.slice(0,20);
             
             // return;
           }
@@ -629,7 +629,7 @@ export class DespachosolicitudesComponent implements OnInit {
     if (registro.acciond == "" && id >= 0 && registro.sodeid > 0) {
       // Elominar registro nuevo la grilla
       this.listaDetalleDespacho.splice(id, 1);
-      this.listaDetalleDespachopaginacion = this.listaDetalleDespacho.slice(0, 50);
+      this.listaDetalleDespachopaginacion = this.listaDetalleDespacho.slice(0, 20);
     } else {
       // elimina uno que ya existe
       //this.arregloDetalleProductoSolicitud[id].acciond = 'E';
@@ -654,6 +654,7 @@ export class DespachosolicitudesComponent implements OnInit {
     return dtModal;
   }
 
+  
   eventosSolicitud() {
     // sE CONFIRMA Eliminar Solicitud
     this._BSModalRef = this._BsModalService.show(EventosSolicitudComponent, this.setModalEventoSolicitud());

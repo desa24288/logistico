@@ -56,10 +56,10 @@
         </div>
     </form>
     </div>
-    <div class="card border-primary mt-0" style="padding: 5px;height: 1200px;">
+    <div class="card border-primary mt-0" style="padding: 5px;height: 990px;">
         <tabset>
             <tab heading="Detalle Solicitud" id="tab1">
-                <div class="table-responsive mt-3" style="height: 1090px;">
+                <div class="table-responsive mt-3" style="height: 880px;">
                     <table class="table table-sm  table-primary table-bordered">
                         <tr>
                             <th class="text-center">Código</th>
@@ -118,7 +118,7 @@
                 </div>
                 <div class="row m-1">
                     <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-                        [totalItems]="listaDetalleSolicitud.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [totalItems]="listaDetalleSolicitud.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                         [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                         (pageChanged)="pageChanged($event)">
                     </pagination>
@@ -145,7 +145,7 @@
                         </div>
                     </form>
                 </div>
-                <div class="table-responsive mt-1" style="height: 1020px;">
+                <div class="table-responsive mt-1" style="height: 815px;">
                     <table class="table table-sm  table-primary table-bordered">
                         <tr>
                             <th class="text-center">Código</th>
@@ -203,7 +203,7 @@
                 </div>
                 <div class="row m-1">
                     <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-                        [totalItems]="detallessolicitudes.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [totalItems]="detallessolicitudes.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                         [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                         (pageChanged)="pageChangedRecepcion($event)">
                     </pagination>
@@ -302,7 +302,7 @@
                     </tr>
                 </tbody>
                 <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-                        [totalItems]="productosrecepcionados.length" [itemsPerPage]=8 [previousText]="'Anterior'"
+                        [totalItems]="productosrecepcionados.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                         [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                         (pageChanged)="pageChanged($event)"> >
                 </pagination>

@@ -49,7 +49,7 @@
         </div>
       </div>
     </form>
-    <div class="card border-primary" style="padding: 5px;margin-top: 10px;height: 1200px;">
+    <div class="card border-primary" style="padding: 5px;margin-top: 10px;height: 1000px;">
       <div id="table" class="table-editable">
         <a class="btn-floating btn-lg purple-gradient"></a>
         <button type="button" class="btn btn-info btn-rounded btn-sm ml-2" (click)="addArticuloGrilla()"
@@ -57,7 +57,7 @@
           || FormCreaPlantilla.value.glosa == null)">Agregar
           <i class="fas fa-plus ml-2" aria-hidden="true"></i>
         </button>
-        <div id="table" class="table-editable table-responsive mt-2" style="height: 1100px;">
+        <div id="table" class="table-editable table-responsive mt-2" style="height: 890px;">
           <table class="table table-sm table-condensed table-bordered table-responsive-md table-striped text-center">
             <tr class="table table-sm  table-primary table-bordered ">
               <th class="text-center">Código</th>
@@ -95,7 +95,7 @@
         </div>
         <div class="row m-1">
           <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="6"
-            [totalItems]="arregloDetalleProductoPlantilla.length" [itemsPerPage]=8 [previousText]="'Anterior'"
+            [totalItems]="arregloDetalleProductoPlantilla.length" [itemsPerPage]=20 [previousText]="'Anterior'"
             [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'" (pageChanged)="pageChanged($event)">
           </pagination>
         </div>

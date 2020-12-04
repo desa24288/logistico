@@ -204,13 +204,13 @@ export class MonitorEjecutivoComponent implements OnInit {
               }
             });
 
-            this.listarecetasambulatoriasPaginacion = this.listarecetasambulatorias.slice(0, 50);
+            this.listarecetasambulatoriasPaginacion = this.listarecetasambulatorias.slice(0, 20);
             this.canidad_recetas_ambulatorio = this.listarecetasambulatorias.length;
 
-            this.listarecetasurgenciaPaginacion = this.listarecetasurgencia.slice(0, 50);
+            this.listarecetasurgenciaPaginacion = this.listarecetasurgencia.slice(0, 20);
             this.canidad_recetas_urgencia = this.listarecetasurgencia.length;
 
-            this.listarecetashospitalizadosPaginacion = this.listarecetashospitalizados.slice(0, 50);
+            this.listarecetashospitalizadosPaginacion = this.listarecetashospitalizados.slice(0, 20);
             this.canidad_recetas_hospitalizados = this.listarecetashospitalizados.length;
           }
 
@@ -360,7 +360,7 @@ export class MonitorEjecutivoComponent implements OnInit {
       this.esacodigo, this.cmecodigo, 0,
       this.datePipe.transform(fecha, 'yyyy-MM-dd'),
       this.datePipe.transform(this.lForm.value.fechahasta, 'yyyy-MM-dd'),
-      0, 0, 0, servidor, 0, -1, 0, 0, 0, 0, "","",0).subscribe(
+      0, 0, 0, servidor, 0, -1, 0, 0, 0, 0, "","",0,this.usuario).subscribe(
         async response => {
           if (response.length == 0) {
           } else {
@@ -387,9 +387,9 @@ export class MonitorEjecutivoComponent implements OnInit {
                 }
 
               });
-              this.listasolicitudespordespacharPaginacion = this.listasolicitudespordespachar.slice(0, 50);
-              this.listasolicitudesporrecepcionarPaginacion = this.listasolicitudesporrecepcionar.slice(0,50);
-              this.listasolicitudesurgenciapaginacion = this.listasolicitudesurgencia.slice(0, 50);
+              this.listasolicitudespordespacharPaginacion = this.listasolicitudespordespachar.slice(0, 20);
+              this.listasolicitudesporrecepcionarPaginacion = this.listasolicitudesporrecepcionar.slice(0,20);
+              this.listasolicitudesurgenciapaginacion = this.listasolicitudesurgencia.slice(0, 20);
 
               this.canidad_despachos = this.listasolicitudespordespachar.length;
               this.canidad_recepcion = this.listasolicitudesporrecepcionar.length;

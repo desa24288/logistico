@@ -287,7 +287,7 @@ export class FraccionamientoproductosComponent implements OnInit {
           this.detallefraccionamiento.push(temporal);
         })
 
-        this.detallefraccionamientopaginacion = this.detallefraccionamiento.slice(0,50);
+        this.detallefraccionamientopaginacion = this.detallefraccionamiento.slice(0,20);
         // console.log("codigos",this.codigoproducto,this.descriporigen,this.stockprodorigen)
         this.FormFraccionamiento.get('codigo').setValue(this.codigoproducto);
         this.FormFraccionamiento.get('descripcion').setValue(this.descriporigen);
@@ -371,7 +371,7 @@ export class FraccionamientoproductosComponent implements OnInit {
                 },
               )
               this.detallefraccionamiento.unshift(DetalleFraccion);
-              this.detallefraccionamientopaginacion = this.detallefraccionamiento.slice(0,50);
+              this.detallefraccionamientopaginacion = this.detallefraccionamiento.slice(0,20);
               this.activabtngraba = true;
               
             }
@@ -436,7 +436,7 @@ export class FraccionamientoproductosComponent implements OnInit {
     if(registro.pldevigente == "N" && registro.factordist ==null){
       // console.log("Entra a grabar producto sin grabar",registro);
       this.detallefraccionamiento.splice(id, 1);
-      this.detallefraccionamientopaginacion = this.detallefraccionamiento.slice(0, 50);
+      this.detallefraccionamientopaginacion = this.detallefraccionamiento.slice(0, 20);
       this.alertSwal.title = "Producto Eliminado";
       this.alertSwal.show();
       // console.log("Grilla sin producto eliminado", this.detallefraccionamiento);
@@ -457,7 +457,7 @@ export class FraccionamientoproductosComponent implements OnInit {
       this._bodegasService.EliminaProductoFraccionadoDeGrilla(this.datosparaeliminar).subscribe(
         response => {  
           this.detallefraccionamiento.splice(id, 1);
-          this.detallefraccionamientopaginacion = this.detallefraccionamiento.slice(0, 50);
+          this.detallefraccionamientopaginacion = this.detallefraccionamiento.slice(0, 20);
           this.alertSwal.title ="Eliminación Producto realizado con éxito";
           this.alertSwal.show();
         },
@@ -531,7 +531,7 @@ export class FraccionamientoproductosComponent implements OnInit {
       
                 // this.detallefraccionamiento.unshift(temporal);
             })
-            this.detallefraccionamientopaginacion = this.detallefraccionamiento.slice(0,50);
+            this.detallefraccionamientopaginacion = this.detallefraccionamiento.slice(0,20);
             // console.log("nueva grilla",this.detallefraccionamiento,this.detallefraccionamientopaginacion)
               // this.BuscaProductosFraacionados(response[0].meinidprod)
           }, error => {

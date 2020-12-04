@@ -174,7 +174,7 @@ export class RecepciondevolucionentrebodegasComponent implements OnInit {
                           this.FormRecepcionDevolucion.get('prioridad').setValue(this._Solicitud.desprioridadsoli);
                       
                           this.listaDetalleSolicitud = response[0].solicitudesdet;
-                          this.listaDetalleSolicitudpaginacion = this.listaDetalleSolicitud.slice(0, 9);
+                          this.listaDetalleSolicitudpaginacion = this.listaDetalleSolicitud.slice(0, 20);
                         }
           });
       }
@@ -262,7 +262,7 @@ export class RecepciondevolucionentrebodegasComponent implements OnInit {
           this.alertSwalGrilla.show();
           
           this.productosrecepcionados= response;
-          this.productosrecepcionadospaginacion = this.productosrecepcionados.slice(0,8)
+          this.productosrecepcionadospaginacion = this.productosrecepcionados.slice(0,20)
           
         }else{
           if(response.length ==1){
@@ -377,7 +377,7 @@ export class RecepciondevolucionentrebodegasComponent implements OnInit {
       }
     });
     this.activabtnrecepdevol = true;
-    this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0,8);
+    this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0,20);
     this.FormRecepcionDevolucionDetalle.reset(); this.detalleslotes=[];
   }
 
@@ -430,7 +430,7 @@ export class RecepciondevolucionentrebodegasComponent implements OnInit {
         temporal.cantidadarecepcionar = this.FormRecepcionDevolucionDetalle.value.cantidad;
 
         this.detallessolicitudes.unshift(temporal);
-        this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0,8)
+        this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0,20)
       }
      
     });
@@ -520,7 +520,7 @@ export class RecepciondevolucionentrebodegasComponent implements OnInit {
               this.activabtnimprime = true;
               this.activabtnrecepdevol = false;
               this.listaDetalleSolicitud = response[0].solicitudesdet;
-              this.listaDetalleSolicitudpaginacion = this.listaDetalleSolicitud.slice(0, 8);
+              this.listaDetalleSolicitudpaginacion = this.listaDetalleSolicitud.slice(0, 20);
             },
             error => {
               console.log(error);
@@ -616,13 +616,10 @@ export class RecepciondevolucionentrebodegasComponent implements OnInit {
 
   ImprimirSolicitud() {
 
-    console.log("Imprime el reporte deRecepcionDEvolucion Solicitud",this.servidor,this.hdgcodigo,this.esacodigo, 
-    this.cmecodigo,"pdf", this._Solicitud.soliid,this.usuario);
     
     this._imprimesolicitudService.RPTImprimeRecepDevolSolicitudBodega(this.servidor,this.hdgcodigo,this.esacodigo, 
     this.cmecodigo,"pdf", this._Solicitud.soliid,this.usuario).subscribe(
       response => {
-        console.log("Imprime Solicitud", response);
         window.open(response[0].url, "", "", true);
         // this.alertSwal.title = "Reporte Impreso Correctamente";
         // this.alertSwal.show();

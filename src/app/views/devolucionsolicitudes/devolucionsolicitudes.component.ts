@@ -157,7 +157,7 @@ export class DevolucionsolicitudesComponent implements OnInit {
                           this.FormDevolucionSolicitud.get('prioridad').setValue(this._Solicitud.desprioridadsoli);
                           this.solicitud= this._Solicitud.soliid;
                           this.arreegloDetalleSolicitud = response[0].solicitudesdet;
-                          this.arreegloDetalleSolicitudpaginacion = this.arreegloDetalleSolicitud.slice(0, 50);
+                          this.arreegloDetalleSolicitudpaginacion = this.arreegloDetalleSolicitud.slice(0, 20);
              });
       }
     });
@@ -228,7 +228,7 @@ export class DevolucionsolicitudesComponent implements OnInit {
           this.alertSwalGrilla.title = 'Seleccione Producto a Devolver';
           this.alertSwalGrilla.show();
           this.productosrecepcionados= response;
-          this.productosrecepcionadospaginacion = this.productosrecepcionados.slice(0,50)
+          this.productosrecepcionadospaginacion = this.productosrecepcionados.slice(0,20)
 
         }else{
           if(response.length == 1){
@@ -309,7 +309,7 @@ export class DevolucionsolicitudesComponent implements OnInit {
       }
     });
     
-    this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0,50);
+    this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0,20);
     this.FormDevolucionDetalle.reset(); this.detalleslotes=[];
     this.productosrecepcionadospaginacion=[]
     this.productosrecepcionados=[]
@@ -448,7 +448,7 @@ export class DevolucionsolicitudesComponent implements OnInit {
                 this.activabtnimprime = true;
                 this.numsolic = false;
                 this.arreegloDetalleSolicitud= response[0].solicitudesdet;
-                this.arreegloDetalleSolicitudpaginacion = this.arreegloDetalleSolicitud.slice(0,50);
+                this.arreegloDetalleSolicitudpaginacion = this.arreegloDetalleSolicitud.slice(0,20);
               },
               error => {
                 console.log(error);
@@ -675,7 +675,7 @@ export class DevolucionsolicitudesComponent implements OnInit {
 
 
         this.detallessolicitudes.splice(id, 1);
-        this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0,50);
+        this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0,20);
   }
 
 

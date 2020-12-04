@@ -128,7 +128,7 @@ export class EventosSolicitudComponent implements OnInit {
         this.listaEventosSolicitudPaginacion = this.listaEventosSolicitud.slice(0,8)
       },
       error => {
-        alert("Error al Buscar Familias")
+        alert("Error al Buscar Eventos")
       }
     );
   }

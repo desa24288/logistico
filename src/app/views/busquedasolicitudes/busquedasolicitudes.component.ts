@@ -87,7 +87,7 @@ export class BusquedasolicitudesComponent implements OnInit {
   }
 
   ngOnInit() {
-
+    this.usuario = sessionStorage.getItem('Usuario').toString();
     this.setDate();
     this.onClose = new Subject();
     if(this.origen == "Autopedido" || this.origen =="DevolucionAutopedido"){
@@ -164,6 +164,7 @@ export class BusquedasolicitudesComponent implements OnInit {
 
   BuscarSolicitudesFiltro()
    {
+    this.solicitud= [];
     var servidor = environment.URLServiciosRest.ambiente;
     var idOrigen = 0;
     console.log("this.origen",this.origen)
@@ -214,7 +215,7 @@ export class BusquedasolicitudesComponent implements OnInit {
     this.datePipe.transform(this.lForm.value.fechahasta, 'yyyy-MM-dd'), 
     this.lForm.value.bodsercodigo,this.lForm.value.boddescodigo,
     this.lForm.value.estado,servidor, this.lForm.value.prioridad,0,0,0,0,0,"",this.filtrodenegocio,
-    idOrigen).subscribe(
+    idOrigen,this.usuario).subscribe(
     response => {
       if(response.length==0){
         this.alertSwalError.title="No encuentra la Solicitud buscada";
@@ -229,7 +230,7 @@ export class BusquedasolicitudesComponent implements OnInit {
               console.log("Verifica que no cargue solic de autopedido",element)
 
               // var solicitud = new Solicitud()
-              this.solicitud.unshift(element);
+              this.solicitud.push(element);
               this.listasolicitudes = this.solicitud;
               this.listasolicitudespaginacion = this.listasolicitudes.slice(0, 8);
             }else{
@@ -287,6 +288,7 @@ export class BusquedasolicitudesComponent implements OnInit {
     this.lForm.get('fechahasta').setValue(new Date());
     this.listasolicitudespaginacion=[];
     this.listasolicitudes = [];
+    this.solicitud = [];
   }
 
 }

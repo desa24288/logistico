@@ -78,6 +78,8 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
   public DespachoArrdetalleSolicitud     : Array<DetalleSolicitud> = [];
   public arrdetalleSolicitudMed          : Array<DetalleSolicitud> = [];
   public arrdetalleSolicitudIns          : Array<DetalleSolicitud> = [];
+  public arrdetalleDispensarMed          : Array<DetalleSolicitud> = [];
+  public arrdetalleDispensarIns          : Array<DetalleSolicitud> = [];
   public arrdetalleSolicitudPaginacion   : Array<DetalleSolicitud> = [];
   public arrdetalleSolicitudMedPaginacion: Array<DetalleSolicitud> = [];
   public arrdetalleSolicitudInsPaginacion: Array<DetalleSolicitud> = [];
@@ -212,6 +214,7 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
     } else {
       if (this.resid != 0  )
       this.CargaPacienteReceta(this.resid);
+
     }
 
   }
@@ -234,7 +237,7 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
         } else {
           if (response.length > 0) {
 
-            console.log("CARGA PACIENTE RECETA", response);
+          //  console.log("CARGA PACIENTE RECETA", response);
             this.recetademonitor = true;
             this._Receta = response[0];
             if(this._Receta.receambito == 1){
@@ -299,7 +302,7 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
 
               this.arrdetalleSolicitudMed.unshift(detreceta);
               this.arrdetalleSolicitud.unshift(detreceta);
-              this.arrdetalleSolicitudMedPaginacion = this.arrdetalleSolicitudMed.slice(0,50);
+              this.arrdetalleSolicitudMedPaginacion = this.arrdetalleSolicitudMed.slice(0,20);
               // console.log("datos pacientesolicitud",this.dataPacienteSolicitud)
             })
             
@@ -310,6 +313,7 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
             this.loading = false;
           }
         }
+
       },
 
       error => {
@@ -323,7 +327,7 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
   }
 
   BuscaBodegaSolicitante() {
-    this._BodegasService.listaBodegaTodasSucursal(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.usuario, this.servidor).subscribe(
+    this._BodegasService.listaBodegaDespachoReceta(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.usuario, this.servidor).subscribe(
       response => {
         this.bodegasSolicitantes = response;
       },
@@ -343,7 +347,57 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
       }
     }
     this.bodselec = true;
+
+    // si cambia la bodega se debe cambiar los lotes para cada producto
+    this.LoadComboLotesGrillaCompleta();
+
   }
+
+
+ LoadComboLotesGrillaCompleta(){
+  let indice = 0;
+  indice = 0;
+  this.arrdetalleSolicitudMed.forEach(element => {
+    this._buscasolicitudService.BuscaLotesProductosxBod(this.servidor, this.hdgcodigo, this.esacodigo,
+      this.cmecodigo, element.codmei,0,  this.FormDatosPaciente.value.bodcodigo  ).subscribe(
+        response => {
+         // console.log("***>>",response);
+            if (response == undefined){
+              this.arrdetalleSolicitudMed[indice].detallelote = [];
+            }
+            else { 
+
+                this.arrdetalleSolicitudMed[indice].detallelote = [];            
+                this.arrdetalleSolicitudMed[indice].detallelote = response;  
+                if (response.length == 1) {
+                 this.setLotegrillacompleta(response[0].fechavto, indice);
+                } 
+            }
+
+            indice++;
+          
+        }
+      )
+  });
+ }
+
+ setLotegrillacompleta(fechav: any, indx: number) {
+  //console.log(fechav,indx,1);
+  this.arrdetalleSolicitudMed[indx].fechavto = fechav;
+  this.arrdetalleSolicitudMedPaginacion[indx].fechavto = fechav;
+}
+
+ setLote(value: string, indx: number) {
+  const fechaylote = value.split('/');
+  const fechav = fechaylote[0];
+  const loteprod = fechaylote[1];
+  this.arrdetalleSolicitudMed[indx].fechavto = fechav;
+  this.arrdetalleSolicitudMed[indx].lote = loteprod;
+}
+
+
+
+
 
   datosUsuario() {
     var datosusuario = new DevuelveDatosUsuario();
@@ -390,12 +444,12 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
             element.marcacheckgrilla = true;
           }
           this.arrdetalleSolicitudMed.unshift(element);
-          this.arrdetalleSolicitudMedPaginacion = this.arrdetalleSolicitudMed.slice(0, 50);
+          this.arrdetalleSolicitudMedPaginacion = this.arrdetalleSolicitudMed.slice(0, 20);
 
         } else {
           if (element.tiporegmein == "I") {
             this.arrdetalleSolicitudIns.unshift(element);
-            this.arrdetalleSolicitudInsPaginacion = this.arrdetalleSolicitudIns.slice(0, 50);
+            this.arrdetalleSolicitudInsPaginacion = this.arrdetalleSolicitudIns.slice(0, 20);
           }
         }
         this.arrdetalleSolicitud = this.arrdetalleSolicitudMed
@@ -474,6 +528,7 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
       this.existpaciente = true;//Habilita boton Producto
       this.existsolicitud = true;
       this.nuevasolicitud = false;
+      console.log("soli buscada",this.dataPacienteSolicitud)
       this.FormDatosPaciente.get('estado').disable();
       this.FormDatosPaciente.get('estado').setValue(this.dataPacienteSolicitud.estadosolicitud);
       this.arrdetalleSolicitud = this.dataPacienteSolicitud.solicitudesdet;
@@ -495,13 +550,13 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
             element.marcacheckgrilla = true;
             element.cantadespachar = element.cantsoli - element.cantdespachada;
           }
-          this.arrdetalleSolicitudMed.unshift(element);
-          this.arrdetalleSolicitudMedPaginacion = this.arrdetalleSolicitudMed.slice(0,50);
+          this.arrdetalleSolicitudMed.push(element);
+          this.arrdetalleSolicitudMedPaginacion = this.arrdetalleSolicitudMed.slice(0,20);
         } else {
           if (element.tiporegmein == "I") {
             element.cantadespachar = element.cantsoli - element.cantdespachada;
-            this.arrdetalleSolicitudIns.unshift(element);
-            this.arrdetalleSolicitudInsPaginacion = this.arrdetalleSolicitudIns.slice(0, 50);
+            this.arrdetalleSolicitudIns.push(element);
+            this.arrdetalleSolicitudInsPaginacion = this.arrdetalleSolicitudIns.slice(0, 20);
           }
         }
       })
@@ -523,7 +578,7 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
       if (Retorno !== undefined) {
         this.existsolicitud = true;
         this.agregarproducto = true;
-        // console.log("Solicitud buscada", Retorno)
+        console.log("Solicitud buscada", Retorno)
         this.cargaSolicitud(Retorno.soliid);
       }
     })
@@ -543,7 +598,7 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
         this.FormDatosPaciente.controls["estadocomprobantecaja"].setValue(10);
         this.FormDatosPaciente.get('fechahora').setValue(new Date());
         this.FormDatosPaciente.controls["estado"].setValue(10);
-   
+
         if(Retorno.codambito == 1){
           
           this.ambito = false;
@@ -564,9 +619,9 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
           this.dataPacienteSolicitud.ctaid = this._paciente.ctaid;
           this.dataPacienteSolicitud.estid = this._paciente.estid;
           this.dataPacienteSolicitud.glsexo = this._paciente.sexo;
-          this.dataPacienteSolicitud.glstipidentificacion = this._paciente.descidentificacion;
-          this.FormDatosPaciente.get('tipodocumento').setValue(this.dataPacienteSolicitud.descidentificacion);
-          this.FormDatosPaciente.get('numidentificacion').setValue(this.dataPacienteSolicitud.numdocpac);
+          this.dataPacienteSolicitud.glstipidentificacion = Retorno.glstipidentificacion;
+          this.FormDatosPaciente.get('tipodocumento').setValue(Retorno.glstipidentificacion);
+          this.FormDatosPaciente.get('numidentificacion').setValue(Retorno.numdocpac);
           this.FormDatosPaciente.get('nombrepaciente').setValue(this.dataPacienteSolicitud.apematernopac.concat(" ")
           .concat(this.dataPacienteSolicitud.apepaternopac).concat(" ")
           .concat(this.dataPacienteSolicitud.nombrespac));
@@ -578,7 +633,7 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
            
             this.ambito = true;
             this.pacientehosp = Retorno;
-            console.log("valida pac hosp",this.pacientehosp);
+        //    console.log("valida pac hosp",this.pacientehosp);
             this.dataPacienteSolicitud = new Solicitud();
             this.dataPacienteSolicitud = Retorno;
             // this.dataPacienteSolicitud.cliid = this.pacientehosp.cliid;
@@ -610,13 +665,13 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
             this.FormDatosPaciente.get('pieza').setValue(this.pacientehosp.pzagloza.concat(" ").concat(this.pacientehosp.camglosa))
             this.FormDatosPaciente.get('numidentificacionmedico').setValue(this.pacientehosp.numdocprof)
             this.FormDatosPaciente.get('nombremedico').setValue(this.pacientehosp.nombremedico)
-            console.log("llena datapacisolic",this.dataPacienteSolicitud)
+           // console.log("llena datapacisolic",this.dataPacienteSolicitud)
            
           } else {
  
             this.ambito = true;
             this._paciente = Retorno
-
+    //console.log("Retorno.codambito", Retorno);
             this.dataPacienteSolicitud = new Solicitud();
             this.dataPacienteSolicitud.cliid = Retorno.cliid;
             this.dataPacienteSolicitud.tipodocpac = Retorno.tipoidentificacion;
@@ -635,8 +690,8 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
             this.dataPacienteSolicitud.glsexo = Retorno.glsexo;
             this.dataPacienteSolicitud.glstipidentificacion = Retorno.glstipidentificacion;
 
-            this.FormDatosPaciente.get('tipodocumento').setValue(this.dataPacienteSolicitud.descidentificacion);
-            this.FormDatosPaciente.get('numidentificacion').setValue(this.dataPacienteSolicitud.numdocpac);
+            this.FormDatosPaciente.get('tipodocumento').setValue(Retorno.glstipidentificacion);
+            this.FormDatosPaciente.get('numidentificacion').setValue(Retorno.numdocpac);
            this.FormDatosPaciente.get('nombrepaciente').setValue(this.dataPacienteSolicitud.apematernopac.concat(" ")
               .concat(this.dataPacienteSolicitud.apepaternopac).concat(" ")
               .concat(this.dataPacienteSolicitud.nombrespac));
@@ -656,7 +711,7 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
 
   /* Metodo que agrega un nuevo producto */
   onBuscarProducto() {
-    this._BSModalRef = this._BsModalService.show(BusquedaproductosComponent, this.setModal("Busqueda de Productos"));
+    this._BSModalRef = this._BsModalService.show(BusquedaproductosComponent, this.setModal("Búsqueda de Productos"));
     this._BSModalRef.content.onClose.subscribe((RetornoProductos: any) => {
       if (RetornoProductos !== undefined) {
         if (this.isProducto(RetornoProductos) < 0) {
@@ -676,10 +731,25 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
       else {
         this.existarticulo = false;
       }
-      
+
 
     });
   }
+
+
+
+  async setLotemedicamento(data: any) {
+    this.arrdetalleSolicitudMed.forEach(res => {
+        data.forEach(x => {
+          if (res.codmei === x.codmei) {
+            res.fechavto = x.fechavto;
+            res.lote = x.lote;
+          }
+        });
+      });
+  }
+
+
   /* Verifica si el producto seleccionado existe y devuelve un indice */
   isProducto(articuloseleccion: Articulos) {
     let indice = 0;
@@ -720,7 +790,7 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
       }else{
         // console.log("no pasa al if")
         this.arrdetalleSolicitudMed.splice(this.isEliminaMed(registro), 1);
-        this.arrdetalleSolicitudMedPaginacion = this.arrdetalleSolicitudMed.slice(0,50);
+        this.arrdetalleSolicitudMedPaginacion = this.arrdetalleSolicitudMed.slice(0,20);
         this.arrdetalleSolicitud.splice(this.isEliminaMed(registro), 1);
       }
       
@@ -770,7 +840,7 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
     if (registro.acciond == "I" && id >= 0 && registro.sodeid == 0) {
       // Eliminar registro nuevo la grilla
       this.arrdetalleSolicitudIns.splice(id, 1);
-      this.arrdetalleSolicitudInsPaginacion = this.arrdetalleSolicitudIns.slice(0,50);
+      this.arrdetalleSolicitudInsPaginacion = this.arrdetalleSolicitudIns.slice(0,20);
       this.arrdetalleSolicitud.splice(id, 1);
     } else {
       // elimina uno que ya existe
@@ -870,9 +940,9 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
     var idg =0;
     console.log("Valida cantidad",despacho)
    
-      if(this.IdgrillaDespacho(despacho)>=0){
+    if(this.IdgrillaDespacho(despacho)>=0){
         idg = this.IdgrillaDespacho(despacho)
-       
+       console.log("linea grilla",idg)
         if(this.arrdetalleSolicitudMed[idg].cantadespachar > this.arrdetalleSolicitudMed[idg].cantsoli- this.arrdetalleSolicitudMed[idg].cantdespachada ){
           this.alertSwalAlert.text = "La cantidad a Dispensar debe ser menor o igual a la cantidad Pendiente";
           this.alertSwalAlert.show();
@@ -885,6 +955,7 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
           }else{
             if(despacho.cantadespachar < despacho.cantsoli- despacho.cantdespachada || despacho.cantadespachar >0){
               // console.log("cantidad >0 y menor que pendiente")
+              this.arrdetalleSolicitud = this.arrdetalleSolicitudMed
             }
           }        
 
@@ -1047,6 +1118,8 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
   }
 
   setArray(art: Articulos) {
+    let indice : number;
+
     // for (const arr of art) {
     var detalleSolicitud = new DetalleSolicitud;
     detalleSolicitud.sodeid = 0;
@@ -1083,27 +1156,58 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
     detalleSolicitud.controlado = art.controlado;
     detalleSolicitud.consignacion = art.consignacion;
 
+
+    
+    // Busca lotes para el producto
+
+    this._buscasolicitudService.BuscaLotesProductosxBod(this.servidor, this.hdgcodigo, this.esacodigo,
+      this.cmecodigo, art.codigo,0,  this.FormDatosPaciente.value.bodcodigo  ).subscribe(
+        response => {
+            if (response == undefined){
+                 detalleSolicitud.detallelote = [];
+            }
+            else { 
+               detalleSolicitud.detallelote = [];            
+               detalleSolicitud.detallelote = response;  
+               this.setLotemedicamento(response);
+
+
+            }
+          
+        }
+      )
+
+
+
     if (this.isDetalle(detalleSolicitud) < 0) {
       if (detalleSolicitud.tiporegmein == "M") {
         detalleSolicitud.acciond = 'I';
+
+
+
         this.arrdetalleSolicitudMed.unshift(detalleSolicitud);
-        this.arrdetalleSolicitudMedPaginacion = this.arrdetalleSolicitudMed.slice(0, 50)
-        // console.log("DEtalle grilla, med ingresado",this.arrdetalleSolicitudMed,this.arrdetalleSolicitudMedPaginacion)
+
+        console.log("Pasa por los lotes",this.arrdetalleSolicitudMed)
+        this.arrdetalleSolicitudMedPaginacion = this.arrdetalleSolicitudMed.slice(0, 20)
+        console.log("DEtalle grilla, med ingresado",this.arrdetalleSolicitudMed,this.arrdetalleSolicitudMedPaginacion)
       } else {
         if (detalleSolicitud.tiporegmein == "I") {
           detalleSolicitud.acciond = 'I'; 
           this.arrdetalleSolicitudIns.unshift(detalleSolicitud);
-          this.arrdetalleSolicitudInsPaginacion = this.arrdetalleSolicitudIns.slice(0, 50)
+          this.arrdetalleSolicitudInsPaginacion = this.arrdetalleSolicitudIns.slice(0, 20)
           this.nuevasolicitud = true;
         }
       }
 
       this.arrdetalleSolicitud.unshift(detalleSolicitud);
-      this.arrdetalleSolicitudPaginacion = this.arrdetalleSolicitud.slice(0, 50);
-      // console.log("Detalle solicitud",this.arrdetalleSolicitud)
+      this.arrdetalleSolicitudPaginacion = this.arrdetalleSolicitud.slice(0, 20);
+      console.log("Detalle solicitud",this.arrdetalleSolicitud)
     } else { /* Si el Producto existe, no realizara ninguna accion*/ }
     // }
   }
+
+
+  
 
   grabarSolicitud() {
     var fechaactual = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
@@ -1134,8 +1238,14 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
       this._Solicitud.cmecodigo = this.cmecodigo;
       this._Solicitud.cliid = this.dataPacienteSolicitud.cliid;
       this._Solicitud.tipodocpac = this.dataPacienteSolicitud.tipodocpac;
-     
-      this._Solicitud.numdocpac = this.dataPacienteSolicitud.numdocpac.trim();
+      if (this.dataPacienteSolicitud.numdocpac == undefined) {
+        this._Solicitud.numdocpac ='';
+      } else {
+
+        this._Solicitud.numdocpac = this.dataPacienteSolicitud.numdocpac.trim();
+      }
+
+
       this._Solicitud.descidentificacion = null;
       this._Solicitud.apepaternopac = this.dataPacienteSolicitud.apepaternopac;
       this._Solicitud.apematernopac = this.dataPacienteSolicitud.apematernopac;
@@ -1198,7 +1308,7 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
       this._Solicitud.numeroreceta = parseInt(this.FormDatosPaciente.value.numeroreceta);
       this._Solicitud.comprobantecaja = this.FormDatosPaciente.value.comprobantecaja;
       this._Solicitud.estadocomprobantecaja = this.FormDatosPaciente.value.estadocomprobantecaja;
-      this._Solicitud.solitiporeg = "M";
+      this._Solicitud.solitiporeg = "M";  
       this._Solicitud.solirecetipo = this.dataPacienteSolicitud.solirecetipo;
       this._Solicitud.boleta = parseInt(this.FormDatosPaciente.value.numeroboleta);
       if (this.activacomboentrega == true) {
@@ -1256,7 +1366,14 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
         try {
           let IDSolciitud: any;
           let IDSol: number;
-          
+
+          this.arrdetalleDispensarMed = [];
+          this.arrdetalleDispensarIns = [];
+        
+          this.arrdetalleDispensarMed = this.arrdetalleSolicitudMed;
+          this.arrdetalleDispensarIns = this.arrdetalleSolicitudIns;
+        
+
           IDSolciitud = await this._solicitudService.crearSolicitud(this._Solicitud).toPromise();
           this.alertSwal.title = mensaje.concat(" Exitosa N°").concat(IDSolciitud['solbodid']);
           this.alertSwal.show();
@@ -1332,8 +1449,10 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
     var elemetoDespacho: DespachoDetalleSolicitud;
     var indice: number;
     indice = 0;
+   
 
-    this._Solicitud.solicitudesdet.forEach(element => {
+
+      this.arrdetalleDispensarMed.forEach(element => {
       if (element.cantadespachar > 0) {
 
         elemetoDespacho = element
@@ -1344,12 +1463,16 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
         elemetoDespacho.estid     = this.dataPacienteSolicitud.estid;
         elemetoDespacho.ctaid     = this.dataPacienteSolicitud.ctaid;
         elemetoDespacho.soliid    = this.dataPacienteSolicitud.solicitudesdet[indice].soliid;
-        elemetoDespacho.sodeid    = this.dataPacienteSolicitud.solicitudesdet[indice].sodeid;
+        elemetoDespacho.sodeid    = this.arrdetalleSolicitudMed[indice].sodeid;
         elemetoDespacho.servidor  = this.servidor;
         elemetoDespacho.usuariodespacha = this.usuario;
         elemetoDespacho.bodorigen = this.dataPacienteSolicitud.bodorigen;
         elemetoDespacho.boddestino= this.dataPacienteSolicitud.boddestino;
         elemetoDespacho.recetipo  = this.dataPacienteSolicitud.solirecetipo; 
+        elemetoDespacho.fechavto  = element.fechavto;
+        elemetoDespacho.lote      = element.lote;
+        
+        element
         if(this.recetademonitor == true){
           elemetoDespacho.receid    = this._Receta.receid;
         }else{
@@ -1368,7 +1491,7 @@ export class DespachoRecetasAmbulatoriaComponent implements OnInit {
     try {
       let Retorno: any;
       let _DISPENSACIONRECETAS : DISPENSACIONRECETAS;
-      console.log("datos a dispensar",_DespachoDetalleSolicitud)
+     
       Retorno = await this._dispensasolicitudService.GrabaDispensacion(_DespachoDetalleSolicitud).toPromise();
       // Llamamos a integración con Legado para informar que ya se dispensó la receta.
     

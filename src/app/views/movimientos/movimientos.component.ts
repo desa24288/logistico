@@ -509,7 +509,7 @@ export class MovimientosComponent implements OnInit {
         this.arregloMovimientosFarmaciaDetPaginacion = [];
 
         this.arregloMovimientosFarmaciaDet = this._MovimientosFarmacia.movimientosfarmaciadet;
-       this.arregloMovimientosFarmaciaDetPaginacion = this.arregloMovimientosFarmaciaDet.slice(0, 50);
+       this.arregloMovimientosFarmaciaDetPaginacion = this.arregloMovimientosFarmaciaDet.slice(0, 20);
        this.validaCantidad();
       },
       error => {
@@ -575,7 +575,7 @@ export class MovimientosComponent implements OnInit {
   EliminaRegistro(registro: any,id:number){
   
     this.arregloMovimientosFarmaciaDet.splice(id, 1);
-    this.arregloMovimientosFarmaciaDetPaginacion =  this.arregloMovimientosFarmaciaDet.slice(0,50);
+    this.arregloMovimientosFarmaciaDetPaginacion =  this.arregloMovimientosFarmaciaDet.slice(0,20);
     this.validaCantidad();
 
   }
@@ -765,7 +765,7 @@ export class MovimientosComponent implements OnInit {
               DetalleMovimiento.meinid = element.meinid;
               DetalleMovimiento.tiporegistro = element.meintiporeg;
               this.arregloMovimientosFarmaciaDet.unshift(DetalleMovimiento);
-              this.arregloMovimientosFarmaciaDetPaginacion = this.arregloMovimientosFarmaciaDet.slice(0, 50);
+              this.arregloMovimientosFarmaciaDetPaginacion = this.arregloMovimientosFarmaciaDet.slice(0, 20);
               this.validaCantidad();
               this.FormMovimiento.get('codigo').setValue(null);
               this.FormMovimiento.get('lote').setValue(null);
@@ -791,7 +791,7 @@ export class MovimientosComponent implements OnInit {
             DetalleMovimiento.meinid = response[0].mein;
             DetalleMovimiento.tiporegistro = response[0].tiporegistro;
             this.arregloMovimientosFarmaciaDet.unshift(DetalleMovimiento);
-            this.arregloMovimientosFarmaciaDetPaginacion = this.arregloMovimientosFarmaciaDet.slice(0, 50);
+            this.arregloMovimientosFarmaciaDetPaginacion = this.arregloMovimientosFarmaciaDet.slice(0, 20);
             this.validaCantidad();
             this.FormMovimiento.get('codigo').setValue(null);
             this.FormMovimiento.get('lote').setValue(null);

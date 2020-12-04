@@ -81,14 +81,14 @@
                         </div>
                     </div>
                 </form>
-                <div class="card border-primary" style="padding: 5px;margin-top: 10px;height: 990px;"> 
+                <div class="card border-primary" style="padding: 5px;margin-top: 10px;height: 950px;"> 
                     <div id="table" class="table-editable">
                         <!-- <a class="btn-floating btn-lg purple-gradient"></a>
                         <button type="button" class="btn btn-info btn-rounded btn-sm ml-2" (click)="addArticuloGrilla()"
                             [disabled]="(FormBodegas.value.nombrebodega ==null)">
                             Agregar<i class="fas fa-plus ml-2" aria-hidden="true"></i>
                         </button> -->
-                        <div id="table" class="table-editable table-responsive mt-2" style="height: 900px;">
+                        <div id="table" class="table-editable table-responsive mt-2" style="height: 890px;">
                             <table
                                 class="table table-sm table-condensed table-bordered table-responsive-md table-striped text-center">
                                 <tr class="table table-sm  table-primary table-bordered">                                 
@@ -173,7 +173,7 @@
                         </div>
                         <div class="row m-1">
                             <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-                                [totalItems]="_bodega_productos.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                                [totalItems]="_bodega_productos.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                                 [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                                 (pageChanged)="pageChanged($event,1)">
                             </pagination>
@@ -220,7 +220,7 @@
                         </div>
                         <div class="row m-1">
                             <pagination class="pagination-sm" [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-                                [totalItems]="_bodega_servicios.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                                [totalItems]="_bodega_servicios.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                                 [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                                 (pageChanged)="pageChanged($event,2)">
                             </pagination>
@@ -262,7 +262,7 @@
                         </div>
                         <div class="row m-1">
                             <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-                                [totalItems]="_bodega_usuarios.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                                [totalItems]="_bodega_usuarios.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                                 [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                                 (pageChanged)="pageChanged($event, 3)">
                             </pagination>
@@ -309,7 +309,7 @@
                         </div>
                         <div class="row m-1">
                             <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-                                [totalItems]="_bodega_relacion_bodegas.length" [itemsPerPage]=50
+                                [totalItems]="_bodega_relacion_bodegas.length" [itemsPerPage]=20
                                 [previousText]="'Anterior'" [nextText]="'Siguiente'" [firstText]="'&laquo;'"
                                 [lastText]="'&raquo;'" (pageChanged)="pageChanged($event, 4)">
                             </pagination>

@@ -24,6 +24,7 @@
     "@syncfusion/ej2-angular-navigations": "^18.3.44",
     "admin-lte": "^3.0.2",
     "bootstrap": "^4.3.1",
+    "ng2-rut": "^0.3.2",
     "ngx-bootstrap": "^5.2.0",
     "ngx-loading": "^3.0.1",
     "rxjs": "~6.4.0",

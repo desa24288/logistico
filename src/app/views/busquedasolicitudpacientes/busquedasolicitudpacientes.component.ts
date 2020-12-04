@@ -109,7 +109,7 @@ export class BusquedasolicitudpacientesComponent implements OnInit {
    }
 
   ngOnInit() {
-
+    this.usuario = sessionStorage.getItem('Usuario').toString();
     this.onClose = new Subject();
     this.setDate();
     this.ListarEstUnidades();
@@ -270,7 +270,7 @@ export class BusquedasolicitudpacientesComponent implements OnInit {
       this.servidor, parseInt(this.FormBusquedaSolPac.value.prioridad), parseInt(this.FormBusquedaSolPac.controls.ambito.value),
       parseInt(this.FormBusquedaSolPac.value.servicio),parseInt(this.FormBusquedaSolPac.value.pieza),
       parseInt(this.FormBusquedaSolPac.value.cama), parseInt(this.FormBusquedaSolPac.value.tipoidentificacion),
-      this.FormBusquedaSolPac.value.numeroidentificacion,this.filtrodenegocio,0).subscribe(
+      this.FormBusquedaSolPac.value.numeroidentificacion,this.filtrodenegocio,0,this.usuario).subscribe(
       response => {
         
         this.listasolicitudespacientes= response;

@@ -169,7 +169,7 @@ export class RecepcionsolicitudesComponent implements OnInit {
             if((element.cantdespachada-element.cantrecepcionado)>0){
               element.cantidadarecepcionar = element.cantdespachada- element.cantrecepcionado;
               this.listaDetalleDespacho.unshift(element);
-              this.listaDetalleDespachopaginacion = this.listaDetalleDespacho.slice(0,8);
+              this.listaDetalleDespachopaginacion = this.listaDetalleDespacho.slice(0,20);
             }
             
                       
@@ -184,7 +184,7 @@ export class RecepcionsolicitudesComponent implements OnInit {
           //   this.listaDetalleDespachopaginacion = this.listaDetalleDespacho.slice(0,8);
           // }
         })
-        this.listaDetalleSolicitudpaginacion = this.listaDetalleSolicitud.slice(0, 9);
+        this.listaDetalleSolicitudpaginacion = this.listaDetalleSolicitud.slice(0, 20);
       })
 
 
@@ -227,7 +227,7 @@ export class RecepcionsolicitudesComponent implements OnInit {
                               this.numsolic = true;
                               element.cantidadarecepcionar = element.cantdespachada- element.cantrecepcionado;
                               this.listaDetalleDespacho.unshift(element);
-                              this.listaDetalleDespachopaginacion = this.listaDetalleDespacho.slice(0,8);
+                              this.listaDetalleDespachopaginacion = this.listaDetalleDespacho.slice(0,20);
                             }
                             
                                       
@@ -243,7 +243,7 @@ export class RecepcionsolicitudesComponent implements OnInit {
                           // }
                         })
                         this.listaDetalleSolicitud = response[0].solicitudesdet;
-                        this.listaDetalleSolicitudpaginacion = this.listaDetalleSolicitud.slice(0, 9);
+                        this.listaDetalleSolicitudpaginacion = this.listaDetalleSolicitud.slice(0, 20);
                 });
       }
     });
@@ -356,7 +356,7 @@ export class RecepcionsolicitudesComponent implements OnInit {
           this.alertSwalGrilla.show();
           this.productosrecepcionados= response;
           console.log("producto a recepcionar",this.productosrecepcionados)
-          this.productosrecepcionadospaginacion = this.productosrecepcionados.slice(0,8);
+          this.productosrecepcionadospaginacion = this.productosrecepcionados.slice(0,20);
         }else{
           if(response.length==1){
             this.solicitudseleccion=[];
@@ -475,7 +475,7 @@ export class RecepcionsolicitudesComponent implements OnInit {
       this.listaDetalleDespacho.unshift(temporal);
     })
     
-    this.listaDetalleDespachopaginacion = this.listaDetalleDespacho.slice(0,8);
+    this.listaDetalleDespachopaginacion = this.listaDetalleDespacho.slice(0,20);
     this.numsolic = true;
     this.FormRecepcionDetalle.reset(); this.detalleslotes=[];
     this.productosrecepcionadospaginacion=[]
@@ -485,23 +485,26 @@ export class RecepcionsolicitudesComponent implements OnInit {
 
   validacantidadgrilla(id: number,despacho: DetalleSolicitud){
     var idg =0;
-    
+    this.alertSwalAlert.text = null;
     if(despacho.sodeid>0){
       if(this.IdgrillaRecepcion(despacho)>=0){
         idg = this.IdgrillaRecepcion(despacho)
-        
-        if(this.listaDetalleDespacho[idg].cantidadarecepcionar > this.listaDetalleDespachopaginacion[idg].cantdespachada- this.listaDetalleDespachopaginacion[idg].cantrecepcionado ){
-
+       
+        if(this.listaDetalleDespacho[idg].cantidadarecepcionar > this.listaDetalleDespacho[idg].cantdespachada- this.listaDetalleDespacho[idg].cantrecepcionada ){
+          
           this.alertSwalAlert.text = "La cantidad a recepcionar debe ser menor o igual a la cantidad Despachada";
           this.alertSwalAlert.show();
-          // this.listaDetalleDespacho[idg].cantidadarecepcionar = this.listaDetalleDespacho[idg].cantdespachada- this.listaDetalleDespacho[idg].cantrecepcionada;
+          this.listaDetalleDespacho[idg].cantidadarecepcionar = this.listaDetalleDespacho[idg].cantdespachada - this.listaDetalleDespacho[idg].cantrecepcionada ;
+          this.listaDetalleDespachopaginacion[idg].cantidadarecepcionar = this.listaDetalleDespacho[idg].cantidadarecepcionar ;
+
+          
 
         }else{
           if(this.listaDetalleDespacho[idg].cantidadarecepcionar <0){
             this.alertSwalAlert.text = "La cantidad a despachar debe ser mayor a 0";
             this.alertSwalAlert.show();
           }else{
-            if(despacho.cantidadarecepcionar < despacho.cantdespachada- despacho.cantrecepcionado || despacho.cantidadarecepcionar >0){
+            if(despacho.cantidadarecepcionar < despacho.cantdespachada- despacho.cantrecepcionada || despacho.cantidadarecepcionar >0){
               
             }
           }        
@@ -656,7 +659,7 @@ export class RecepcionsolicitudesComponent implements OnInit {
               cantpendiente= element.cantsoli- element.cantdespachada;
               element.cantadespachar= cantpendiente;  
             });
-            this.listaDetalleSolicitudpaginacion = this.listaDetalleSolicitud.slice(0, 9);
+            this.listaDetalleSolicitudpaginacion = this.listaDetalleSolicitud.slice(0, 20);
             this.activabtnimprime = true;
           },
           error => {
@@ -743,7 +746,7 @@ export class RecepcionsolicitudesComponent implements OnInit {
               cantpendiente= element.cantsoli- element.cantdespachada;
               element.cantadespachar= cantpendiente;  
             });
-            this.listaDetalleSolicitudpaginacion = this.listaDetalleSolicitud.slice(0, 9);
+            this.listaDetalleSolicitudpaginacion = this.listaDetalleSolicitud.slice(0, 20);
             this.activabtnimprime = true;
             this.numsolic= false;
             this.activabtnevento = true;

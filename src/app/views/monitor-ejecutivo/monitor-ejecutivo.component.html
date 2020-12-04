@@ -208,7 +208,7 @@
                 </table>
                 <div class="row m-1 mt-3">
                     <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="6"
-                        [totalItems]="listarecetashospitalizados.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [totalItems]="listarecetashospitalizados.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                         [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                         (pageChanged)="pageChangedRecetaHospitalizados($event)">
                     </pagination>
@@ -257,7 +257,7 @@
                 </table>
                 <div class="row m-1 mt-3">
                     <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-                        [totalItems]="listarecetasambulatorias.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [totalItems]="listarecetasambulatorias.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                         [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                         (pageChanged)="pageChangedRecetaAmbulatoria($event)">
                     </pagination>
@@ -306,7 +306,7 @@
                 </table>
                 <div class="row m-1 mt-3">
                     <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-                        [totalItems]="listarecetasurgencia.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [totalItems]="listarecetasurgencia.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                         [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                         (pageChanged)="pageChangedRecetaUrgencia($event)">
                     </pagination>
@@ -356,7 +356,7 @@
                 </table>
                 <div class="row m-1 mt-3">
                     <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-                        [totalItems]="listasolicitudespordespachar.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [totalItems]="listasolicitudespordespachar.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                         [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                         (pageChanged)="pageChangedSolicitudDespacho($event)">
                     </pagination>
@@ -410,7 +410,7 @@
                 </table>
                 <div class="row m-1 mt-3">
                     <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-                        [totalItems]="listasolicitudesurgencia.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [totalItems]="listasolicitudesurgencia.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                         [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                         (pageChanged)="pageChangedSolicitudUrgencia($event)">
                     </pagination>
@@ -462,7 +462,7 @@
                 </table>
                 <div class="row m-1 mt-3">
                     <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-                        [totalItems]="listasolicitudesporrecepcionar.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [totalItems]="listasolicitudesporrecepcionar.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                         [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                         (pageChanged)="pageChangedRecepcion($event)">
                     </pagination>

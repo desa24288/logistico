@@ -82,6 +82,7 @@ export class SolicitudesManualesComponent implements OnInit {
   public btnimprsolicitud       : boolean = false;
   public btnevento              : boolean = false;
   public activaagregar          : boolean = false;
+  public activabtneliminargrilla: boolean = false;
 
   constructor(
     private formBuilder             : FormBuilder,
@@ -188,13 +189,15 @@ export class SolicitudesManualesComponent implements OnInit {
             this.arregloDetalleProductoSolicitud = [];
 
             this.arregloDetalleProductoSolicitud = this._Solicitud.solicitudesdet;
-            this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 50);
+            this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
             if (this._Solicitud.estadosolicitud === 10 || this._Solicitud.estadosolicitud == 40) {
               this.existesolicitud = true;
+              this.activabtneliminargrilla = true;
             } else {
               this.existesolicitud = false;
               this.activabtnlimpiagrill = false;
               this.activaagregar = true;
+              this.activabtneliminargrilla = false;
 
             }
           });
@@ -289,18 +292,18 @@ export class SolicitudesManualesComponent implements OnInit {
 
     this.grabadetalle.unshift(DetalleMovimiento);
     this.activabtnlimpiagrill = true;
+    this.activabtneliminargrilla = true;
     this.arregloDetalleProductoSolicitud.unshift(DetalleMovimiento);
-    this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0,50);
-    console.log("detalle grilla",this.arregloDetalleProductoSolicitud)
-    console.log("num solic",this.FormCreaSolicitud.value.numsolicitud )
+    this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0,20);
+
 
     if(this.existesolicitud == true){
       this.activabtncreasolic = false;
-      console.log("ya existe solicitud",this.activabtncreasolic);
+
     }else{
       if(this.existesolicitud == false){
         this.activabtncreasolic = true;
-        console.log("NO existe solicitud",this.activabtncreasolic);
+
       }
     }
     // if(DetalleMovimiento.soliid >0){
@@ -382,6 +385,7 @@ export class SolicitudesManualesComponent implements OnInit {
     this.btnimprsolicitud = false;
     this.btnevento = false;
     this.activaagregar = false;
+    this.activabtneliminargrilla = false;
 
   }
 
@@ -410,7 +414,7 @@ export class SolicitudesManualesComponent implements OnInit {
       }else{
 
         this.arregloDetalleProductoSolicitud.splice(this.isEliminaMed(registro), 1);
-        this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0,50);
+        this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0,20);
       }
     } else {
       // elimina uno que ya existe
@@ -572,7 +576,7 @@ export class SolicitudesManualesComponent implements OnInit {
               this.arregloDetalleProductoSolicitud = [];
 
               this.arregloDetalleProductoSolicitud = this._Solicitud.solicitudesdet;
-              this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0,50);
+              this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0,20);
             },
             error => {
               console.log("Error :", error)
@@ -727,7 +731,7 @@ export class SolicitudesManualesComponent implements OnInit {
               this.arregloDetalleProductoSolicitudPaginacion = [];
               this.arregloDetalleProductoSolicitud = [];
               this.arregloDetalleProductoSolicitud = this._Solicitud.solicitudesdet;
-              this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0,50);
+              this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0,20);
               this.grabadetalle = [];
               if(this._Solicitud.estadosolicitud === 10 || this._Solicitud.estadosolicitud ==40){
                 this.existesolicitud =true;

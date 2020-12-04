@@ -110,8 +110,10 @@ export class SolicitudConsumoComponent implements OnInit {
     this.hdgcodigo = Number(sessionStorage.getItem('hdgcodigo').toString());
     this.esacodigo = Number(sessionStorage.getItem('esacodigo').toString());
     this.cmecodigo = Number(sessionStorage.getItem('cmecodigo').toString());
+    this.usuario   = sessionStorage.getItem('Usuario');
 
-    this.PrioridadesService.list(this.usuario, this.servidor).subscribe(
+
+    this.PrioridadesService.list(sessionStorage.getItem('Usuario'), this.servidor).subscribe(
       data => {
         this.prioridades = data;
       }, err => {
@@ -119,7 +121,7 @@ export class SolicitudConsumoComponent implements OnInit {
       }
     );
 
-    this.EstadoSolicitudBodegaService.list(this.usuario, this.servidor).subscribe(
+    this.EstadoSolicitudBodegaService.list(sessionStorage.getItem('Usuario'), this.servidor).subscribe(
       data => {
         this.estadossolbods = data;
       }, err => {
@@ -175,7 +177,7 @@ export class SolicitudConsumoComponent implements OnInit {
 
         if (this._SolicitudConsumo.detsolicitudconsumo != null) {
           this.arregloDetalleProductoSolicitud = this._SolicitudConsumo.detsolicitudconsumo;
-          this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 50);
+          this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
         }
 
       }
@@ -215,7 +217,7 @@ export class SolicitudConsumoComponent implements OnInit {
 
         DetalleMovimiento.iddetalle = 0;
         DetalleMovimiento.servidor = this.servidor;
-        DetalleMovimiento.usuario = this.usuario;
+        DetalleMovimiento.usuario = sessionStorage.getItem('Usuario');
         DetalleMovimiento.centrocosto = this.FormCreaSolicitud.value.ccosto;
         DetalleMovimiento.codigoproducto = response.prodcodigo;
         DetalleMovimiento.cantidadsolicitada = 0;
@@ -224,7 +226,7 @@ export class SolicitudConsumoComponent implements OnInit {
         DetalleMovimiento.operacioncontable = 0;
         DetalleMovimiento.estado = 10;
         DetalleMovimiento.prioridad = 0;
-        DetalleMovimiento.usuariosolicita = this.usuario;
+        DetalleMovimiento.usuariosolicita = sessionStorage.getItem('Usuario');
         DetalleMovimiento.servidor = this.servidor;
         DetalleMovimiento.usuarioautoriza = '';
         DetalleMovimiento.accion = "I";
@@ -241,7 +243,7 @@ export class SolicitudConsumoComponent implements OnInit {
         }
 
         this.arregloDetalleProductoSolicitud.unshift(DetalleMovimiento);
-        this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 50);
+        this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
 
 
       }
@@ -286,7 +288,7 @@ export class SolicitudConsumoComponent implements OnInit {
 
   validacantidadgrilla(despacho: DetalleSolicitudConsumo){
     var idg =0;
-    console.log("Valida cantidad",despacho)
+   // console.log("Valida cantidad",despacho)
    
       if(this.IdgrillaDespacho(despacho)>=0){
         idg = this.IdgrillaDespacho(despacho)
@@ -367,11 +369,11 @@ export class SolicitudConsumoComponent implements OnInit {
     if (registro.accion == "I" && id >= 0 && registro.id == 0) {
       // Eliminar registro nuevo la grilla
       this.arregloDetalleProductoSolicitud.splice(id, 1);
-      this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 50);
+      this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
     } else {
       // elimina uno que ya existe
       registro.servidor = this.servidor;
-      registro.usuario = this.usuario;
+      registro.usuario = sessionStorage.getItem('Usuario');
       this._solicitudConsumoService.eliminardetallearticulosolicitudconsumo(registro).subscribe(
         response => {
           this._solicitudConsumoService.buscarsolicitudconsumo(registro.id, this.hdgcodigo, this.esacodigo, this.cmecodigo, 0, 0, 0, 0, 0, 0, "", "", this.usuario, this.servidor, "", "").subscribe(
@@ -391,7 +393,7 @@ export class SolicitudConsumoComponent implements OnInit {
 
               if (this._SolicitudConsumo.detsolicitudconsumo != null) {
                 this.arregloDetalleProductoSolicitud = this._SolicitudConsumo.detsolicitudconsumo;
-                this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 50);
+                this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
               }
             },
             error => {
@@ -444,9 +446,9 @@ export class SolicitudConsumoComponent implements OnInit {
     this._SolicitudConsumo.estado = this.FormCreaSolicitud.value.esticod;
     this._SolicitudConsumo.accion = "I";
     this._SolicitudConsumo.prioridad = this.FormCreaSolicitud.value.prioridad;
-    this._SolicitudConsumo.usuariosolicita = this.usuario;
+    this._SolicitudConsumo.usuariosolicita = sessionStorage.getItem('Usuario');
     this._SolicitudConsumo.usuarioautoriza = '';
-    this._SolicitudConsumo.usuario = this.usuario;
+    this._SolicitudConsumo.usuario = sessionStorage.getItem('Usuario');
     this._SolicitudConsumo.servidor = this.servidor;
 
     this._SolicitudConsumo.detsolicitudconsumo = this.arregloDetalleProductoSolicitud;
@@ -474,7 +476,7 @@ export class SolicitudConsumoComponent implements OnInit {
 
             if (this._SolicitudConsumo.detsolicitudconsumo != null) {
               this.arregloDetalleProductoSolicitud = this._SolicitudConsumo.detsolicitudconsumo;
-              this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 50);
+              this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
             }
           },
           error => {
@@ -519,7 +521,7 @@ export class SolicitudConsumoComponent implements OnInit {
     this._SolicitudConsumo.prioridad = this.FormCreaSolicitud.value.prioridad;
     this._SolicitudConsumo.centrocosto = this.FormCreaSolicitud.value.centrocosto;
     this._SolicitudConsumo.servidor = this.servidor
-    this._SolicitudConsumo.usuario = this.usuario;
+    this._SolicitudConsumo.usuario = sessionStorage.getItem('Usuario');
 
     if (Accion == 'M') {
       this._SolicitudConsumo.accion = "M";
@@ -562,7 +564,7 @@ export class SolicitudConsumoComponent implements OnInit {
         this.alertSwal.title = "Solicitud Modificada N°:".concat(response.id);
         this.alertSwal.show();
 
-        this._solicitudConsumoService.buscarsolicitudconsumo(response.id, this.hdgcodigo, this.esacodigo, this.cmecodigo, 0, 0, 0, 0, 0, 0, "", "", this.usuario, this.servidor, "", "").subscribe(
+        this._solicitudConsumoService.buscarsolicitudconsumo(response.id, this.hdgcodigo, this.esacodigo, this.cmecodigo, 0, 0, 0, 0, 0, 0, "", "", sessionStorage.getItem('Usuario'), this.servidor, "", "").subscribe(
           respuestasolicitud => {
             this._SolicitudConsumo = respuestasolicitud[0];
             this.FormCreaSolicitud.get('numsolicitud').setValue(this._SolicitudConsumo.id);
@@ -579,7 +581,7 @@ export class SolicitudConsumoComponent implements OnInit {
 
             if (this._SolicitudConsumo.detsolicitudconsumo != null) {
               this.arregloDetalleProductoSolicitud = this._SolicitudConsumo.detsolicitudconsumo;
-              this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 50);
+              this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
             }
           },
           error => {
@@ -621,7 +623,7 @@ export class SolicitudConsumoComponent implements OnInit {
     if (this.FormCreaSolicitud.value.referenciaerp == null || this.FormCreaSolicitud.value.referenciaerp == 0) {
       
       this._SolicitudConsumo = new (SolicitudConsumo);
-      this._SolicitudConsumo.usuario = this.usuario;
+      this._SolicitudConsumo.usuario = sessionStorage.getItem('Usuario');
       this._SolicitudConsumo.servidor = this.servidor;
       this._SolicitudConsumo.id = numsolic;
       this._solicitudConsumoService.eliminarsolicitudconsumo(this._SolicitudConsumo).subscribe(
@@ -785,9 +787,9 @@ export class SolicitudConsumoComponent implements OnInit {
         this._SolicitudConsumo.referenciacontable = response.referenciacontable;
         this._SolicitudConsumo.operacioncontable = response.operacioncontable;
         this._SolicitudConsumo.estado = response.estado;
-        this._SolicitudConsumo.usuariosolicita = this.usuario;
+        this._SolicitudConsumo.usuariosolicita = sessionStorage.getItem('Usuario');
         this._SolicitudConsumo.detsolicitudconsumo = [];
-        this._SolicitudConsumo.usuario = this.usuario;
+        this._SolicitudConsumo.usuario = sessionStorage.getItem('Usuario');
         this._SolicitudConsumo.servidor = this.servidor;
 
 
@@ -807,9 +809,9 @@ export class SolicitudConsumoComponent implements OnInit {
           insertaDetalleSolicitud.operacioncontable = element.operacioncontable;
           insertaDetalleSolicitud.estado = 1;
           insertaDetalleSolicitud.prioridad = 1;
-          insertaDetalleSolicitud.usuariosolicita = this.usuario;
+          insertaDetalleSolicitud.usuariosolicita = sessionStorage.getItem('Usuario');
           insertaDetalleSolicitud.usuarioautoriza = " ";
-          insertaDetalleSolicitud.usuario = this.usuario;
+          insertaDetalleSolicitud.usuario = sessionStorage.getItem('Usuario');
           insertaDetalleSolicitud.servidor = this.servidor;
           insertaDetalleSolicitud.glosaunidadconsumo = element.glosaunidadconsumo;
 
@@ -831,7 +833,7 @@ export class SolicitudConsumoComponent implements OnInit {
 
         if (this._SolicitudConsumo.detsolicitudconsumo != null) {
           this.arregloDetalleProductoSolicitud = this._SolicitudConsumo.detsolicitudconsumo;
-          this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 50);
+          this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
         }
 
       }

@@ -35,6 +35,10 @@ import { DespachoDetalleSolicitud } from 'src/app/models/entity/DespachoDetalleS
 import { BusquedaplantillasbodegaComponent } from '../busquedaplantillasbodega/busquedaplantillasbodega.component'
 import { Plantillas } from 'src/app/models/entity/PlantillasBodegas';
 import { DetallePlantillaBodega } from 'src/app/models/entity/DetallePlantillaBodega';
+import { EstructuraBodegaServicio } from 'src/app/models/entity/estructura-bodega-servicio';
+import { observable } from 'rxjs';
+import { Detalleproducto } from 'src/app/models/producto/detalleproducto';
+import { convertActionBinding } from '@angular/compiler/src/compiler_util/expression_converter';
 
 declare var $: any;
 
@@ -62,6 +66,7 @@ export class DespachocostoservicioComponent implements OnInit {
   public _Solicitud             : Solicitud;   /* Solictud de creación y modificaicíón */
   public arregloDetalleProductoSolicitudPaginacion: Array<DetalleSolicitud> = [];
   public arregloDetalleProductoSolicitud: Array<DetalleSolicitud> = [];
+  public arrProdadespachar: Array<DetalleSolicitud> = [];
   public detalleEliminar        : any = null;
   public locale                 = 'es';
   public bsConfig               : Partial<BsDatepickerConfig>;
@@ -101,6 +106,7 @@ export class DespachocostoservicioComponent implements OnInit {
   descprod: any;
   public codexiste              : boolean = false;
   public desactivabtnagregar    : boolean = false;
+  public ListaEstructuraServicioBodegas : EstructuraBodegaServicio[]=[];
 
 
   constructor(
@@ -115,7 +121,7 @@ export class DespachocostoservicioComponent implements OnInit {
     public _creaService             : CreasolicitudesService,
     public _BusquedaproductosService: BusquedaproductosService,
     private _imprimesolicitudService: InformesService,
-    private recepcionasolicitudService: SolicitudService
+    private _buscasolicitudService: SolicitudService
   ) { 
 
     this.FormCreaSolicitud = this.formBuilder.group({
@@ -128,6 +134,7 @@ export class DespachocostoservicioComponent implements OnInit {
       fecha     : [new Date(), Validators.required],
       bodcodigo : [{ value: null, disabled: false }, Validators.required],
       codbodegasuministro: [{ value: null, disabled: false }, Validators.required],
+      bsservid : [{ value: null, disabled: false }, Validators.required],
     });
 
     this.FormDespachoSolicitud = this.formBuilder.group({
@@ -198,8 +205,12 @@ export class DespachocostoservicioComponent implements OnInit {
             
         this._solicitudService.BuscaSolicitud(response.soliid, this.hdgcodigo, this.esacodigo, this.cmecodigo, 0, "", "", 0, 0, 0, this.servidor, 0, -1, 0, 0, 0, 0, "",60).subscribe(
           response_solicitud => {
-           
+            
+            this.SeleccionaBodega(response_solicitud[0].bodorigen);
+
             this._Solicitud = response_solicitud[0];
+            this.FormCreaSolicitud.get('bsservid').setValue(response_solicitud[0].codservicioori);
+
             this.desactivabtnelim = true;
             this.FormCreaSolicitud.get('numsolicitud').setValue(this._Solicitud.soliid);
             this.FormCreaSolicitud.get('bodcodigo').setValue(this._Solicitud.bodorigen);
@@ -220,7 +231,7 @@ export class DespachocostoservicioComponent implements OnInit {
             //   }
             // })
             this.arregloDetalleProductoSolicitud = this._Solicitud.solicitudesdet;
-            this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 50);
+            this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
           });
 
         
@@ -278,12 +289,79 @@ export class DespachocostoservicioComponent implements OnInit {
     //   }
     // }
 
+
+    ActivaBotonGrillaSolicitud(){
+  
+      if (this.FormCreaSolicitud.get("bodcodigo").value != null
+      && this.FormCreaSolicitud.get("bsservid").value != null
+      && this.FormCreaSolicitud.get("numsolicitud").value  == null
+      ) {
+  
+        return true
+      }
+      else {
+  
+        return false
+      }
+    }  
+
+  ActivaBotonCrearSolicitud(){
+
+    if (this.FormCreaSolicitud.get("bodcodigo").value != null
+      && this.FormCreaSolicitud.get("bsservid").value != null
+      && this.FormCreaSolicitud.get("numsolicitud").value  == null
+      && this.arregloDetalleProductoSolicitud.length > 0
+    ) {
+
+      return true
+    }
+    else {
+
+      return false
+    }
+  }  
+
   SeleccionaBodega(codigobodega: number){  
     // console.log("Selecciona bodega",codigobodega)
-    if(this.arregloDetalleProductoSolicitud.length >0 ){
-      this.activabtncreasolic = true;
-    }
+
+    let _EstructuraBodegaServicio: EstructuraBodegaServicio;
+    this.FormCreaSolicitud.get('bsservid').setValue(null);
+
+    _EstructuraBodegaServicio= new(EstructuraBodegaServicio);
+    _EstructuraBodegaServicio.hdgcodigo = this.hdgcodigo;
+    _EstructuraBodegaServicio.esacodigo = this.esacodigo;
+    _EstructuraBodegaServicio.cmecodigo = this.cmecodigo;
+    _EstructuraBodegaServicio.bsvigente = 'S'
+    _EstructuraBodegaServicio.bsfbodcodigo = codigobodega; // this.FormCreaSolicitud.get("bodcodigo").value
+    _EstructuraBodegaServicio.servidor = this.servidor;
+  
+
+    this.ListaEstructuraServicioBodegas = [];
+
+     this._BodegasService.ListaEstructuraServicioBodegas(_EstructuraBodegaServicio).subscribe(response => { 
+      if (response.length == 0) {
+
+      }
+      else {
+          if  (response.length == 1) {
+            this.ListaEstructuraServicioBodegas = response
+            this.FormCreaSolicitud.get('bsservid').setValue(this.ListaEstructuraServicioBodegas[0].bsservid);
+          } else {
+            this.ListaEstructuraServicioBodegas = response
+          }
+
+
+      }
+     })
+
+
   }
+
+
+      
+    
+
+
 
   async addArticuloGrilla() {
     this.alertSwalError.title = null;
@@ -398,8 +476,6 @@ export class DespachocostoservicioComponent implements OnInit {
     DetalleMovimiento.tiporegmein = this.productoselec.tiporegistro
 
     this.grabadetalle.unshift(DetalleMovimiento);
-    // console.log("DEtallemovim",DetalleMovimiento)
-    // console.log("DEtallprod",this.productoselec)
     if(DetalleMovimiento.tiporegmein == "I"){
       const indx = this.arregloDetalleProductoSolicitud.findIndex(x => x.codmei === this.productoselec.codigo, 1);
       if (indx >= 0) {
@@ -409,7 +485,7 @@ export class DespachocostoservicioComponent implements OnInit {
       }else{
         if (this.codexiste == false){
           this.arregloDetalleProductoSolicitud.unshift(DetalleMovimiento);
-          this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 50);
+          this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
           }
         }
     }else{
@@ -429,7 +505,9 @@ export class DespachocostoservicioComponent implements OnInit {
     stock1=[];
    
     this.FormDespachoSolicitud.reset();
-
+    // this.LoadComboLotes();
+    console.log(mein);
+    this.LoadComboLotesNew();
   }
 
   setModalBusquedaProductos() {
@@ -502,7 +580,6 @@ export class DespachocostoservicioComponent implements OnInit {
 
 
   cambio_cantidad(id: number, property: string, registro: DetalleSolicitud) {
-   
     if (this.arregloDetalleProductoSolicitudPaginacion[id]["sodeid"] == 0) {
       this.arregloDetalleProductoSolicitudPaginacion[id]["acciond"] = "I";
       this.arregloDetalleProductoSolicitud[id][property] = this.arregloDetalleProductoSolicitudPaginacion[id][property];
@@ -517,18 +594,15 @@ export class DespachocostoservicioComponent implements OnInit {
 
   validacantidadgrilla(id: number,despacho: DetalleSolicitud){
     var idg =0;
-    // console.log("Vaida cantidad",despacho)
-    // if(despacho.sodeid>0){
-      if(this.IdgrillaDevolucion(despacho)>=0){
-        idg = this.IdgrillaDevolucion(despacho)
-        
-        if(this.arregloDetalleProductoSolicitud[idg].cantsoli <0){
-          this.alertSwalAlert.text = "La cantidad a despachar debe ser mayor a 0";
-          this.alertSwalAlert.show();
-        }else{
-        }
+    if(this.IdgrillaDevolucion(despacho)>=0){
+      idg = this.IdgrillaDevolucion(despacho)
+      
+      if(this.arregloDetalleProductoSolicitud[idg].cantsoli <0){
+        this.alertSwalAlert.text = "La cantidad a despachar debe ser mayor a 0";
+        this.alertSwalAlert.show();
+      }else{
       }
-    // }
+    }
   }
 
   IdgrillaDevolucion(registro: DetalleSolicitud) {
@@ -561,12 +635,15 @@ export class DespachocostoservicioComponent implements OnInit {
 
                 let arrPlantillas: Plantillas = new Plantillas();
                 arrPlantillas = response_plantilla[0];
-                console.log("busqueda 2", arrPlantillas)
+               // console.log("busqueda 2", arrPlantillas)
                 if (arrPlantillas.bodorigen == 0) {
                   this.activabtncreasolic = false;
                 }
                 this.FormCreaSolicitud.get('bodcodigo').setValue(arrPlantillas.bodorigen);
                 this.FormCreaSolicitud.value.bodcodigo = arrPlantillas.bodorigen;
+                
+                this.SeleccionaBodega(this.FormCreaSolicitud.value.bodcodigo);
+
                 // console.log("bodega", this.FormCreaSolicitud.value.bodcodigo)
                 this.nomplantilla = arrPlantillas.plandescrip;
                 arrPlantillas.plantillasdet.forEach(res => {
@@ -576,6 +653,9 @@ export class DespachocostoservicioComponent implements OnInit {
                   this.loading = false;
 
                 });
+
+
+
               }
             }
           });
@@ -639,21 +719,19 @@ export class DespachocostoservicioComponent implements OnInit {
     if (detalleSolicitud.tiporegmein == "I") {
      
       this.arregloDetalleProductoSolicitud.unshift(detalleSolicitud);
-      this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 50);
+      this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
       // this.FormCreaSolicitud.value.bodcodigo= arrPlantillas.bodorigen
       
     } else{
       if(detalleSolicitud.tiporegmein =="M"){
         this.cantmed ++;
         this.alertSwalAlert.text = "La plantilla tiene medicamentos ";
-        // this.alertSwalAlert.text = "La plantilla tiene "+this.cantmed +"  medicamentos que no serán cargados";
         this.alertSwalAlert.show();
  
       }
     }
     if(this.FormCreaSolicitud.value.bodcodigo >0){
       this.activabtncreasolic= true;
-      // console.log("no está seleccionada la bodega",this.activabtncreasolic,this.FormCreaSolicitud.value.bodcodigo);
     }
     // if(i== ){
     // }
@@ -663,6 +741,7 @@ export class DespachocostoservicioComponent implements OnInit {
     this.FormCreaSolicitud.reset();
     this.arregloDetalleProductoSolicitudPaginacion = [];
     this.arregloDetalleProductoSolicitud = [];
+    this.ListaEstructuraServicioBodegas  = [];
     this.FormCreaSolicitud.get('fecha').setValue(new Date());
     this.existesolicitud = false;
     this.FormCreaSolicitud.controls["esticod"].setValue(10);
@@ -703,7 +782,7 @@ export class DespachocostoservicioComponent implements OnInit {
       }else{
        
         this.arregloDetalleProductoSolicitud.splice(this.isEliminaMed(registro), 1);
-        this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 50);
+        this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
       }
     } 
     
@@ -796,8 +875,9 @@ export class DespachocostoservicioComponent implements OnInit {
     this._Solicitud.servidor = this.servidor;
     this._Solicitud.accion = "I";
     this._Solicitud.origensolicitud = 60;
+    this._Solicitud.codservicioori = this.FormCreaSolicitud.value.bsservid;
+    this._Solicitud.codserviciodes = this.FormCreaSolicitud.value.bsservid;
    
-    // console.log("cabecera solic", this._Solicitud)
     this.grabadetallesolicitud = [];
 
     this.arregloDetalleProductoSolicitud.forEach(element => {
@@ -827,13 +907,17 @@ export class DespachocostoservicioComponent implements OnInit {
       detalleSolicitud.pendientedespacho = 0;
       detalleSolicitud.repoid = 0;
       detalleSolicitud.marca = element.marca;   // S o N      
+      detalleSolicitud.lote = element.lote;
+      detalleSolicitud.fechavto = element.fechavto;
 
       this.grabadetallesolicitud.push(detalleSolicitud);
 
     });
-    
+    //** Guarda grilla con lote */
+    //** @ */
+    this.arrProdadespachar = this.grabadetallesolicitud;
+    /** */
     this._Solicitud.solicitudesdet = this.grabadetallesolicitud;
-    // console.log("solicitud",this._Solicitud)
     this._solicitudService.crearSolicitud(this._Solicitud).subscribe(
       response => {
        
@@ -842,31 +926,17 @@ export class DespachocostoservicioComponent implements OnInit {
             respuestasolicitud => {
               this._Solicitud = null;
               this._Solicitud = respuestasolicitud[0];
-              this.desactivabtnelim = true;
               this.activabtncreasolic = false;
               this.DespacharSolicitud(this._Solicitud.soliid);
               this.FormCreaSolicitud.get('numsolicitud').setValue(this._Solicitud.soliid);
-              // this.FormCreaSolicitud.get('bodcodigo').setValue(this._Solicitud.bodorigen);
-              // this.BuscaBodegasSuministro(this._Solicitud.bodorigen);
-              // this.FormCreaSolicitud.get('codbodegasuministro').setValue(this._Solicitud.boddestino);
-              // this.FormCreaSolicitud.get('fecha').setValue(this.datePipe.transform(this._Solicitud.fechacreacion, 'dd-MM-yyyy'));
-              // this.FormCreaSolicitud.get('esticod').setValue(this._Solicitud.estadosolicitud);
-              // this.FormCreaSolicitud.get('prioridad').setValue(this._Solicitud.prioridadsoli);
-
               this.existesolicitud= true;
               this.activabtnplant = true;
               this.FormDespachoSolicitud.controls.codigoproducto.disable();
               this.FormDespachoSolicitud.controls.cantidad.disable();
               this.desactivabtnagregar = true;
-              this.arregloDetalleProductoSolicitudPaginacion = [];
-              this.arregloDetalleProductoSolicitud = [];
-
-              this.arregloDetalleProductoSolicitud = this._Solicitud.solicitudesdet;
-              this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 8);
-              
             },
             error => {
-              console.log("Error :", error)
+              console.log("Error :", error);
             }
           );
       },
@@ -878,11 +948,9 @@ export class DespachocostoservicioComponent implements OnInit {
     );
   }
 
-  DespacharSolicitud(soliid:number){
-   
+  async DespacharSolicitud(soliid:number){
     if (this.arregloDetalleProductoSolicitud.length > 0) {
       this.DespachoSolicitud = new (DespachoSolicitud);
-      
       this.DespachoSolicitud.paramdespachos = this._Solicitud.solicitudesdet;// this.arregloDetalleProductoSolicitud;
       this.DespachoSolicitud.paramdespachos.forEach(element=>{
         element.hdgcodigo = this.hdgcodigo;
@@ -895,25 +963,24 @@ export class DespachocostoservicioComponent implements OnInit {
         element.usuariodespacha = this.usuario;
         element.soliid  = soliid;
         element.consumo = "S";
-
-      })
+      }
+      );
       
       try {
-
-        this._solicitudService.DespacharSolicitud(this.DespachoSolicitud).subscribe(
-          response => {
-            
+        this._solicitudService.DespacharSolicitudAutopedido(this.DespachoSolicitud).subscribe(
+          response => {  
             if (response.respuesta == 'OK') {
               // this.existesolicitud = true;
-             
+
               // this.activabtndespacho = false;
               this.alertSwal.title = "Solicitud creada N°:" + soliid +".  Despachada y Recepcionada con éxito";
               this.alertSwal.show();
 
-              this._solicitudService.BuscaSolicitud(this._Solicitud.soliid, this.hdgcodigo, this.esacodigo, this.cmecodigo, null, null, null, null, null, null, this.servidor, 0, 0, 0, 0, 0, 0, "",60).subscribe(
+              this._solicitudService.BuscaSolicitud(soliid, this.hdgcodigo, this.esacodigo, this.cmecodigo, null, null, null, null, null, null, this.servidor, 0, 0, 0, 0, 0, 0, "",60).subscribe(
                 response => {
                   this._Solicitud = response[0];
-                
+                  /**Habilita btn eliminar prod */
+                  this.desactivabtnelim = false;
                   this.FormCreaSolicitud.get('bodcodigo').setValue(response[0].bodorigen);
                   this.FormCreaSolicitud.get('fecha').setValue(new Date(response[0].fechacreacion));
                   this.FormCreaSolicitud.get('esticod').setValue(response[0].estadosolicitud);
@@ -921,11 +988,7 @@ export class DespachocostoservicioComponent implements OnInit {
                   this.FormCreaSolicitud.get('numsolicitud').setValue(this._Solicitud.soliid);
                   response[0].solicitudesdet.forEach(element =>{
                     element.backgroundcolor = (element.tienelote == "N")?'gris':'amarillo';
-        
                   })
-                  // element.backgroundcolor = (element.tienelote == "N")?'gris':'amarillo';
-                  // this.arregloDetalleProductoSolicitud = response[0].solicitudesdet;
-                  // this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 50);
                 },
                 error => {
                   console.log(error);
@@ -1116,6 +1179,68 @@ export class DespachocostoservicioComponent implements OnInit {
       }
       );
     }
+  }
+
+  /**asigna fecha vencimiento a producto segun seleccion lote en grilla  */
+  setLote(value: string, indx: number) {
+    const fechaylote = value.split('/');
+    const fechav = fechaylote[0];
+    const loteprod = fechaylote[1];
+    this.arregloDetalleProductoSolicitud[indx].fechavto = fechav;
+    this.arregloDetalleProductoSolicitud[indx].lote = loteprod;
+  }
+
+  /**Funcion que devuelve lotes de productos a grilla */
+  LoadComboLotes(){
+    let indice = 0;
+    indice = 0;
+    this.arregloDetalleProductoSolicitud.forEach(element => {
+      this._buscasolicitudService.BuscaLotesProductosxBod(this.servidor, this.hdgcodigo, this.esacodigo,
+        this.cmecodigo, element.codmei,0,  this.FormCreaSolicitud.value.bodcodigo  ).subscribe(
+          response => {
+            console.log(response);
+            if (response == undefined){
+              this.arregloDetalleProductoSolicitud[indice].detallelote = [];
+            }else {
+              this.arregloDetalleProductoSolicitud[indice].detallelote = [];            
+              this.arregloDetalleProductoSolicitud[indice].detallelote = response;
+              this.setLotemedicamento(response);
+            }
+            indice++;
+          }
+        )
+    });
+  }
+
+  /**Funcion que devuelve lotes de productos a grilla */
+  LoadComboLotesNew(){
+    let indice = 0;
+    this._buscasolicitudService.BuscaLotesProductosxBod(this.servidor, this.hdgcodigo, this.esacodigo,
+      this.cmecodigo, this.productoselec.codigo,0,  this.FormCreaSolicitud.value.bodcodigo  ).subscribe(
+        response => {
+          console.log(response);
+          if (response == undefined){
+            this.arregloDetalleProductoSolicitud[indice].detallelote = [];
+          }else {
+            this.arregloDetalleProductoSolicitud[indice].detallelote = [];            
+            this.arregloDetalleProductoSolicitud[indice].detallelote = response;
+            this.setLotemedicamento(response);
+          }
+        }
+      )
+  }
+  
+
+  /**agrega los lotes y fecha vto a la grilla Medicamentos */
+  async setLotemedicamento(data: any) {
+    this.arregloDetalleProductoSolicitud.forEach(res => {  
+        data.forEach(x => {
+          if (res.codmei === x.codmei) {
+            res.fechavto = x.fechavto;
+            res.lote = x.lote;
+          }
+        });
+      });
   }
 
 }

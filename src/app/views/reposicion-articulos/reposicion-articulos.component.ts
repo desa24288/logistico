@@ -167,7 +167,7 @@ export class ReposicionArticulosComponent implements OnInit {
 
                                       this.BuscaBodegasSuministro(this.Plantilla.bodorigen);
 
-      this.detallearticulosreposicionpaginacion = this.detallearticulosreposicion.slice(0, 50);
+      this.detallearticulosreposicionpaginacion = this.detallearticulosreposicion.slice(0, 20);
                                       this.FormReposicion.get('codbodegasuministro').setValue(this.Plantilla.boddestino);
                                       this.detalleplant = this.Plantilla.plantillasdet;
 
@@ -185,7 +185,7 @@ export class ReposicionArticulosComponent implements OnInit {
 
                                       });
 
-                                      this.detallearticulosreposicionpaginacion = this.detallearticulosreposicion.slice(0, 8);
+                                      this.detallearticulosreposicionpaginacion = this.detallearticulosreposicion.slice(0, 20);
                                     }
 
                     }
@@ -240,7 +240,7 @@ export class ReposicionArticulosComponent implements OnInit {
 
               );
 
-              this.detallearticulosreposicionpaginacion = this.detallearticulosreposicion.slice(0, 8);
+              this.detallearticulosreposicionpaginacion = this.detallearticulosreposicion.slice(0, 20);
             } else {
               this.alertSwalAlert.title = "No se encuentran registro para procesar"; //mensaje a mostrar
               this.alertSwalAlert.show();// para que aparezca
@@ -373,13 +373,13 @@ export class ReposicionArticulosComponent implements OnInit {
         this.detallearticulosreposicion[indice].marca = "S";
         indice++;
       });
-      this.detallearticulosreposicionpaginacion = this.detallearticulosreposicion.slice(0, 50);
+      this.detallearticulosreposicionpaginacion = this.detallearticulosreposicion.slice(0, 20);
     } else {
       this.detallearticulosreposicion.forEach(element => {
         this.detallearticulosreposicion[indice].marca = "N";
         indice++;
       });
-      this.detallearticulosreposicionpaginacion = this.detallearticulosreposicion.slice(0, 50);
+      this.detallearticulosreposicionpaginacion = this.detallearticulosreposicion.slice(0, 20);
     }
   }
 

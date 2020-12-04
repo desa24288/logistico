@@ -163,7 +163,7 @@ export class ConsultarecetaambulatoriaComponent implements OnInit {
           response => {
             console.log("Busqueda consultas:",response);
             this.consultasrecetasprogs = response;
-            this.consultasrecetasprogspaginacion = this.consultasrecetasprogs.slice(0,50);
+            this.consultasrecetasprogspaginacion = this.consultasrecetasprogs.slice(0,20);
             this.imprimeconsulta = true;
           }
         )
@@ -218,7 +218,7 @@ export class ConsultarecetaambulatoriaComponent implements OnInit {
           response => {
             console.log("Busqueda consultas:",response,this.FormConsultaReceta);
             this.consultasrecetasprogs = response;
-            this.consultasrecetasprogspaginacion = this.consultasrecetasprogs.slice(0,50);
+            this.consultasrecetasprogspaginacion = this.consultasrecetasprogs.slice(0,20);
             this.FormConsultaReceta.reset();
             event.target.checked = true;
             this.imprimeconsulta = true;
@@ -242,7 +242,7 @@ export class ConsultarecetaambulatoriaComponent implements OnInit {
     console.log("ver detalle d la consulta",id, detalle);
 
     this.detallesrecetas = detalle.detallerecetaprog;
-    this.detallesrecetaspaginacion = this.detallesrecetas.slice(0,50);
+    this.detallesrecetaspaginacion = this.detallesrecetas.slice(0,20);
 
     this.alertSwalGrilla.reverseButtons = true;
     this.alertSwalGrilla.title = 'Detalle Consulta Receta';

@@ -19,6 +19,7 @@ import { ConsultaRecetaProgramada } from '../models/entity/ConsultaRecetaProgram
 import { Receta } from '../models/entity/receta';
 import { DetalleSolicitud } from '../models/entity/DetalleSolicitud';
 import { Detalleproducto } from '../models/producto/detalleproducto';
+import { Detallelote } from '../models/entity/Detallelote';
 
 @Injectable()  
 export class SolicitudService {
@@ -46,6 +47,9 @@ export class SolicitudService {
     public urlbuscarrecetasficha : string = environment.URLServiciosRest.URLConexion.concat('/buscarrecetasficha');
     public urlbuscarrecetas      : string = environment.URLServiciosRest.URLConexion.concat('/buscarestructurarecetas');
     public urlbuscalotesfecha      : string = environment.URLServiciosRest.URLConexion.concat('/buscarLotedetalleplantilla');
+    public urlDespachosolicautopedido:string = environment.URLServiciosRest.URLConexion.concat('/despacharautopedido');
+    public urlproddespachobodutopedido: string = environment.URLServiciosRest.URLConexion.concat('/productosdespachoautopedido');
+    public urlDevolucionSolicAutopedido: string = environment.URLServiciosRest.URLConexion.concat('/devolverautopedido');
 
     constructor(public _http: HttpClient) {
     }
@@ -110,12 +114,20 @@ export class SolicitudService {
         return this._http.post(this.urlRecepcionDevolucion,paramdespachos);
     }
     
+    DespacharSolicitudAutopedido(varDespachoSolicitud: DespachoSolicitud): Observable<any> {
+        return this._http.post(this.urlDespachosolicautopedido, varDespachoSolicitud              
+        );
+    }
+
+    DevolucionSolicitudAutopedido(paramdespachos: ParamDevolBodega): Observable<ParamDevolBodega> {
+        return this._http.post( this.urlDevolucionSolicAutopedido,paramdespachos);
+    }
 
     BuscaSolicitudCabecera(psbodid: number,phdgcodigo:number,pesacodigo:number,pcmecodigo:number,
         ptiposolicitud:number,pfechaini:string,pfechacfin:string,pbodegaorigen:number,
         pbodegadestino:number,pestcod:number, servidor: string,prioridad:number,
         ambito:number, unidadid:number, piezaid:number,camid:number,tipodocid:number,numdocpac:string,
-        filtrodenegocio:string,soliorigen: number
+        filtrodenegocio:string,soliorigen: number,usuario:string
         ):Observable<Solicitud[]>{
             console.log("this.filtrodenegocio metodo",filtrodenegocio);
         return this._http.post<Solicitud[]>(this.urlbuscasolicitudcabecera, {
@@ -138,7 +150,8 @@ export class SolicitudService {
             'TipDocId'      : tipodocid,
             'numdocpac'     : numdocpac,
             'filtrodenegocio': filtrodenegocio,
-            'soliorigen'    : soliorigen
+            'soliorigen'    : soliorigen,
+            'usuario'       : usuario
             });
     }
 
@@ -187,6 +200,7 @@ export class SolicitudService {
 
         });
     }
+
     BuscaProductoRecepcionBodega(hdgcodigo:number,esacodigo:number,cmecodigo:number,servidor: string,
         soliid:number,codmei:string,lote:string,fechavto:string
         ):Observable<ProductoRecepcionBodega[]>{
@@ -220,6 +234,21 @@ export class SolicitudService {
         });
     }
 
+    BuscaProductoDespachoBodegaAutopedido(hdgcodigo:number,esacodigo:number,cmecodigo:number,servidor: string,
+        soliid:number,codmei:string,lote:string,fechavto:string
+        ):Observable<ProductoRecepcionBodega[]>{
+        return this._http.post<ProductoRecepcionBodega[]>(this.urlproddespachobodutopedido, {
+            'hdgcodigo' : hdgcodigo,
+            'esacodigo' : esacodigo,
+            'cmecodigo' : cmecodigo,
+            'servidor'  : servidor,
+            'soliid'    : soliid,            
+            'codmei'    : codmei,
+            'lote'      : lote,   
+            'fechavto'  : fechavto
+
+        });
+    }
     
     BuscaEventosSolicitud(solid: number, servidor: string):Observable<EventoSolicitud[]>{
         return this._http.post<EventoSolicitud[]>(this.urlseleventosolicitud, {
@@ -252,9 +281,9 @@ export class SolicitudService {
     }
     
     BuscaLotesProductosxBod(servidor:string,hdgcodigo:number,esacodigo:number,cmecodigo:number,
-        codmei:string,bodorigen:number,boddestino:number): Observable<MovimientosFarmacia[]> {
+        codmei:string,bodorigen:number,boddestino:number): Observable<Detallelote[]> {
          
-        return this._http.post<MovimientosFarmacia[]>(this.urlloteprodbod, {
+        return this._http.post<Detallelote[]>(this.urlloteprodbod, {
             'servidor'      : servidor,
             'hdgcodigo'     : hdgcodigo,
             'esacodigo'     : esacodigo,
@@ -266,9 +295,9 @@ export class SolicitudService {
     }
 
     BuscaLotesProductosxPac(servidor:string,hdgcodigo:number,esacodigo:number,cmecodigo:number,
-        codmei:string,bodorigen:number,boddestino:number,cliid: number): Observable<MovimientosFarmacia[]> {
+        codmei:string,bodorigen:number,boddestino:number,cliid: number): Observable<Detallelote[]> {
 
-        return this._http.post<MovimientosFarmacia[]>(this.urlloteprodpac, {
+        return this._http.post<Detallelote[]>(this.urlloteprodpac, {
             'servidor'      : servidor,
             'hdgcodigo'     : hdgcodigo,
             'esacodigo'     : esacodigo,

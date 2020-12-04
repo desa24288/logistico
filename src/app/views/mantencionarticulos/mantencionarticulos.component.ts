@@ -352,7 +352,7 @@ export class MantencionarticulosComponent implements OnInit {
 
     this._mantencionarticulosService.AddArticulos(this.var_Articulo).subscribe(
       response => {
-
+        console.log(response);
 
 
         this.alertSwal.title = "Artículo Creado Exitosamente"; //mensaje a mostrar

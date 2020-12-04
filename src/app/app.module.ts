@@ -114,7 +114,10 @@ import { PanelIntegracionCargosComponent } from './views/panel-integracion-cargo
 import { BodegaspruebaComponent } from './views/pruebas/bodegasprueba/bodegasprueba.component';
 import { CreadispensasolicitudpruebaComponent } from './views/pruebas/creadispensasolicitudprueba/creadispensasolicitudprueba.component';
 import { InterfacesService } from './servicios/interfaces.service';
+import { DevolucionautopedidoComponent } from './views/devolucionautopedido/devolucionautopedido.component';
 import { SidebarModule } from '@syncfusion/ej2-angular-navigations';
+import { BusquedacuentasComponent } from './views/busquedacuentas/busquedacuentas.component';
+//import { Ng2Rut } from 'ng2-rut';
 
 @NgModule({
   declarations: [
@@ -197,6 +200,8 @@ import { SidebarModule } from '@syncfusion/ej2-angular-navigations';
     BodegaspruebaComponent,
     PanelIntegracionCargosComponent,
     CreadispensasolicitudpruebaComponent,
+    DevolucionautopedidoComponent,
+    BusquedacuentasComponent,
   ],
   imports: [
     BrowserModule, 
@@ -222,7 +227,8 @@ import { SidebarModule } from '@syncfusion/ej2-angular-navigations';
       confirmButtonText: 'Aceptar',
       cancelButtonText: 'Cancelar'
     }),
-    NgxLoadingModule.forRoot({})
+    NgxLoadingModule.forRoot({}),
+    //Ng2Rut
   ],
   providers: [
     hesService,
@@ -270,7 +276,7 @@ import { SidebarModule } from '@syncfusion/ej2-angular-navigations';
     BusquedaProductosConsumoComponent,
     BusquedaPlantillaConsumoComponent,
     BusquedaRolesComponent,
-    BusquedaCentrosCostosComponent,
+    BusquedaCentrosCostosComponent
   ],
 })
 export class AppModule { }

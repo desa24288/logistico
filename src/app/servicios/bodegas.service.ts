@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { BodegaDestino } from '../models/entity/BodegaDestino';
+import { BodegaDestino } from '../models/entity/BodegaDestino'; 
 import { BodegaCargo } from '../models/entity/BodegaCargo';
 import { BodegasTodas } from '../models/entity/BodegasTodas';
 import { BodegasrelacionadaAccion } from '../models/entity/BodegasRelacionadas';
@@ -28,6 +28,7 @@ import { UsuariosBodegas } from '../models/entity/usuarios-bodegas';
 import { TipoRelacionBodega } from '../models/entity/tipo-relacion-bodega';
 import { EstructuraRelacionBodega } from '../models/entity/estructura-relacion-bodega';
 import { LibroControlado } from '../models/entity/LibroControlado';
+import { EstructuraBodegaServicio } from '../models/entity/estructura-bodega-servicio';
 
 
 @Injectable()
@@ -81,11 +82,21 @@ export class BodegasService {
 
   public urldesasociaRelacionBodega: string = environment.URLServiciosRest.URLConexion.concat('/desasociarelacionbodega');
   public urlprodbodegakardex  : string = environment.URLServiciosRest.URLConexion.concat('/selcierrekardexbodinv');
+  
+  public urlbodegadespachareceta : string = environment.URLServiciosRest.URLConexion.concat('/selbodegadespachareceta');
+
+  public urlListaEstructuraServicioBodegas : string = environment.URLServiciosRest.URLConexion.concat('/ListaEstructuraServicioBodegas');
+
+
 
   constructor(private _http: HttpClient) {
 
   }
 
+
+  ListaEstructuraServicioBodegas(BodegaServivio: EstructuraBodegaServicio): Observable<EstructuraBodegaServicio[]> {
+    return this._http.post<EstructuraBodegaServicio[]>(this.urlListaEstructuraServicioBodegas,BodegaServivio);   
+}
 
   
   listarTipoRelacionBodegas(hdgcodigo:number,cmecodigo : number,servidor : string, usuario:string): Observable<TipoRelacionBodega[]> {
@@ -254,6 +265,17 @@ desasociaUsuarioEstructuraBodegas(hdgcodigo:number,cmecodigo : number,bodegacodi
 
   listaBodegaTodasSucursal(hdgcodigo: number, esacodigo: number, cmecodigo: number, usuario: string, servidor: string): Observable<BodegasTodas[]> {
     return this._http.post<BodegasTodas[]>(this.urlbodegasTodas, {
+   'hdgcodigo': hdgcodigo,
+   'esacodigo': esacodigo,
+   'cmecodigo': cmecodigo,
+   'usuario': usuario,
+   'servidor': servidor
+    });
+  }
+
+  listaBodegaDespachoReceta(hdgcodigo: number, esacodigo: number, cmecodigo: number, usuario: string, 
+    servidor: string,): Observable<BodegasTodas[]> {
+    return this._http.post<BodegasTodas[]>(this.urlbodegadespachareceta, {
    'hdgcodigo': hdgcodigo,
    'esacodigo': esacodigo,
    'cmecodigo': cmecodigo,

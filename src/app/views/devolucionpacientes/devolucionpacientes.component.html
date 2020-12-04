@@ -46,10 +46,18 @@
                         *Requerido</p>
                 </div>
                 <div class="form-group col-md-2">
+                    <label for="descripcion">Descripción *</label>
+                    <input type="text" class="form-control form-control-sm" formControlName="descripcion"
+                    (focusout)="SeleccionaDescripcion($event,dForm.value.descripcion)">
+                    <p class="text-danger text-form-valid" *ngIf="dForm.controls['descripcion'].invalid && 
+                        (dForm.controls['descripcion'].dirty || dForm.controls['descripcion'].touched)">
+                        *Requerido</p>
+                </div>
+                <div class="form-group col-md-1">
                     <label for="idsolicitud">Solicitud *</label>
                     <input type="text" class="form-control form-control-sm" formControlName="soliid">
                 </div>
-                <div class="form-group col-md-2">
+                <div class="form-group col-md-1">
                     <label for="cantidad">Cantidad *</label>
                     <input type="number" class="form-control form-control-sm" formControlName="cantidad">
                 </div>
@@ -124,7 +132,7 @@
         </div>
         <div class="row m-1">
             <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-                [totalItems]="solicitudesgrilla.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                [totalItems]="solicitudesgrilla.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                 [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                 (pageChanged)="pageChangedDevolucion($event)">
             </pagination>

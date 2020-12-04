@@ -57,7 +57,7 @@ export class LoginComponent implements OnInit {
           sessionStorage.setItem('Usuario', this.FormLogin.value.usuario.toUpperCase()); 
           sessionStorage.setItem('id_usuario',response[0].userid.toString());
 
-
+    
           environment.privilegios.usuario= this.FormLogin.value.usuario.toUpperCase();
           environment.privilegios.holding= response[0].hdgnombre;
           environment.privilegios.empresa= response[0].esanombre;

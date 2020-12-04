@@ -78,6 +78,7 @@ export class DispensarsolicitudpacienteComponent implements OnInit {
   /**Activa btn Imprimir */
   public btnImprime = false;
   public activabtndispensar = false;
+  public btnagregar : boolean = false;
 
 
   constructor(
@@ -193,14 +194,14 @@ export class DispensarsolicitudpacienteComponent implements OnInit {
           this.FormDispensaSolicitudPaciente.get('medico').setValue(this.solicitudpaciente.nombremedico);
 
           this.detallesolicitudpaciente = response[0].solicitudesdet;
-          this.detallesolicitudpacientepaginacion = this.detallesolicitudpaciente.slice(0, 50);
+          this.detallesolicitudpacientepaginacion = this.detallesolicitudpaciente.slice(0, 20);
           this.detallesolicitudpaciente.forEach(element => {
             element.backgroundcolor = (element.tienelote == "N") ? 'gris' : 'amarillo';
             cantpendiente = element.cantsoli - element.cantdespachada;
             element.cantadespachar = cantpendiente;
             if (element.tienelote == "N" && cantpendiente > 0) {
               this.detallessolicitudes.unshift(element);
-              this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0, 50);
+              this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0, 20);
               this.activabtndispensar = true;
             }
 
@@ -269,10 +270,10 @@ export class DispensarsolicitudpacienteComponent implements OnInit {
           this.FormDispensaDetalle.get('cantidad').setValue(element.cantsoli - element.cantdespachada);
         }
 
-        if (element.tiporegmein == "M") {
+        // if (element.tiporegmein == "M") {
           this.validacombolote = true;
           this.validadato = true;
-          this.tiporegistro = "M";
+          // this.tiporegistro = "M";
 
           this._buscasolicitudService.BuscaLotesProductosxPac(this.servidor, this.hdgcodigo, this.esacodigo,
             this.cmecodigo, datosIngresados.codigo, this.solicitudpaciente.bodorigen,
@@ -286,11 +287,11 @@ export class DispensarsolicitudpacienteComponent implements OnInit {
               }
             }
             )
-        } else {
-          this.validacombolote = false;
-          this.validadato = true;
-          this.tiporegistro = "I";
-        }
+        // } else {
+        //   this.validacombolote = false;
+        //   this.validadato = true;
+        //   this.tiporegistro = "I";
+        // }
         // }
       } else {
         // this.validadato= false;
@@ -410,14 +411,14 @@ export class DispensarsolicitudpacienteComponent implements OnInit {
       /* Verifica si el retorno de Modal viene con datos o no //@MLobos*/
       if (RetornoSolicitudes !== undefined) {
 
-        console.log("RetornoSolicitudes",RetornoSolicitudes);
+        // console.log("RetornoSolicitudes",RetornoSolicitudes);
 
         this._buscasolicitudService.BuscaSolicitud(RetornoSolicitudes.soliid, this.hdgcodigo, this.esacodigo, this.cmecodigo, 0, "", "", 0, 0, 0, this.servidor, 0, -1, 0, 0, 0, 0, "",0).subscribe(
           response => {
   
             this.solicitudpaciente = response[0];
 
-           // console.log("solictu",this.solicitudpaciente)
+           console.log("solictu",this.solicitudpaciente)
             this.FormDispensaSolicitudPaciente.get('tipodoc').setValue(this.solicitudpaciente.glstipidentificacion);
             this.FormDispensaSolicitudPaciente.get('numidentificacion').setValue(this.solicitudpaciente.numdocpac);
             this.FormDispensaSolicitudPaciente.get('ppn').setValue(this.solicitudpaciente.ppnpaciente);
@@ -445,8 +446,20 @@ export class DispensarsolicitudpacienteComponent implements OnInit {
             this.cliid = this.solicitudpaciente.cliid;
             this.estid = this.solicitudpaciente.estid;
             this.detallesolicitudpaciente = this.solicitudpaciente.solicitudesdet;
-            this.detallesolicitudpacientepaginacion = this.detallesolicitudpaciente.slice(0, 50)
-            
+            this.detallesolicitudpacientepaginacion = this.detallesolicitudpaciente.slice(0, 20)
+            if(this.solicitudpaciente.estadosolicitud == 50){
+              this.FormDispensaDetalle.controls.codigo.disable();
+              this.FormDispensaDetalle.controls.cantidad.disable();
+              this.FormDispensaDetalle.controls.lote.disable();
+              this.FormDispensaDetalle.controls.fechavto.disable();
+              this.btnagregar = true;
+            }else{
+              this.FormDispensaDetalle.controls.codigo.enable();
+              this.FormDispensaDetalle.controls.cantidad.enable();
+              this.FormDispensaDetalle.controls.lote.enable();
+              this.FormDispensaDetalle.controls.fechavto.enable();
+              this.btnagregar = false;
+            }
             // 
             this.detallesolicitudpaciente.forEach(element => {
               element.backgroundcolor = (element.tienelote == "N") ? 'gris' : 'amarillo';
@@ -454,7 +467,7 @@ export class DispensarsolicitudpacienteComponent implements OnInit {
               element.cantadespachar = cantpendiente;
               if (element.tienelote == "N" && cantpendiente > 0) {
                 this.detallessolicitudes.unshift(element);
-                this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0, 50);
+                this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0, 20);
                 
               }
             });
@@ -509,11 +522,16 @@ export class DispensarsolicitudpacienteComponent implements OnInit {
     this.validadato = false;
     this.btnImprime = false;//Desactiva btn Imprimir //@ML
     this.codexiste = false;
-    this.activabtndispensar = false; 
+    this.activabtndispensar = false;
+    this.btnagregar = false;
+    this.FormDispensaDetalle.controls.codigo.enable();
+    this.FormDispensaDetalle.controls.cantidad.enable();
+    this.FormDispensaDetalle.controls.lote.enable();
+    this.FormDispensaDetalle.controls.fechavto.enable();
   }
 
   addArticuloGrillaDispensacion(dispensacion: any) {
-
+    this.alertSwalAlert.title = null;
     if (dispensacion.cantidad == 0) {
       this.alertSwalAlert.title = "Este producto ya fue dispensado";
       this.alertSwalAlert.show();
@@ -538,7 +556,7 @@ export class DispensarsolicitudpacienteComponent implements OnInit {
             temporal.cantdevolucion = element.cantdevolucion;
 
             this.detallessolicitudes.unshift(temporal);
-            this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0,50)
+            this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0,20)
             this.activabtndispensar = true;
           }
 
@@ -635,7 +653,8 @@ export class DispensarsolicitudpacienteComponent implements OnInit {
           this.esacodigo, this.cmecodigo, 0, null, null, 0, 0, null, this.servidor, 0,
           this.codambito, 0, 0, 0, 0, "",0).subscribe(
             response => {
-              this.FormDispensaSolicitudPaciente.get('tipodoc').setValue(this.solicitudpaciente.glstipidentificacion);
+              this.solicitudpaciente = response[0];
+              this.FormDispensaSolicitudPaciente.get('tipodoc').setValue(response[0].glstipidentificacion);
               this.FormDispensaSolicitudPaciente.get('numidentificacion').setValue(this.solicitudpaciente.numdocpac);
               this.FormDispensaSolicitudPaciente.get('ppn').setValue(this.solicitudpaciente.ppnpaciente);
               this.FormDispensaSolicitudPaciente.get('numcuenta').setValue(this.solicitudpaciente.cuentanumcuenta);
@@ -652,16 +671,28 @@ export class DispensarsolicitudpacienteComponent implements OnInit {
               this.FormDispensaSolicitudPaciente.get('cama').setValue(this.solicitudpaciente.camglosa);
 
               this.FormDispensaSolicitudPaciente.get('numsolicitud').setValue(this.solicitudpaciente.soliid);
-//console.log("fecha *******",this.solicitudpaciente.fechacreacion);     
+              //console.log("fecha *******",this.solicitudpaciente.fechacreacion);     
               this.FormDispensaSolicitudPaciente.get('fecha').setValue(this.datePipe.transform(this.solicitudpaciente.fechacreacion, 'dd-MM-yyyy HH:mm:ss'));
-             //this.FormDispensaSolicitudPaciente.get('fecha').setValue(this.solicitudpaciente.fechacreacion);
+              //this.FormDispensaSolicitudPaciente.get('fecha').setValue(this.solicitudpaciente.fechacreacion);
               this.FormDispensaSolicitudPaciente.get('ambito').setValue(this.solicitudpaciente.glsambito);
               this.FormDispensaSolicitudPaciente.get('estadoorden').setValue(this.solicitudpaciente.estadosolicitudde);
               this.FormDispensaSolicitudPaciente.get('ubicacion').setValue(this.solicitudpaciente.camglosa);
               this.FormDispensaSolicitudPaciente.get('medico').setValue(this.solicitudpaciente.nombremedico);
-
+              if(this.solicitudpaciente.estadosolicitud == 50){
+                this.FormDispensaDetalle.controls.codigo.disable();
+                this.FormDispensaDetalle.controls.cantidad.disable();
+                this.FormDispensaDetalle.controls.lote.disable();
+                this.FormDispensaDetalle.controls.fechavto.disable();
+                this.btnagregar = true;
+              }else{
+                this.FormDispensaDetalle.controls.codigo.enable();
+                this.FormDispensaDetalle.controls.cantidad.enable();
+                this.FormDispensaDetalle.controls.lote.enable();
+                this.FormDispensaDetalle.controls.fechavto.enable();
+                this.btnagregar = false;
+              }
               this.detallesolicitudpaciente = response[0].solicitudesdet;
-              this.detallesolicitudpacientepaginacion = this.detallesolicitudpaciente.slice(0, 50);
+              this.detallesolicitudpacientepaginacion = this.detallesolicitudpaciente.slice(0, 20);
               this.detallesolicitudpaciente.forEach(element => {
                 element.backgroundcolor = (element.tienelote == "N") ? 'gris' : 'amarillo';
                 cantpendiente = element.cantsoli - element.cantdespachada;

@@ -143,7 +143,7 @@ export class ControlStockMinimoComponent implements OnInit {
           , this.FormControlMinimo.value.bodcodigo, this.FormControlMinimo.value.codbodegasuministro, this.FormControlMinimo.value.id_articulo).subscribe(
             data => {
               this.arreglomovimientos = data;
-              this.arreglomovimientosPaginacion = this.arreglomovimientos.slice(0, 50);
+              this.arreglomovimientosPaginacion = this.arreglomovimientos.slice(0,20);
             }, err => {
               console.log(err.error);
             }
@@ -195,7 +195,7 @@ export class ControlStockMinimoComponent implements OnInit {
           , this.FormControlMinimo.value.bodcodigo, this.FormControlMinimo.value.codbodegasuministro, RetornoProductos.mein).subscribe(
             data => {
               this.arreglomovimientos = data;
-              this.arreglomovimientosPaginacion = this.arreglomovimientos.slice(0, 50);
+              this.arreglomovimientosPaginacion = this.arreglomovimientos.slice(0, 20);
             }, err => {
               console.log(err.error);
             }
@@ -221,7 +221,7 @@ export class ControlStockMinimoComponent implements OnInit {
           , this.FormControlMinimo.value.bodcodigo, this.FormControlMinimo.value.codbodegasuministro,0).subscribe(
             data => {
               this.arreglomovimientos = data;
-              this.arreglomovimientosPaginacion = this.arreglomovimientos.slice(0, 50);
+              this.arreglomovimientosPaginacion = this.arreglomovimientos.slice(0, 20);
             }, err => {
               console.log(err.error);
             }

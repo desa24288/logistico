@@ -127,7 +127,7 @@ export class CierrekardexComponent implements OnInit {
       response => {
         console.log("Busca productos en Bodegas para cierre kardex",response)
         this.prodsbodegaskardex = response;
-        this.prodsbodegaskardexpaginacion = this.prodsbodegaskardex.slice(0,50);
+        this.prodsbodegaskardexpaginacion = this.prodsbodegaskardex.slice(0,20);
         this.cierrakardex = true;
       },
       error => {

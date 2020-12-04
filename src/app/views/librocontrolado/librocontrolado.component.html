@@ -36,9 +36,9 @@
                 </div>
             </div>
         </form>
-        <div class="card border-primary" style="padding: 5px;margin-top: 10px;height: 990px;">
+        <div class="card border-primary" style="padding: 5px;margin-top: 10px;height: 850px;">
             <div id="table" class="table-editable">
-                <div id="table" class="table-editable table-responsive mt-2" style="height: 900px;">
+                <div id="table" class="table-editable table-responsive mt-2" style="height: 800px;">
                     <table
                         class="table table-sm table-condensed table-bordered table-responsive-md table-striped text-center">
                         <tr class="table table-sm  table-primary table-bordered ">
@@ -73,7 +73,7 @@
                 </div>
                 <div class="row m-1">
                     <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="11"
-                        [totalItems]="prodsbodegascontroladas.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                        [totalItems]="prodsbodegascontroladas.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                         [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                         (pageChanged)="pageChanged($event)">
                     </pagination>

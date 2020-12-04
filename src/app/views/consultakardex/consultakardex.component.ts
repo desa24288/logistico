@@ -279,7 +279,7 @@ export class ConsultakardexComponent implements OnInit {
             // console.log("response 1 producto",response);
             this.meinid = meinid;
             this.datoskardex = response;
-            this.datoskardexpaginacion = this.datoskardex.slice(0,50);
+            this.datoskardexpaginacion = this.datoskardex.slice(0,20);
             this.muestracoddes = true;
             this.btnimprime =true;
             this.todoslosprod = false;

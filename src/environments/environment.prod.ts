@@ -15,12 +15,12 @@ export const environment = {
     ambiente:"TESTING",
 
 
-    // IP. Pública Fusat
-   // URLConexionSolicitudConsumo: "http://198.41.33.191:8093", 
-   // URLConexion:  "http://198.41.33.191:8091",   
-   //URLConexionInformes: "http://198.41.33.191:8092",
-   // URLInterfaces : "http://198.41.33.191:8094",
-   // ambiente:"TESTING",
+     //IP. Pública Fusat   logisticoqa
+    //URLConexionSolicitudConsumo: "http://198.41.33.191:8093", 
+    //URLConexion:  "http://198.41.33.191:8091",   
+    //URLConexionInformes: "http://198.41.33.191:8092",
+    //URLInterfaces : "http://198.41.33.191:8094",
+    //ambiente:"TESTING",
  
 
  },

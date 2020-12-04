@@ -86,34 +86,36 @@
                         <th scope="col">Fecha</th>
                         <th scope="col">Tipo operación</th>
                         <th scope="col">Bodega origen</th>
-                        <th scope="col">Bodega destino</th> 
+                        <th scope="col">Bodega suministro</th> 
                         <th scope="col">Código</th>
                         <th scope="col">Descripción</th>
                         <th scope="col">Cantidad</th>
                         <th scope="col">Estado</th>
+                        <th scope="col">Referencia</th>
                         <th scope="col">Observación</th>
                         <th scope="col">Acción</th>
                     </tr>
                     <tr class="table-secondary" *ngFor="let movimiento of listabodegasPaginacion"
                         style="cursor: pointer;">
-                        <td><small>{{movimiento.fdeid}}</small></td>
+                        <td><small>{{movimiento.id}}</small></td>
                         <td><small>{{movimiento.fecha}}</small></td>
                         <td><small>{{movimiento.tipomovimiento}}</small></td>
-                        <td><small>{{movimiento.glosabodegaorigen}}</small></td>
-                        <td><small>{{movimiento.glosabodegadestino}}</small></td>             
-                        <td><small>{{movimiento.mfdemeincodmei}} </small></td>
+                        <td><small>{{movimiento.bodegaorigen}}</small></td>
+                        <td><small>{{movimiento.bodegadestino}}</small></td>             
+                        <td><small>{{movimiento.codigoarticulo}} </small></td>
                         <td class="text-nowrap help   " tooltip="{{movimiento.descripcionproducto}}"  >
                             <small>{{movimiento.descripcionproducto| slice:0:20 }}</small>
                         </td>
-                        <td><small>{{movimiento.mfdecantidad}}</small></td>
+                        <td><small>{{movimiento.cantidad}}</small></td>
                         <td><small>{{movimiento.interpestado}} </small></td>
-                        <td class="text-nowrap help   " tooltip="{{movimiento.intcargoerror}}"  >
+                        <td><small>{{movimiento.referenciacontable}} </small></td>
+                        <td class="text-nowrap help   " tooltip="{{movimiento.interperror}}"  >
                             <small>{{movimiento.interperror| slice:0:20 }}</small>
                         </td>
 
                         <td>
-                             <span><button type="button" id="btnenviar" class="btn btn-info btn-sm ml-2" *ngIf="movimiento.intcargoestado =='ERROR'"
-                                        (click)="Enviar(movimiento)"><small>Enviar</small>
+                             <span><button type="button" id="btnenviar" class="btn btn-info btn-sm ml-2" *ngIf="movimiento.interpestado =='ERROR' || movimiento.interpestado =='PENDIENTE' "
+                                        (click)="Enviar_bodegas(movimiento)"><small>Enviar</small>
                                     </button>
 
                             </span>
@@ -151,6 +153,7 @@
                         <th scope="col">Descripción</th>
                         <th scope="col">Cantidad</th>
                         <th scope="col">Estado</th>
+                        <th scope="col">Referencia</th>
                         <th scope="col">Observación</th>
                         <th scope="col">Acción</th>
                     </tr>
@@ -173,13 +176,14 @@
                             <small>{{movimiento.descripcionproducto| slice:0:20 }}</small>
                         </td>
                         <td><small>{{movimiento.mfdecantidad}}</small></td>
-                        <td><small>{{movimiento.intcargoestado}} </small></td>
-                        <td class="text-nowrap help   " tooltip="{{movimiento.intcargoerror}}"  >
-                            <small>{{movimiento.intcargoerror| slice:0:20 }}</small>
+                        <td><small>{{movimiento.interpestado}} </small></td>
+                        <td><small>{{movimiento.mfdereferenciacontable}} </small></td>
+                        <td class="text-nowrap help   " tooltip="{{movimiento.interperror}}"  >
+                            <small>{{movimiento.interperror| slice:0:20 }}</small>
                         </td>
                         <td>
-                            <span><button type="button" id="btnenviar" class="btn btn-info btn-sm ml-2" *ngIf="movimiento.intcargoestado =='ERROR'"
-                                       (click)="Enviar(movimiento)"><small>Enviar</small>
+                            <span><button type="button" id="btnenviar" class="btn btn-info btn-sm ml-2"  *ngIf="movimiento.interpestado =='OBSERVADO' || movimiento.interpestado =='PENDIENTE' "
+                                       (click)="Enviar_pacientes(movimiento)"><small>Enviar</small>
                                    </button>
 
                            </span>

@@ -116,7 +116,7 @@ export class LibrocontroladoComponent implements OnInit {
       response => {
         // console.log("Busca productos en Bodegas controlada",response)
         this.prodsbodegascontroladas = response;
-        this.prodsbodegascontroladaspaginacion = this.prodsbodegascontroladas.slice(0,50);
+        this.prodsbodegascontroladaspaginacion = this.prodsbodegascontroladas.slice(0,20);
         this.cierralibro = true;
         // this.imprimelibro = true;
       },

@@ -68,10 +68,10 @@
             </div> -->
             </div>
         </form>
-        <div class="card border-primary mt-0" style="padding: 5px;height: 990px;">
+        <div class="card border-primary mt-0" style="padding: 5px;height: 900px;">
             <!-- <tabset> -->
             <!-- <tab heading="Detalle Kardex" id="tab1"> -->
-            <div class="table-responsive mt-3" style="height: 900px;">
+            <div class="table-responsive mt-3" style="height: 890px;">
                 <table class="table table-sm  table-primary table-bordered"*ngIf="!muestragrillacoddes">
                     <tr>
                         <th class="text-center">Fecha Hora</th>
@@ -187,7 +187,7 @@
             </div>
             <div class="row m-1">
                 <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="6"
-                    [totalItems]="datoskardex.length" [itemsPerPage]=50 [previousText]="'Anterior'"
+                    [totalItems]="datoskardex.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                     [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                     (pageChanged)="pageChanged($event)">
                 </pagination>
