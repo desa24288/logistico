@@ -11,7 +11,7 @@ import { PrioridadesService } from '../../servicios/prioridades.service';
 import { BodegasService } from '../../servicios/bodegas.service';
 import { Solicitud } from 'src/app/models/entity/Solicitud';
 
-//Manejo de fechas 
+//Manejo de fechas
 import { defineLocale } from 'ngx-bootstrap/chronos';
 import { esLocale } from 'ngx-bootstrap/locale';
 import { BsLocaleService, BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
@@ -40,6 +40,7 @@ export class BusquedasolicitudesComponent implements OnInit {
   @Input() filtrodenegocio   : string;
   @Input() origen : string;
   @Input() numerosolic : number;
+  @Input() paginaorigen: number; //pagina desde donde llega, ejemplo: pantalla despacho solicitudes
 
   public onClose                      : Subject<Solicitud>;
   public estado                       : boolean = false;
@@ -82,6 +83,8 @@ export class BusquedasolicitudesComponent implements OnInit {
       tiposolicitud       : [{ value: null, disabled: false }, Validators.required],
       bodcodigo           : [{ value: null, disabled: false }, Validators.required],
       codbodegasuministro : [{ value: null, disabled: false }, Validators.required],
+      codigo              : [{ value: null, disabled: false }, Validators.required],
+      descripcion         : [{ value: null, disabled: false }, Validators.required]
     });
 
   }
@@ -93,7 +96,9 @@ export class BusquedasolicitudesComponent implements OnInit {
     if(this.origen == "Autopedido" || this.origen =="DevolucionAutopedido"){
       this._buscasolicitudService.ListaOrigenSolicitud(this.usuario,this.servidor,60).subscribe(
         response => {
-          this.ListaOrigenSolicitud = response;      
+          if (response != null){
+            this.ListaOrigenSolicitud = response;
+          }
         },
         err => {
           console.log(err.error);
@@ -103,16 +108,18 @@ export class BusquedasolicitudesComponent implements OnInit {
     if(this.origen == "Otros"){
       this._buscasolicitudService.ListaOrigenSolicitud(this.usuario,this.servidor,30).subscribe(
         response => {
-          this.ListaOrigenSolicitud = response;      
+          if (response != null){
+            this.ListaOrigenSolicitud = response;
+          }
         },
         err => {
           console.log(err.error);
         }
       );
     }
-    
+
     if(this.origen == "DevolucionAutopedido"){
-      this.lForm.get('numerosolicitud').setValue(this.numerosolic);    
+      this.lForm.get('numerosolicitud').setValue(this.numerosolic);
     }
 
     this.PrioridadesService.list(this.usuario,this.servidor).subscribe(
@@ -131,11 +138,13 @@ export class BusquedasolicitudesComponent implements OnInit {
       }
     );
 
-    
-  
+
+
     this._BodegasService.listaBodegaTodasSucursal(this.hdgcodigo, this.esacodigo, this.cmecodigo,this.usuario,this.servidor).subscribe(
       response => {
-        this.bodegasSolicitantes = response;
+        if (response != null){
+          this.bodegasSolicitantes = response;
+        }
       },
       error => {
         alert("Error al Buscar Bodegas de cargo");
@@ -163,98 +172,78 @@ export class BusquedasolicitudesComponent implements OnInit {
   };
 
   BuscarSolicitudesFiltro()
-   {
+  {
     this.solicitud= [];
+    this.listasolicitudes = [];
+    this.listasolicitudespaginacion = []
     var servidor = environment.URLServiciosRest.ambiente;
     var idOrigen = 0;
-    console.log("this.origen",this.origen)
 
     switch (this.origen) {
-      case "Autopedido": 
+      case "Autopedido":
               idOrigen = 60;
-             console.log("Entra a caso Autopedido", idOrigen)      
               break;
-      case "Otros":  
+      case "Otros":
               idOrigen = 0;
-              console.log("entra a otros",idOrigen)
               break;
-      case "DevolucionAutopedido": 
+      case "DevolucionAutopedido":
               idOrigen = 60;
               this.lForm.controls.estado.disable();
               this.lForm.controls.bodcodigo.disable();
-              this.lForm.controls.codbodegasuministro.disable(); 
-               
+              this.lForm.controls.codbodegasuministro.disable();
               break;
-      // case "Todo-Medico":   
-      //         tipodeproducto = 'MIM'; 
-      //         idBodega= this.id_Bodega;         
-      //         break;
-
-     
-      // default:
-      //   idOrigen = 0;
     }
-   
+
     if(this.lForm.value.codorigensolicitud >0){
       idOrigen = this.lForm.value.codorigensolicitud;
-      console.log("revisa si el origen tiene dato",idOrigen, this.lForm.value.codorigensolicitud)
     }
-    console.log("Datos busqueda", this.lForm.value.numerosolicitud, this.hdgcodigo,
-    this.esacodigo, this.cmecodigo, this.lForm.value.tiposolicitud,
-    this.datePipe.transform(this.lForm.value.fechadesde, 'yyyy-MM-dd'),
-    this.datePipe.transform(this.lForm.value.fechahasta, 'yyyy-MM-dd'), 
-    this.lForm.value.bodsercodigo,this.lForm.value.boddescodigo,
-    this.lForm.value.estado,servidor, this.lForm.value.prioridad,0,0,0,0,0,"",this.filtrodenegocio,
-    idOrigen)
 
 
     this.loading = true;
     this._buscasolicitudService.BuscaSolicitudCabecera(this.lForm.value.numerosolicitud, this.hdgcodigo,
     this.esacodigo, this.cmecodigo, this.lForm.value.tiposolicitud,
     this.datePipe.transform(this.lForm.value.fechadesde, 'yyyy-MM-dd'),
-    this.datePipe.transform(this.lForm.value.fechahasta, 'yyyy-MM-dd'), 
-    this.lForm.value.bodsercodigo,this.lForm.value.boddescodigo,
+    this.datePipe.transform(this.lForm.value.fechahasta, 'yyyy-MM-dd'),
+    this.lForm.value.bodcodigo,this.lForm.value.codbodegasuministro,
     this.lForm.value.estado,servidor, this.lForm.value.prioridad,0,0,0,0,0,"",this.filtrodenegocio,
-    idOrigen,this.usuario).subscribe(
+    idOrigen,this.usuario,this.lForm.controls.codigo.value,this.lForm.controls.descripcion.value,
+    this.paginaorigen, "").subscribe(
     response => {
-      if(response.length==0){
-        this.alertSwalError.title="No encuentra la Solicitud buscada";
-        this.alertSwalError.text="Puede que la solicitud no exista dentro del período indicado, favor intentar nuevamente";
-        this.alertSwalError.show();
-        this.loading = false;
-      }else{
-        if(response.length>0){
-          console.log("solic ",response)
-          response.forEach(element =>{
-            if( element.origensolicitud !=60 && this.origen == "Otros"){
-              console.log("Verifica que no cargue solic de autopedido",element)
+      if (response != null){
+        if(response.length==0){
+          this.loading = false;
+          return;
+        }else{
+          if(response.length>0){
+            this.solicitud =[];
+            response.forEach(element =>{
+              if( element.origensolicitud !=60 && this.origen == "Otros"){
+                this.solicitud.push(element);
+                this.listasolicitudes = this.solicitud;
+                this.listasolicitudespaginacion = this.listasolicitudes.slice(0, 8);
+              }else{
+                if(element.origensolicitud ==60 && this.origen == "Autopedido" || this.origen == "DevolucionAutopedido"){
 
-              // var solicitud = new Solicitud()
-              this.solicitud.push(element);
-              this.listasolicitudes = this.solicitud;
-              this.listasolicitudespaginacion = this.listasolicitudes.slice(0, 8);
-            }else{
-              if(element.origensolicitud ==60 && this.origen == "Autopedido" || this.origen == "DevolucionAutopedido"){
-                console.log("Carga las solic autopedidos")
-                this.listasolicitudes = response;
-              this.listasolicitudespaginacion = this.listasolicitudes.slice(0, 8);
+                  this.listasolicitudes = [];
+                  this.listasolicitudespaginacion = []
+                  this.listasolicitudes = response;
+                  this.listasolicitudespaginacion = this.listasolicitudes.slice(0, 8);
+                }
               }
-            }
-          })
-          
-          this.loading= false;
-        }        
+            });
+            this.loading= false;
+          }
+        }
+      } else {
+        this.loading= false;
       }
-      
-      },
-      error => {
-        console.log(error);
-        this.alertSwalError.title="Error al Buscar Solicitudes";
-        this.alertSwalError.text ="No encuentra Solicitud, puede que no exista, intentar nuevamente";
-        this.alertSwalError.show();
-        this.loading=false;
-      }
-    )
+    },error => {
+      console.log(error);
+      this.alertSwalError.title="Error al Buscar Solicitudes";
+      this.alertSwalError.text ="No encuentra Solicitud, puede que no exista, intentar nuevamente";
+      this.alertSwalError.show();
+      this.loading=false;
+    });
   }
 
   /* Función búsqueda con paginación */
@@ -264,7 +253,7 @@ export class BusquedasolicitudesComponent implements OnInit {
     this.listasolicitudespaginacion = this.listasolicitudes.slice(startItem, endItem);
   }
 
-  setDate() { 
+  setDate() {
     defineLocale(this.locale, esLocale);
     this.localeService.use(this.locale);
     this.bsConfig = Object.assign({}, { containerClass: this.colorTheme });
@@ -274,7 +263,9 @@ export class BusquedasolicitudesComponent implements OnInit {
     this._BodegasService.listaBodegaRelacionadaAccion(this.hdgcodigo, this.esacodigo, this.cmecodigo,
     this.usuario,this.servidor, codbodega_solicitante,1).subscribe(
       response => {
-        this.bodegassuministro = response;
+        if (response != null){
+          this.bodegassuministro = response;
+        }
       },
       error => {
         alert("Error al Buscar Bodegas de Destino");
@@ -284,11 +275,84 @@ export class BusquedasolicitudesComponent implements OnInit {
 
   Limpiar(){
     this.lForm.reset();
-    this.lForm.get('fechadesde').setValue(new Date());    
+    this.lForm.get('fechadesde').setValue(new Date());
     this.lForm.get('fechahasta').setValue(new Date());
     this.listasolicitudespaginacion=[];
     this.listasolicitudes = [];
     this.solicitud = [];
+  }
+
+  getSolicitud(solicitud:any){
+    solicitud= parseInt(solicitud)
+    var servidor = environment.URLServiciosRest.ambiente;
+    var idOrigen = 0;
+    switch (this.origen) {
+      case "Autopedido":
+              idOrigen = 60;
+              break;
+      case "Otros":
+              idOrigen = 0;
+              break;
+      case "DevolucionAutopedido":
+              idOrigen = 60;
+              this.lForm.controls.estado.disable();
+              this.lForm.controls.bodcodigo.disable();
+              this.lForm.controls.codbodegasuministro.disable();
+
+              break;
+    }
+
+    if(this.lForm.value.codorigensolicitud >0){
+      idOrigen = this.lForm.value.codorigensolicitud;
+    }
+    this.listasolicitudes = [];
+    this.listasolicitudespaginacion = []
+    this.loading = true;
+    this._buscasolicitudService.BuscaSolicitudCabecera(solicitud, this.hdgcodigo,
+      this.esacodigo, this.cmecodigo, this.lForm.value.tiposolicitud,
+      null,null, 0,0,0,servidor, this.lForm.value.prioridad,0,0,0,0,0,"",this.filtrodenegocio,
+      idOrigen,this.usuario,"","",this.paginaorigen, "").subscribe(
+      response => {
+        if (response != null){
+          if(response.length==0){
+            this.loading = false;
+            return;
+          }else{
+            if(response.length>0){
+              this.solicitud =[];
+              response.forEach(element =>{
+                if( element.origensolicitud !=60 && this.origen == "Otros"){
+                  this.listasolicitudes = [];
+                  this.listasolicitudespaginacion = [];
+                  this.solicitud.push(element);
+                  this.listasolicitudes = this.solicitud;
+                  this.listasolicitudespaginacion = this.listasolicitudes.slice(0, 8);
+                }else{
+                  if(element.origensolicitud ==60 && this.origen == "Autopedido" || this.origen == "DevolucionAutopedido"){
+                    this.listasolicitudes = [];
+                    this.listasolicitudespaginacion = [];
+
+                    this.listasolicitudes = response;
+                    this.listasolicitudespaginacion = this.listasolicitudes.slice(0, 8);
+                  }
+                }
+              })
+
+              this.loading= false;
+            }
+          }
+        } else {
+          this.loading = false;
+        }
+      },
+      error => {
+        console.log(error);
+        this.alertSwalError.title="Error al Buscar Solicitudes";
+        this.alertSwalError.text ="No encuentra Solicitud, puede que no exista, intentar nuevamente";
+        this.alertSwalError.show();
+        this.loading=false;
+      }
+    );
   }
 
 }

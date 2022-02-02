@@ -11,12 +11,17 @@ export class ProductosBodegas {
         nivelreposicion : number;
         glosaproducto: string;
         principioactivo: string;
-	presentacion: string;
-	formafarma: string;
-	glosaunidad: string;
-	glosatipoproducto: string;
+        presentacion: string;
+        formafarma: string;
+        glosaunidad: string;
+        glosatipoproducto: string;
         controlminimo:string;
         codbodega:number;
         servidor:string;
         usuario:string;
+        bloqcampogrilla: boolean;
+        marcacheckgrilla: boolean;
+        stockcriticoresp: number;
+        nivelreposicionresp: number;
+        controlminimoresp: string
 }

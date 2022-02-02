@@ -8,6 +8,7 @@ import { BsModalRef, PageChangedEvent } from 'ngx-bootstrap';
 import { Roles } from 'src/app/models/entity/Roles';
 import { UnidadesOrganizacionalesService } from 'src/app/servicios/unidades-organizacionales.service';
 import { UnidadesOrganizacionales } from 'src/app/models/entity/unidades-organizacionales';
+import { CentroCostoUsuario } from 'src/app/models/entity/centro-costo-usuario';
 
 
 @Component({
@@ -24,6 +25,7 @@ export class BusquedaCentrosCostosComponent implements OnInit{
   @Input() esacodigo: number;
   @Input() cmecodigo: number;
   @Input() titulo: string;
+  @Input() CentrosCosto: Array<CentroCostoUsuario>;
 
   public onClose: Subject<Roles>;
   public lForm: FormGroup;
@@ -52,19 +54,23 @@ export class BusquedaCentrosCostosComponent implements OnInit{
     this.loading = true;
     this._Roles = new(Roles);
 
+    this.arregloCentroCosto = [];
+    this.arregloCentroCostoPaginacion = [];
     this._Roles.servidor = this.servidor;
     this._Roles.hdgcodigo = this.hdgcodigo;
     this._Roles.esacodigo = this.esacodigo;
     this._Roles.cmecodigo = this.cmecodigo;
 
-    this._unidadesorganizacionaes.buscarCentroCosto("", 0, "CCOS", "", "", 0, this.cmecodigo, 0, 0, "S", "", this.servidor).subscribe(
+    this._unidadesorganizacionaes.buscarCentroCosto("", 0, "CCOS", "", "", 0, this.cmecodigo, 0, 0, "S", "", this.CentrosCosto,this.servidor).subscribe(
       response => {
-
-        this.arregloCentroCosto = response;
-        this.arregloCentroCostoPaginacion = this.arregloCentroCosto.slice(0, 8);
+        if(response != null){
+          this.arregloCentroCosto = response;
+          this.arregloCentroCostoPaginacion = this.arregloCentroCosto.slice(0, 8);
+        }
+        
       },
       error => {
-        alert("Error al Buscar Bodegas de cargo");
+        alert("Error al Buscar Centros de Costos");
       }
     );
 

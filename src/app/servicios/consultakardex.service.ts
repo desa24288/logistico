@@ -13,13 +13,13 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class ConsultakardexService {
-    public urlbuscaporcodigo     : string = environment.URLServiciosRest.URLConexion.concat('/buscaprodporcodigo');//"http://172.25.108.236:8182/buscaprodporcodigo"; //buscaproductos por codigo
-    public urlbuscapordescripcion: string = environment.URLServiciosRest.URLConexion.concat('/buscaprodpordescripcion');//"http://172.25.108.236:8182/buscaprodpordescripcion"; //buscaproductos por descripcion
-    public urlkardex             : string = environment.URLServiciosRest.URLConexion.concat('/movimientoskardex');//"http://172.25.108.236:8185/movimientoskardex"; //Busca datos kardex
-    public urlDetalleKardex      : string = environment.URLServiciosRest.URLConexion.concat('/buscadatoskardex');//"http://172.25.108.236:8185/buscadatoskardex"; //Busca detalle Kardex
-    public urlbuscaempresa       : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
-    public urlbuscasucursal      : string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
-    public buscabodega           : string = environment.URLServiciosRest.URLConexion.concat('/bodegas');//'http://172.25.108.236:8189/bodegas';
+    public urlbuscaporcodigo     : string = sessionStorage.getItem('enlace').toString().concat('/buscaprodporcodigo');//"http://172.25.108.236:8182/buscaprodporcodigo"; //buscaproductos por codigo
+    public urlbuscapordescripcion: string = sessionStorage.getItem('enlace').toString().concat('/buscaprodpordescripcion');//"http://172.25.108.236:8182/buscaprodpordescripcion"; //buscaproductos por descripcion
+    public urlkardex             : string = sessionStorage.getItem('enlace').toString().concat('/movimientoskardex');//"http://172.25.108.236:8185/movimientoskardex"; //Busca datos kardex
+    public urlDetalleKardex      : string = sessionStorage.getItem('enlace').toString().concat('/buscadatoskardex');//"http://172.25.108.236:8185/buscadatoskardex"; //Busca detalle Kardex
+    public urlbuscaempresa       : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
+    public urlbuscasucursal      : string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
+    public buscabodega           : string = sessionStorage.getItem('enlace').toString().concat('/bodegas');//'http://172.25.108.236:8189/bodegas';
     
 
     constructor(public _http: HttpClient) {

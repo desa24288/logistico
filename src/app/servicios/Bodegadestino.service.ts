@@ -10,7 +10,7 @@ import { environment } from '../../environments/environment';
 })
 export class BodegadestinoService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/bodegasdestino');//'http://172.25.108.236:8189/bodegasdestino';
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/bodegasdestino');//'http://172.25.108.236:8189/bodegasdestino';
 
   constructor(private httpClient: HttpClient) {
 

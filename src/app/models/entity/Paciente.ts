@@ -26,7 +26,7 @@ export class Paciente {
         public fonofijo          ?: string,
         public fonomovil         ?: string,
         public edad              ?: string,
-        public cuentanumcuenta   ?: number,
+        public cuentanumcuenta   ?: string,
         public undglosa          ?: string,
         public camglosa          ?: string,
         public pzagloza          ?: string,
@@ -39,7 +39,9 @@ export class Paciente {
         public tipodocpac        ?: number,
         public codservicioactual ?: string,
         public ctaid             ?: number,
-        public estid             ?: number
+        public estid             ?: number,
+        public codambito         ?: number,
+        public rececodbodega     ?: number
     ) {
     }
 }

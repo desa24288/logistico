@@ -40,10 +40,10 @@ export class InformeexistenciasvalorizadasComponent implements OnInit {
     public datePipe                   : DatePipe,
   ) {
 
-    this.FormListadoInventario = this.formBuilder.group({         
+    this.FormListadoInventario = this.formBuilder.group({
       tiporegistro : [null],
       boddestino   : [null],
-      fecha      : [null],      
+      fecha      : [null],
     });
    }
 
@@ -69,7 +69,7 @@ export class InformeexistenciasvalorizadasComponent implements OnInit {
 
   getCmecodigo(event: any) {
     this.cmecodigo = event.cmecodigo;
-  
+
     this.BuscaBodegaDestino();
   }
 
@@ -77,15 +77,16 @@ export class InformeexistenciasvalorizadasComponent implements OnInit {
     this.FormListadoInventario.reset();
   }
 
-  BuscaBodegaDestino() {    
+  BuscaBodegaDestino() {
 
     this._BodegasService.listaBodegaDestinoSucursal(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.usuario, this.servidor).subscribe(
       response => {
-        this.bodegasdestino = response;
-        console.log("bod dest", this.bodegasdestino)
+        if (response != null) {
+          this.bodegasdestino = response;
+        }
       },
       error => {
-        console.log(error);        
+        console.log(error);
         alert("Error al Buscar Bodegas de Destino");
       }
     );
@@ -107,7 +108,7 @@ export class InformeexistenciasvalorizadasComponent implements OnInit {
 
         this.LlamaReporte(tiporeport);
       }
-    })    
+    })
   }
 
   LlamaReporte(tiporeport: string){
@@ -117,17 +118,16 @@ export class InformeexistenciasvalorizadasComponent implements OnInit {
       this.FormListadoInventario.value.tiporegistro, fecha,this.hdgcodigo,
       this.esacodigo,this.cmecodigo).subscribe(
         response => {
-          
-          window.open(response[0].url,"","",true);    
-          // this.alertSwal.title = "Reporte Impreso Correctamente".concat();
-          // this.alertSwal.show();
+          if (response != null) {
+            window.open(response[0].url,"","",true);
+          }
         },
         error => {
           console.log(error);
           this.alertSwalError.title="Error al Imprimir Reporte  Informe Existencias Valorizadas".concat(error);
           //this.alertSwalError.text="No encuentra , puede que no existan. Favor intenar nuevamente";
           this.alertSwalError.show();
-          
+
         }
       );
     }else{
@@ -136,10 +136,9 @@ export class InformeexistenciasvalorizadasComponent implements OnInit {
         this.FormListadoInventario.value.tiporegistro, fecha,this.hdgcodigo,
         this.esacodigo,this.cmecodigo).subscribe(
           response => {
-              
-            window.open(response[0].url,"","",true);
-            // this.alertSwal.title = "Reporte Impreso Correctamente".concat();
-            // this.alertSwal.show();
+            if (response != null) {
+              window.open(response[0].url,"","",true);
+            }
           },
           error => {
             console.log(error);
@@ -147,11 +146,11 @@ export class InformeexistenciasvalorizadasComponent implements OnInit {
             //this.alertSwalError.text="No encuentra , puede que no existan. Favor intenar nuevamente";
             this.alertSwalError.show();
           }
-        );  
+        );
       }
     }
   }
 
-  
- 
+
+
 }

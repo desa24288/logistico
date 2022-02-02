@@ -8,5 +8,7 @@ export class CentroCostoUsuario {
          public cmecodigo         ?: number,
          public glounidadesorganizacionales   ?: string,
          public accion            ?: string,
+         public bloqcampogrilla   ?: boolean,
+         public marcacheckgrilla  ?: boolean
      ) {}
 }

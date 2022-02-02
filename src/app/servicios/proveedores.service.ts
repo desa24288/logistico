@@ -17,17 +17,17 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class ProveedoresService {
-    public urlbuscaproveedorrut     : string = environment.URLServiciosRest.URLConexion.concat('/buscaproveedorporrut');//"http://172.25.108.236:8183/buscaproveedorporrut"; //buscaproveedores
-    public urlbuscaproveedornombre  : string = environment.URLServiciosRest.URLConexion.concat('/buscaproveedorpornombre');//"http://172.25.108.236:8183/buscaproveedorpornombre"; //buscaproveedores
-    public urlbuscacomuna           : string = environment.URLServiciosRest.URLConexion.concat('/traecomunas');//"http://172.25.108.236:8189/traecomunas";
-    public urlBuscarporcodigo       : string = environment.URLServiciosRest.URLConexion.concat('/buscaprodporcodigo');//'http://172.25.108.236:8182/buscaprodporcodigo'; //Busca productos x codigo
-    public urlasignaprodabodega     : string = environment.URLServiciosRest.URLConexion.concat('/asignaproductosabodega');//"http://172.25.108.236:8190/asignaproductosabodega";
-    public urlprodsporpprovee       : string = environment.URLServiciosRest.URLConexion.concat('/productosxproveedor');//"http://172.25.108.236:8183/productosxproveedor";
-    public urleliminaproddeprov     : string = environment.URLServiciosRest.URLConexion.concat('/eliminarprovemein');//"http://172.25.108.236:8183/eliminarprovemein";
-    public urlagregaprodaprov       : string = environment.URLServiciosRest.URLConexion.concat('/grabarprovemein');//"http://172.25.108.236:8183/grabarprovemein";
-    public urlagrabanuevoprov       : string = environment.URLServiciosRest.URLConexion.concat('/grabarproveedor');//"http://172.25.108.236:8183/grabarproveedor"
-    public urlbuscaempresa          : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
-    public urlbuscasucursal         : string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
+    public urlbuscaproveedorrut     : string = sessionStorage.getItem('enlace').toString().concat('/buscaproveedorporrut');//"http://172.25.108.236:8183/buscaproveedorporrut"; //buscaproveedores
+    public urlbuscaproveedornombre  : string = sessionStorage.getItem('enlace').toString().concat('/buscaproveedorpornombre');//"http://172.25.108.236:8183/buscaproveedorpornombre"; //buscaproveedores
+    public urlbuscacomuna           : string = sessionStorage.getItem('enlace').toString().concat('/traecomunas');//"http://172.25.108.236:8189/traecomunas";
+    public urlBuscarporcodigo       : string = sessionStorage.getItem('enlace').toString().concat('/buscaprodporcodigo');//'http://172.25.108.236:8182/buscaprodporcodigo'; //Busca productos x codigo
+    public urlasignaprodabodega     : string = sessionStorage.getItem('enlace').toString().concat('/asignaproductosabodega');//"http://172.25.108.236:8190/asignaproductosabodega";
+    public urlprodsporpprovee       : string = sessionStorage.getItem('enlace').toString().concat('/productosxproveedor');//"http://172.25.108.236:8183/productosxproveedor";
+    public urleliminaproddeprov     : string = sessionStorage.getItem('enlace').toString().concat('/eliminarprovemein');//"http://172.25.108.236:8183/eliminarprovemein";
+    public urlagregaprodaprov       : string = sessionStorage.getItem('enlace').toString().concat('/grabarprovemein');//"http://172.25.108.236:8183/grabarprovemein";
+    public urlagrabanuevoprov       : string = sessionStorage.getItem('enlace').toString().concat('/grabarproveedor');//"http://172.25.108.236:8183/grabarproveedor"
+    public urlbuscaempresa          : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
+    public urlbuscasucursal         : string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
 
     constructor(public _http: HttpClient) {
 
@@ -82,7 +82,6 @@ export class ProveedoresService {
     }
     
     buscarProductosporcodigo(codigo: string, tipodeproducto: string,usuario:string,servidor:string): Observable<Proveedores1[]> {
-        console.log("Se realizará búsqueda por código:", codigo, tipodeproducto);
         return this._http.post<Proveedores1[]>(this.urlBuscarporcodigo, {
             'codigo'        : codigo,
             'tipodeproducto': tipodeproducto,

@@ -11,7 +11,7 @@ import { environment } from '../../environments/environment';
 })
 export class UnidaddespachoService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/unidaddedespacho');// 'http://172.25.108.236:8181/unidaddedespacho';
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/unidaddedespacho');// 'http://172.25.108.236:8181/unidaddedespacho';
 
   constructor(private httpClient: HttpClient) {
 

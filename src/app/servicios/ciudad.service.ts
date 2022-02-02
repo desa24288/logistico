@@ -10,7 +10,7 @@ import { environment } from '../../environments/environment';
 })
 export class CiudadService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/traeciudades');//'http://172.25.108.236/traeciudades';
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/traeciudades');//'http://172.25.108.236/traeciudades';
 
   constructor(private httpClient: HttpClient) {
 

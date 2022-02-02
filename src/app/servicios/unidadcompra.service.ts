@@ -11,7 +11,7 @@ import { environment } from '../../environments/environment';
 })
 export class UnidadcompraService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/unidaddecompra');
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/unidaddecompra');
 
   constructor(private httpClient: HttpClient) {
 

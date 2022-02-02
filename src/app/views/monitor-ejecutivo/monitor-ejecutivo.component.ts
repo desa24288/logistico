@@ -5,7 +5,7 @@ import { SolicitudService } from 'src/app/servicios/Solicitudes.service';
 import { DatePipe } from '@angular/common';
 import { Solicitud } from 'src/app/models/entity/Solicitud';
 import { Validators, FormGroup, FormBuilder } from '@angular/forms';
-import { PageChangedEvent } from 'ngx-bootstrap';
+import { BsDatepickerConfig, BsLocaleService, defineLocale, esLocale, PageChangedEvent } from 'ngx-bootstrap';
 import { Router } from '@angular/router';
 import { Receta } from 'src/app/models/entity/receta';
 
@@ -21,6 +21,9 @@ export class MonitorEjecutivoComponent implements OnInit {
   @ViewChild('alertSwalAlert', { static: false }) alertSwalAlert: SwalComponent;
   @ViewChild('alertSwalError', { static: false }) alertSwalError: SwalComponent;
 
+  public locale = 'es';
+  public bsConfig: Partial<BsDatepickerConfig>;
+  public colorTheme = 'theme-blue';
 
   public hdgcodigo: number;
   public esacodigo: number;
@@ -78,21 +81,20 @@ export class MonitorEjecutivoComponent implements OnInit {
 
   constructor(
     private _buscasolicitudService: SolicitudService,
-    public datePipe: DatePipe,
-    public formBuilder: FormBuilder,
-    private router: Router,
+    public datePipe               : DatePipe,
+    public formBuilder            : FormBuilder,
+    private router                : Router,
+    public localeService          : BsLocaleService,
   ) {
 
     this.lForm = this.formBuilder.group({
       fechadesde: [new Date(), Validators.required],
       fechahasta: [new Date(), Validators.required],
-
-
     });
   }
 
   ngOnInit() {
-
+    this.setDate();
     this.hdgcodigo = Number(sessionStorage.getItem('hdgcodigo').toString());
     this.esacodigo = Number(sessionStorage.getItem('esacodigo').toString());
     this.cmecodigo = Number(sessionStorage.getItem('cmecodigo').toString());
@@ -112,29 +114,21 @@ export class MonitorEjecutivoComponent implements OnInit {
     this.opcion_solicitudurgente = false;
     this.opcion_solictudrecepcion = false;
 
-    // this.BuscarRecetasFiltro();
-    // this.BuscarSolicitudesFiltro();
     this.refrescar();
-
-
 
     //this.tiempo_refresco.subscribe((n) => {
     //  this.BuscarSolicitudesFiltro()
     //  this.BuscarRecetasFiltro();
-    //})
-
-
+    //});
   }
 
-
+  setDate() {
+    defineLocale(this.locale, esLocale);
+    this.localeService.use(this.locale);
+    this.bsConfig = Object.assign({}, { containerClass: this.colorTheme });
+  }
 
   async BuscarRecetasFiltro() {
-    var fecha_desde = new Date();
-    var fecha_hasta = new Date();
-
-    fecha_hasta.setDate(fecha_desde.getDate() + 5);
-    fecha_desde.setDate(fecha_desde.getDate() - 10);
-
     this.listarecetasambulatorias = [];
     this.listarecetasambulatoriasPaginacion = [];
     this.listarecetashospitalizados = [];
@@ -146,8 +140,8 @@ export class MonitorEjecutivoComponent implements OnInit {
     this._Receta = new (Receta);
 
     this._Receta.servidor = this.servidor;
-    this._Receta.fechainicio = this.datePipe.transform(fecha_desde, 'yyyy-MM-dd');
-    this._Receta.fechahasta = this.datePipe.transform(fecha_hasta, 'yyyy-MM-dd');
+    this._Receta.fechainicio = this.datePipe.transform(this.lForm.controls.fechadesde.value, 'yyyy-MM-dd');
+    this._Receta.fechahasta = this.datePipe.transform(this.lForm.controls.fechahasta.value, 'yyyy-MM-dd');
     this._Receta.receid = 0;
     this._Receta.hdgcodigo = this.hdgcodigo;
     this._Receta.esacodigo = this.esacodigo;
@@ -177,53 +171,48 @@ export class MonitorEjecutivoComponent implements OnInit {
     this._Receta.receglosaunidad = ''
     this._Receta.receglosaservicio = '';
 
-    this._buscasolicitudService.buscarEncabezadoRecetas(this._Receta).subscribe(
+    this._buscasolicitudService.buscarEncabezadoRecetasMonitor(this._Receta).subscribe(
       response => {
-        if (response.length == 0) {
-        } else {
-          if (response.length > 0) {
-
-            response.forEach(element => {
-
-              switch (element.receambito) {
-                case 1: {
-                  this.listarecetasambulatorias.unshift(element);
-                  break;
+        if(response === null){
+          this.loading = false;
+          return;
+        } else{
+          if (response.length == 0) {
+            this.loading = false;
+            return;
+          } else {
+            if (response.length > 0) {
+              response.forEach(element => {
+                switch (element.receambito) {
+                  case 1: {
+                    this.listarecetasambulatorias.push(element);
+                    break;
+                  }
+                  case 2: {
+                    this.listarecetasurgencia.push(element);
+                    break;
+                  }
+                  case 3: {
+                    this.listarecetashospitalizados.push(element);
+                    break;
+                  }
+                  default: {
+                    break;
+                  }
                 }
-                case 2: {
-                  this.listarecetasurgencia.unshift(element);
-                  break;
-                }
-                case 3: {
-                  this.listarecetashospitalizados.unshift(element);
-                  break;
-                }
-                default: {
-                  break;
-                }
-              }
-            });
-
-            this.listarecetasambulatoriasPaginacion = this.listarecetasambulatorias.slice(0, 20);
-            this.canidad_recetas_ambulatorio = this.listarecetasambulatorias.length;
-
-            this.listarecetasurgenciaPaginacion = this.listarecetasurgencia.slice(0, 20);
-            this.canidad_recetas_urgencia = this.listarecetasurgencia.length;
-
-            this.listarecetashospitalizadosPaginacion = this.listarecetashospitalizados.slice(0, 20);
-            this.canidad_recetas_hospitalizados = this.listarecetashospitalizados.length;
+              });
+              this.listarecetasambulatoriasPaginacion = this.listarecetasambulatorias.slice(0, 20);
+              this.canidad_recetas_ambulatorio = this.listarecetasambulatorias.length;
+              this.listarecetasurgenciaPaginacion = this.listarecetasurgencia.slice(0, 20);
+              this.canidad_recetas_urgencia = this.listarecetasurgencia.length;
+              this.listarecetashospitalizadosPaginacion = this.listarecetashospitalizados.slice(0, 20);
+              this.canidad_recetas_hospitalizados = this.listarecetashospitalizados.length;
+              return;
+            }
           }
-
-
         }
-        this.canidad_recetas_hospitalizados = this.listarecetashospitalizadosPaginacion.length;
-        this.canidad_recetas_urgencia = this.listarecetasurgenciaPaginacion.length;
-
-        return;
       },
-
       error => {
-        console.log(error);
         this.alertSwalError.title = "Error al Buscar Recetas";
         this.alertSwalError.text = "Se ha producido un error al buscar las recetas";
         this.alertSwalError.show();
@@ -237,9 +226,11 @@ export class MonitorEjecutivoComponent implements OnInit {
     try{
       await this.BuscarRecetasFiltro();
       await this.BuscarSolicitudesFiltro();
+      console.log(this.listarecetasambulatoriasPaginacion);
     } catch(err) {
       this.alertSwalError.title = 'Ocurrio un Error';
       this.alertSwalError.show();
+      this.loading = false;
     }
   }
 
@@ -311,17 +302,51 @@ export class MonitorEjecutivoComponent implements OnInit {
     }
   }
 
-  EditarDespacho(id_solicitud: number, id_receta: number, id_paciente: number) {
-    document.getElementById('side-menu').style.display = 'block';
+  EditarDespacho(id_solicitud: number, id_receta: number, id_paciente: number,registro:Receta) {
+    const Swal = require('sweetalert2');
+    // document.getElementById('side-menu').style.display = 'block';
     if (id_paciente == 0 && id_receta == 0) {
       this.router.navigate(['despachosolicitudes', id_solicitud, 'monitorejecutivo']);
     } else {  //Caso de pacientes
       if (id_paciente != 0 && id_receta == 0) {
- 
-        this.router.navigate(['dispensarsolicitudespacientes', id_solicitud]);
+        if(registro.ctanumcta === 0){
+          Swal.fire({
+          title: 'RECETA NO TIENE CUENTA ASOCIADA',
+          //text: "¿Seguro que desea Salir sin de guardar?",
+          // showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          // cancelButtonColor: '#d33',
+          confirmButtonText: 'OK'
+          }).then((result) => {
+          return;
+          });
+        } else {
+          this.router.navigate(['dispensarsolicitudespacientes', id_solicitud]);
+        }
+
       } else {
-        
-        this.router.navigate(['despachorecetasambulatoria', 0, id_receta, 'monitorejecutivo']);
+        if(registro.receambito == 3 || registro.receambito == 2){
+          if(registro.ctanumcta === 0){
+            Swal.fire({
+            title: '¡RECETA NO TIENE CUENTA!',
+            //text: "¿Seguro que desea Salir sin de guardar?",
+            // showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            // cancelButtonColor: '#d33',
+            confirmButtonText: 'OK'
+            }).then((result) => {
+            return;
+            });
+          } else {
+            this.router.navigate(['despachorecetasambulatoria', 0, id_receta, 'monitorejecutivo']);
+          }
+        }else{
+          if(registro.receambito == 1){
+            this.router.navigate(['despachorecetasambulatoria', 0, id_receta, 'monitorejecutivo']);
+          }
+        }
+
+
 
       }
 
@@ -329,7 +354,7 @@ export class MonitorEjecutivoComponent implements OnInit {
   }
 
   EditarRecepcion(id_solicitud: number) {
-    document.getElementById('side-menu').style.display = 'block';
+    // document.getElementById('side-menu').style.display = 'block';
     this.router.navigate(['recepcionsolicitudes', id_solicitud]);
   }
 
@@ -339,70 +364,73 @@ export class MonitorEjecutivoComponent implements OnInit {
   async BuscarSolicitudesFiltro() {
     var servidor = environment.URLServiciosRest.ambiente;
     var indice: number;
-    var fecha = new Date();
-
-    fecha.setDate(fecha.getDate() - 30);
-
     indice = 0;
 
     this.listasolicitudespordespachar = [];
     this.listasolicitudespordespacharPaginacion = [];
-
     this.listasolicitudesporrecepcionar = [];
     this.listasolicitudesporrecepcionarPaginacion = [];
-
     this.listasolicitudesurgencia = [];
     this.listasolicitudesurgenciapaginacion = [];
-
 
     // Cargando solicudes de pacientes
     this._buscasolicitudService.BuscaSolicitudCabecera(0, this.hdgcodigo,
       this.esacodigo, this.cmecodigo, 0,
-      this.datePipe.transform(fecha, 'yyyy-MM-dd'),
-      this.datePipe.transform(this.lForm.value.fechahasta, 'yyyy-MM-dd'),
-      0, 0, 0, servidor, 0, -1, 0, 0, 0, 0, "","",0,this.usuario).subscribe(
+      this.datePipe.transform(this.lForm.controls.fechadesde.value, 'yyyy-MM-dd'),
+      this.datePipe.transform(this.lForm.controls.fechahasta.value, 'yyyy-MM-dd'),
+      0, 0, 0, servidor, 0, -1, 0, 0, 0, 0, "","",0,this.usuario,"","",0, "").subscribe(
         async response => {
-          if (response.length == 0) {
-          } else {
-            if (response.length > 0) {
-
-              this.listasolicitudes = response;
-
-              this.listasolicitudes.forEach(element => {
-
-                if (element.cliid > 0) {
-                  this.listasolicitudes[indice].nombrecompletopaciente = element.apepaternopac + " " + element.apematernopac + "," + element.nombrespac;
-                  this.listasolicitudes[indice].bodorigendesc = '';
-                }
-                indice++;
-                if ((element.prioridadsoli != 2) && (element.codambito !=1) && (element.estadosolicitud == 10 || element.estadosolicitud == 20 || element.estadosolicitud == 40 || element.estadosolicitud == 120)) {
-                  this.listasolicitudespordespachar.unshift(element);
-                }
-                if ((element.codambito == 0) && (element.estadosolicitud == 40 || element.estadosolicitud == 50 || element.estadosolicitud == 60 || element.estadosolicitud == 78)) {
-                  this.listasolicitudesporrecepcionar.unshift(element);
-                }
-
-                if ((element.prioridadsoli == 2) && (element.estadosolicitud == 10 || element.estadosolicitud == 20 || element.estadosolicitud == 40 || element.estadosolicitud == 120)) {
-                  this.listasolicitudesurgencia.unshift(element);
-                }
-
-              });
-              this.listasolicitudespordespacharPaginacion = this.listasolicitudespordespachar.slice(0, 20);
-              this.listasolicitudesporrecepcionarPaginacion = this.listasolicitudesporrecepcionar.slice(0,20);
-              this.listasolicitudesurgenciapaginacion = this.listasolicitudesurgencia.slice(0, 20);
-
-              this.canidad_despachos = this.listasolicitudespordespachar.length;
-              this.canidad_recepcion = this.listasolicitudesporrecepcionar.length;
-              this.canidad_despacho_urgente = this.listasolicitudesurgencia.length;
-
+          if (response != null) {
+            if (response.length == 0) {
               this.loading = false;
-            }
+              return;
+            } else {
+              if (response.length > 0) {
 
-            return;
-          }
+                this.listasolicitudes = response;
+
+                this.listasolicitudes.forEach(element => {
+
+                  if (element.cliid > 0) {
+                    this.listasolicitudes[indice].nombrecompletopaciente = element.apepaternopac + " " + element.apematernopac + "," + element.nombrespac;
+                    this.listasolicitudes[indice].bodorigendesc = '';
+                  }
+                  indice++;
+                  if ((element.prioridadsoli != 2) && (element.codambito !=1) && (element.estadosolicitud == 10 || element.estadosolicitud == 20 || element.estadosolicitud == 40 || element.estadosolicitud == 120)) {
+                    if (element.tipobodsuministro != 'G'){
+                      this.listasolicitudespordespachar.push(element);
+                    }
+                  }
+                  if ((element.codambito == 0) && (element.estadosolicitud == 40 || element.estadosolicitud == 50 || element.estadosolicitud == 60 || element.estadosolicitud == 78 || element.estadosolicitud == 51)) {
+                    if (element.tipobodsolicitante != 'G'){
+                      this.listasolicitudesporrecepcionar.push(element);
+                    }
+                  }
+                  if ((element.prioridadsoli == 2) && (element.estadosolicitud == 10 || element.estadosolicitud == 20 || element.estadosolicitud == 40 || element.estadosolicitud == 120)) {
+                    if (element.tipobodsuministro != 'G'){
+                      this.listasolicitudesurgencia.push(element);
+                    }
+                  }
+
+                });
+                this.listasolicitudespordespacharPaginacion = this.listasolicitudespordespachar.slice(0, 20);
+                this.listasolicitudesporrecepcionarPaginacion = this.listasolicitudesporrecepcionar.slice(0,20);
+                this.listasolicitudesurgenciapaginacion = this.listasolicitudesurgencia.slice(0, 20);
+
+                this.canidad_despachos = this.listasolicitudespordespachar.length;
+                this.canidad_recepcion = this.listasolicitudesporrecepcionar.length;
+                this.canidad_despacho_urgente = this.listasolicitudesurgencia.length;
+
+                this.loading = false;
+              }
+
+              return;
+            }
+          } else {
+            this.loading = false;
+            return;}
         },
         error => {
-          console.log(error);
           this.alertSwalError.title = "Error al Buscar Solicitudes";
           this.alertSwalError.text = "No encuentra Solicitud, puede que no exista, intentar nuevamente";
           this.alertSwalError.show();
@@ -420,6 +448,7 @@ export class MonitorEjecutivoComponent implements OnInit {
     const startItem = (event.page - 1) * event.itemsPerPage;
     const endItem = event.page * event.itemsPerPage;
     this.listarecetasambulatoriasPaginacion = this.listarecetasambulatorias.slice(startItem, endItem);
+    console.log(this.listarecetasambulatoriasPaginacion);
   }
 
   pageChangedRecetaUrgencia(event: PageChangedEvent): void {

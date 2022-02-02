@@ -80,7 +80,7 @@ export class ConsultalibrocontroladoComponent implements OnInit {
     this.cmecodigo = Number(sessionStorage.getItem('cmecodigo').toString());
     this.usuario = sessionStorage.getItem('Usuario').toString();
     this.BuscaBodegaDespachadora();
-    
+
   }
 
   limpiar(){
@@ -98,16 +98,18 @@ export class ConsultalibrocontroladoComponent implements OnInit {
     this.codprod = null;
     this.descprod = null;
     this.codigoproducto = null;
-    this.descriproducto = null; 
+    this.descriproducto = null;
     // this.FormConsultaLibroControlado.controls["marca"].setValue(10);
     // this.FormConsultaLibroControlado.controls["bodcodigo"].setValue(10);
   }
 
   BuscaBodegaDespachadora(){
-    this._bodegasService.BuscaBodegasControlados(this.hdgcodigo, this.esacodigo, this.cmecodigo, 
+    this._bodegasService.BuscaBodegasControlados(this.hdgcodigo, this.esacodigo, this.cmecodigo,
       this.usuario, this.servidor).subscribe(
       response => {
-        this.bodegascontroladas = response;
+        if (response != null){
+          this.bodegascontroladas = response;
+        }
       },
       error => {
         alert("Error al Buscar Bodegas de cargo");
@@ -122,21 +124,16 @@ export class ConsultalibrocontroladoComponent implements OnInit {
   }
 
   BuscaPeriodoBodegaControlada(codigobod: number){
-    // console.log("codigo bodega y ambiente servidor:", codigobod,environment.URLServiciosRest.ambiente);
-    
     this._libroService.BuscaPeriodoMedControlados(this.hdgcodigo, this.esacodigo,this.cmecodigo,
       this.servidor,this.usuario,codigobod).subscribe(
       response => {
-        
-        this.periodosmedcontrolados=response;
-        console.log("perioso",this.periodosmedcontrolados)
+        if (response != null){
+          this.periodosmedcontrolados=response;
+        }
       },
       error => {
-        console.log(error);
         alert("Error al Buscar Período");
-      }
-    );
-
+      });
   }
 
   SeleccionaBusqueda(periodo: number){
@@ -150,32 +147,23 @@ export class ConsultalibrocontroladoComponent implements OnInit {
     })
 
     if(this.codigoproducto != null && this.descriproducto != null && this.FormConsultaLibroControlado.value.periodo>=0){
-      console.log("Hay productos en pantalla para buscar",this.codigoproducto,this.descriproducto,
-      this.mein, this.FormConsultaLibroControlado.value.periodo);
       this.ConsultaLibroControlado(this.mein)
     }else{}
-    
+
 
   }
 
   BuscarLibroControlado(){
-    // console.log("Busca el libro controlado a consultar",this.FormConsultaLibroControlado.value.bodcodigo,
-    // this.FormConsultaLibroControlado.value.periodo,this.FormConsultaLibroControlado.value.codigo,
-    // this.FormConsultaLibroControlado.value.descripcion);
-
     this._BSModalRef = this._BsModalService.show(BusquedaproductosComponent, this.setModalBusquedaProductos());
     this._BSModalRef.content.onClose.subscribe((response: any) => {
       if (response == undefined) { }
       else {
-        console.log("El producto a buscar :", response);
-        console.log("Llama a buscar el periodo ",this.periodosconsultados)
-        // this.FormConsultaLibroControlado.value.bodcodigo,this.periodo)
         this.codigoproducto = response.codigo;
         this.descriproducto = response.descripcion;
         this.mein = response.mein;
-       
+
         this.ConsultaLibroControlado(response.mein);
-        
+
       }
     })
   }
@@ -201,86 +189,87 @@ export class ConsultalibrocontroladoComponent implements OnInit {
   }
 
   ConsultaLibroControlado(mein: number){
-    console.log("busca el libro controlado del producto",mein)
     this._libroService.ConsultaLibroControlado(this.hdgcodigo, this.esacodigo,
       this.cmecodigo,this.servidor,this.usuario,this.periodo,
       this.FormConsultaLibroControlado.value.bodcodigo,mein).subscribe(
       response => {
-        if(response.length == 0){
-          this.periodosconsultados = [];
-          this.periodosconsultadospaginacion = [];
-          this.alertSwalAlert.title = "No existen Movimientos para el Producto Seleccionado";
-          this.alertSwalAlert.show();
-          this.FormConsultaLibroControlado.get('codigo').setValue(response[0].meincodmei);
-          this.FormConsultaLibroControlado.get('descripcion').setValue(response[0].meindescri);
-          // this.FormConsultaLibroControlado.get('periodo').setValue(-1);
-         
-          // this.descriproducto = null;
-          // this.codigoproducto = null;
-          this.desactivaCampos(false);
-
-        }else{
-          if(response.length>0){
-            this.periodosconsultados = response;
-            this.periodosconsultadospaginacion = this.periodosconsultados.slice(0,20);
-            this.muestracoddes = true;
-            this.btnimprime =true;
-            this.todoslosprod = false;
-            this.FormConsultaLibroControlado.get('codigo').setValue(response[0].meincodmei );
-            this.FormConsultaLibroControlado.get('descripcion').setValue(response[0].meindescri);
-            this.desactivaCampos(true);
-            this.meinid = response[0].meinid;
-            console.log("trae un producto del libro controlado",this.periodosconsultados,response,this.meinid)
-          }              
-        }            
-      }
-    )
+        if (response != null){
+          if(response.length == 0){
+            this.periodosconsultados = [];
+            this.periodosconsultadospaginacion = [];
+            this.alertSwalAlert.title = "No existen Movimientos para el Producto Seleccionado";
+            this.alertSwalAlert.show();
+            this.desactivaCampos(false);
+          }else{
+            if(response.length>0){
+              this.periodosconsultados = response;
+              this.periodosconsultadospaginacion = this.periodosconsultados.slice(0,20);
+              this.muestracoddes = true;
+              this.btnimprime =true;
+              this.todoslosprod = false;
+              this.FormConsultaLibroControlado.get('codigo').setValue(response[0].meincodmei );
+              this.FormConsultaLibroControlado.get('descripcion').setValue(response[0].meindescri);
+              this.desactivaCampos(true);
+              this.meinid = response[0].meinid;
+            }
+          }
+        }
+      });
   }
 
   getProducto(codigo: any) {
-    // var codproducto = this.lForm.controls.codigo.value;
+    this.alertSwalAlert.title= null;
+    this.alertSwalError.text = null;
     this.codprod = codigo;
-    console.log(this.codprod);
-    if(this.codprod === null || this.codprod === ''){
-      return;
-    } else{
-      var tipodeproducto = 'MIM';
-      this.loading = true;
-      var controlado = '';
-      var controlminimo = '';
-      var idBodega = 0;
-      var consignacion = '';
-      
-      this._BusquedaproductosService.BuscarArituculosFiltros(this.hdgcodigo, this.esacodigo,
-        this.cmecodigo, codigo, this.descprod, null, null, null, tipodeproducto, idBodega, controlminimo, controlado, consignacion
-        , this.usuario, this.servidor).subscribe(
-          response => {
-            if (response.length == 0) {
-              console.log('no existe el codigo');
-              this.loading = false;
-              this.BuscarLibroControlado();
-            }
-            else {
-              if (response.length > 0) {
+    if(this.FormConsultaLibroControlado.value.bodcodigo !=null && this.FormConsultaLibroControlado.value.periodo !=null){
+      if(this.codprod === null || this.codprod === '' ){
+        this.BuscarLibroControlado();
+      } else{
+
+        if(this.FormConsultaLibroControlado.value.bodcodigo === null  && this.FormConsultaLibroControlado.value.periodo ===null){
+          this.FormConsultaLibroControlado.reset();
+          this.alertSwalAlert.title= "Debe Seleccionar Bodega y Período";
+          this.alertSwalAlert.show();
+        }else{
+          var tipodeproducto = 'MIM';
+          this.loading = true;
+          var controlado = '';
+          var controlminimo = '';
+          var idBodega = this.FormConsultaLibroControlado.value.bodcodigo;
+          var consignacion = '';
+
+          this._BusquedaproductosService.BuscarArticulosFiltros(this.hdgcodigo, this.esacodigo,
+            this.cmecodigo, this.codprod, this.descprod, null, null, null, tipodeproducto, idBodega, controlminimo, controlado, consignacion
+            , this.usuario, null, this.servidor).subscribe(
+              response => {
+                if (response != null){
+                  if (response.length == 0) {
+                    this.loading = false;
+                    this.alertSwalError.text ="El producto buscado no pertenece a la bodega";
+                    this.alertSwalError.show();
+                  } else {
+                    if (response.length === 1) {
+                      this.loading = false;
+                      this.codigoproducto = response[0].codigo;
+                      this.descriproducto = response[0].descripcion;
+                      this.mein = response[0].mein;
+                      this.muestracoddes = true;
+                      this.ConsultaLibroControlado(response[0].mein)
+                    }else{
+                      if(response.length >1){
+                        this.BuscarLibroControlado();
+                        this.loading = false;
+                      }
+                    }
+                  }
+                } else {
+                  this.loading = false;
+                }
+              }, error => {
                 this.loading = false;
-                // this.FormConsultaLibroControlado.get('codigo').setValue(response[0].codigo);
-                // this.FormConsultaLibroControlado.get('descripcion').setValue(response[0].descripcion);
-                // // this.BuscaDatosKardex(response[0].mein);
-                console.log("Libro controlado prod",response);
-                this.codigoproducto = response[0].codigo;
-                this.descriproducto = response[0].descripcion;
-                this.mein = response[0].mein;
-                // this.desactivaCampos(true);
-                this.muestracoddes = true;
-                this.ConsultaLibroControlado(response[0].mein)
-                // this.setProducto(response[0]);
-              }
-            }
-          }, error => {
-            this.loading = false;
-            console.log('error');
-          }
-        );
+              });
+        }
+      }
     }
   }
 
@@ -295,7 +284,6 @@ export class ConsultalibrocontroladoComponent implements OnInit {
   }
 
   setDatabusqueda(value: any, swtch: number) {
-    console.log(value);
     if (swtch === 1) {
         this.codprod = value;
     } else if (swtch === 2) {
@@ -314,8 +302,6 @@ export class ConsultalibrocontroladoComponent implements OnInit {
 
     this.periodosconsultadospaginacion = [];
     this.periodosconsultados = [];
-    console.log("selecciona el check",this.periodo, event.target.checked,tipo,event,this.periodosconsultadospaginacion,
-    this.periodosconsultados )
     if(event.target.checked == true){
       this.todoslosprod = true;
       this.activbusqueda = false;
@@ -323,38 +309,30 @@ export class ConsultalibrocontroladoComponent implements OnInit {
       this.periodosconsultados = [];
       this.muestracoddes = false;
       this.meinid = 0;
-      console.log("buscará todos los productos", this.hdgcodigo, this.esacodigo,
-      this.cmecodigo,this.servidor,this.usuario,this.periodo,
-      this.FormConsultaLibroControlado.value.bodcodigo,0)
-
       this._libroService.ConsultaLibroControlado(this.hdgcodigo, this.esacodigo,this.cmecodigo,
       this.servidor,this.usuario,this.periodo,this.FormConsultaLibroControlado.value.bodcodigo,0).subscribe(
         response => {
-          if(response.length == 0){
-            console.log("resultado busqueda",response)
-            this.alertSwalAlert.title = "No existen Movimientos para el Producto Seleccionado";
-            this.alertSwalAlert.show();
-    
-          }else{
-            if(response.length>0){
-              console.log("PErido:", response)
-              this.btnimprime =true;
-              this.periodosconsultados = response;
-              this.periodosconsultadospaginacion = this.periodosconsultados.slice(0,20);
-              this.muestragrillacoddes = true;
-              // this.periodo= null;
-              this.FormConsultaLibroControlado.get('codigo').setValue(response[0].meincodmei );
-              this.FormConsultaLibroControlado.get('descripcion').setValue(response[0].meindescri);
-              //  this.meinid = response[0].meinid;
-            }          
-          }        
+          if (response != null){
+            if(response.length == 0){
+              this.alertSwalAlert.title = "No existen Movimientos para el Producto Seleccionado";
+              this.alertSwalAlert.show();
+
+            }else{
+              if(response.length>0){
+                this.btnimprime =true;
+                this.periodosconsultados = response;
+                this.periodosconsultadospaginacion = this.periodosconsultados.slice(0,20);
+                this.muestragrillacoddes = true;
+                this.FormConsultaLibroControlado.get('codigo').setValue(response[0].meincodmei );
+                this.FormConsultaLibroControlado.get('descripcion').setValue(response[0].meindescri);
+              }
+            }
+          }
         }
       )
 
     }else{
       if(event.target.checked == false){
-        console.log("falso",event.target.checked)
-        // this.todoslosprod = false;
         this.activbusqueda = false;
         this.btnimprime = false;
         this.periodosconsultados = [];
@@ -363,7 +341,6 @@ export class ConsultalibrocontroladoComponent implements OnInit {
         this.FormConsultaLibroControlado.reset();
         this.periodosmedcontrolados = [];
         this.periodo = null;
-        console.log("check desactivado",this.FormConsultaLibroControlado,this.periodosconsultados,this.periodosconsultadospaginacion,this.periodosmedcontrolados)
       }
     }
   }
@@ -382,30 +359,21 @@ export class ConsultalibrocontroladoComponent implements OnInit {
       if (result.value) {
         this.ImprimirLibro(tiporeporte);
       }
-    })    
-
+    });
   }
 
   ImprimirLibro(tiporeporte: string) {
-
-    console.log("Imprime el reporte de Libro controlado",this.servidor,this.usuario,
-    this.hdgcodigo,this.esacodigo, this.cmecodigo,"pdf",this.periodo,
-     this.FormConsultaLibroControlado.value.bodcodigo,this.meinid, tiporeporte,this.periodosconsultados);
-    
     if(tiporeporte=="pdf"){
       if(this.todoslosprod ==false){
-        console.log("imprime un solo producto",this.meinid)
         this._imprimelibroService.RPTImprimeLibroControlado(this.servidor,this.usuario,
         this.hdgcodigo,this.esacodigo, this.cmecodigo,"pdf",this.periodo,
         this.FormConsultaLibroControlado.value.bodcodigo,this.meinid).subscribe(
           response => {
-            console.log("Imprime Solicitud producto", response);
-            window.open(response[0].url, "", "", true);
-            // this.alertSwal.title = "Reporte Impreso Correctamente";
-            // this.alertSwal.show();
+            if (response != null){
+              window.open(response[0].url, "", "", true);
+            }
           },
           error => {
-            console.log(error);
             this.alertSwalError.title = "Error al Imprimir Devolución Solicitud";
             this.alertSwalError.show();
             this._BSModalRef.content.onClose.subscribe((RetornoExito: any) => {
@@ -414,18 +382,15 @@ export class ConsultalibrocontroladoComponent implements OnInit {
         );
       }else{
         if(this.todoslosprod == true){
-          console.log("imprime todos los productos")
           this._imprimelibroService.RPTImprimeLibroControlado(this.servidor,this.usuario,
           this.hdgcodigo,this.esacodigo, this.cmecodigo,"pdf",this.periodo,
           this.FormConsultaLibroControlado.value.bodcodigo,0).subscribe(
             response => {
-              console.log("Imprime Solicitud", response);
-              window.open(response[0].url, "", "", true);
-              // this.alertSwal.title = "Reporte Impreso Correctamente";
-              // this.alertSwal.show();
+              if (response != null){
+                window.open(response[0].url, "", "", true);
+              }
             },
             error => {
-              console.log(error);
               this.alertSwalError.title = "Error al Imprimir Devolución Solicitud";
               this.alertSwalError.show();
               this._BSModalRef.content.onClose.subscribe((RetornoExito: any) => {
@@ -434,22 +399,19 @@ export class ConsultalibrocontroladoComponent implements OnInit {
           );
         }
       }
-      
+
     }else{
       if(tiporeporte == "xls"){
         if(this.todoslosprod ==false){
-          console.log("Imprime reporte en excel",tiporeporte)
           this._imprimelibroService.RPTImprimeLibroControlado(this.servidor,this.usuario,
           this.hdgcodigo,this.esacodigo, this.cmecodigo,"xls",this.periodo,
           this.FormConsultaLibroControlado.value.bodcodigo,this.meinid).subscribe(
             response => {
-              console.log("Imprime Solicitud", response);
-              window.open(response[0].url, "", "", true);
-              // this.alertSwal.title = "Reporte Impreso Correctamente";
-              // this.alertSwal.show();
+              if (response != null){
+                window.open(response[0].url, "", "", true);
+              }
             },
             error => {
-              console.log(error);
               this.alertSwalError.title = "Error al Imprimir Devolución Solicitud";
               this.alertSwalError.show();
               this._BSModalRef.content.onClose.subscribe((RetornoExito: any) => {
@@ -458,30 +420,25 @@ export class ConsultalibrocontroladoComponent implements OnInit {
           );
         }else{
           if(this.todoslosprod == true){
-            console.log("imprime todos los productos")
             this._imprimelibroService.RPTImprimeLibroControlado(this.servidor,this.usuario,
             this.hdgcodigo,this.esacodigo, this.cmecodigo,"xls",this.periodo,
             this.FormConsultaLibroControlado.value.bodcodigo,0).subscribe(
               response => {
-                console.log("Imprime Solicitud", response);
-                window.open(response[0].url, "", "", true);
-                this.todoslosprod = false;
-                // this.alertSwal.title = "Reporte Impreso Correctamente";
-                // this.alertSwal.show();
+                if (response != null){
+                  window.open(response[0].url, "", "", true);
+                  this.todoslosprod = false;
+                }
               },
               error => {
-                console.log(error);
                 this.alertSwalError.title = "Error al Imprimir Devolución Solicitud";
                 this.alertSwalError.show();
                 this._BSModalRef.content.onClose.subscribe((RetornoExito: any) => {
-                })
-              }
-            );
+                });
+              });
           }
         }
       }
     }
-    
   }
 
 }

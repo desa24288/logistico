@@ -10,8 +10,8 @@ import { environment } from '../../environments/environment';
 })
 export class ServicioService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/servicios');
-  private url_listservicios = environment.URLServiciosRest.URLConexion.concat('/listaservicios');
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/servicios');
+  private url_listservicios = sessionStorage.getItem('enlace').toString().concat('/listaservicios');
  
  
  

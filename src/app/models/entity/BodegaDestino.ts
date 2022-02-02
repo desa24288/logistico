@@ -1,6 +1,9 @@
 export class BodegaDestino {
     private boddescodigo: number;
     private boddesdescripcion: string;
+    public bodcodigo: number;
+    public boddescripcion: string;
+    public bodtipobodega: string;
 
     constructor(boddescodigo: number, boddesdescripcion: string) {
         this.boddescodigo        = boddescodigo;
@@ -11,7 +14,7 @@ export class BodegaDestino {
         this.boddescodigo = boddescodigo;
     }
     public getIdbodegadestino() {
-        return this.boddesdescripcion;
+        return this.boddescodigo;
     }
 
     public setDescripcion(boddesdescripcion: string) {

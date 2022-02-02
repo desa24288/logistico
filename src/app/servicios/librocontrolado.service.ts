@@ -13,10 +13,10 @@ import { ConsultaLibroControlado } from '../models/entity/ConsultaLibroControlad
   
 export class LibrocontroladoService {
 
-  public urlprodbodegacontrol: string = environment.URLServiciosRest.URLConexion.concat('/selbodinvmedcontrolados');
-  public urlgrabacierre      : string = environment.URLServiciosRest.URLConexion.concat('/creacierrelibromedcontrolados');
-  public urlperprodcontrol   : string = environment.URLServiciosRest.URLConexion.concat('/selperimedcontrolados');
-  public urlconsultalibcontrol: string= environment.URLServiciosRest.URLConexion.concat('/selcierrelibromedcontrolados')
+  public urlprodbodegacontrol: string = sessionStorage.getItem('enlace').toString().concat('/selbodinvmedcontrolados');
+  public urlgrabacierre      : string = sessionStorage.getItem('enlace').toString().concat('/creacierrelibromedcontrolados');
+  public urlperprodcontrol   : string = sessionStorage.getItem('enlace').toString().concat('/selperimedcontrolados');
+  public urlconsultalibcontrol: string= sessionStorage.getItem('enlace').toString().concat('/selcierrelibromedcontrolados')
   
   constructor(private _http: HttpClient) {
 

@@ -7,6 +7,7 @@ import { BsModalRef, PageChangedEvent } from 'ngx-bootstrap';
 import { UsuariosService } from 'src/app/servicios/usuarios.service';
 
 import { Roles } from 'src/app/models/entity/Roles';
+import { RolesUsuarios } from 'src/app/models/entity/roles-usuario';
 
 @Component({
   selector: 'app-busqueda-roles',
@@ -22,6 +23,7 @@ export class BusquedaRolesComponent implements OnInit {
   @Input() esacodigo: number;
   @Input() cmecodigo: number;
   @Input() titulo: string;
+  @Input() RolesUsuario: Array<RolesUsuarios>;  
 
   public onClose: Subject<Roles>;
   public lForm: FormGroup;
@@ -50,20 +52,20 @@ export class BusquedaRolesComponent implements OnInit {
     this.loading = true;
     this._Roles = new(Roles);
  
-
-
     this._Roles.servidor = this.servidor;
     this._Roles.hdgcodigo = this.hdgcodigo;
     this._Roles.esacodigo = this.esacodigo;
     this._Roles.cmecodigo = this.cmecodigo;
+    this._Roles.rolesusuarios = this.RolesUsuario;
 
    
 
     this._ServiciosUsuarios.buscarRoles(this._Roles).subscribe(
       response => {
-
+        if(response != null ){
           this.arregloRoles = response;
           this.arregloRolesPaginacion = this.arregloRoles.slice(0, 8);
+        }
       },
       error => {
         alert("Error al Buscar Roles o no existen roles definidos");
@@ -78,14 +80,13 @@ export class BusquedaRolesComponent implements OnInit {
   
   
 
-limpiar() {
+  limpiar() {
 
-  this.arregloRoles = [];
-  this.arregloRolesPaginacion =[];
-  this.lForm.reset();
-  
-
-}
+    this.arregloRoles = [];
+    this.arregloRolesPaginacion =[];
+    this.lForm.reset();
+    
+  }
 
 
   /* Función búsqueda con paginación */
@@ -107,7 +108,29 @@ limpiar() {
     this.bsModalRef.hide();
   };
 
+  async CambioCheck(registro: Roles,event:any){
+    
+    var  indice
+    if(event.target.checked){
+      registro.marcacheckgrilla = true;
+          
+    }else{
+      registro.marcacheckgrilla = false;
+          
+    }
+   
+  }
 
-
+  SeleccionarItems(){
+    // console.log("cierra modal con datos cargados",this.arregloRoles)
+    this.arregloRoles.forEach(x=>{
+      
+      if(x.marcacheckgrilla=== true){
+        this.onClose.next(x);
+      }
+    })
+    
+    this.bsModalRef.hide();
+  }
 
 }

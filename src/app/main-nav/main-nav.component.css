@@ -1,0 +1,43 @@
+.sidenav-container {
+  height: 100%;
+}
+
+.sidenav {
+  width: 230px;
+  background-color:rgb(109, 175, 175);
+}
+
+.sidenav .mat-toolbar {
+  /* background: inherit; */
+  background-color: rgb(109, 175, 175);
+  font-size: 16px;
+}
+
+.mat-toolbar.mat-primary {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: rgb(109, 175, 175);
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+mat-toolbar a {
+  display: inline;
+  margin: 0 10px;
+  color: white;
+  text-decoration: none;
+  width:inherit
+}
+
+.mat-list-item-content {
+  font-size: 14px !important;
+}
+
+/* md-sidenav, md-sidenav.md-locked-open, md-sidenav.md-closed.md-locked-open-add-active {
+  min-width: 200px !important;
+  width: 50vw !important;
+  max-width: 200px !important;
+  position:relative;
+} */

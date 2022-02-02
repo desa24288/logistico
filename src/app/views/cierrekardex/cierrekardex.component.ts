@@ -18,6 +18,7 @@ import { BodegasTodas } from 'src/app/models/entity/BodegasTodas';
 import { InventariosService } from 'src/app/servicios/inventarios.service';
 import { BusquedaproductosService } from 'src/app/servicios/busquedaproductos.service';
 import { Articulos } from 'src/app/models/entity/mantencionarticulos';
+import { ActivatedRoute, Router } from '@angular/router';
 
 
 @Component({
@@ -54,6 +55,8 @@ export class CierrekardexComponent implements OnInit {
   public prodsbodegaskardex          : LibroControlado[] = [];
   public prodsbodegaskardexpaginacion: LibroControlado[] = [];
 
+  public msj : boolean = false;
+
   constructor(
     public formBuilder            : FormBuilder,
     public _BodegasService        : BodegasService,
@@ -61,8 +64,9 @@ export class CierrekardexComponent implements OnInit {
     private _inventarioService: InventariosService,
     private _imprimelibroService  : InformesService,
     public _BusquedaproductosService: BusquedaproductosService,
-
-  ) 
+    private router                  : Router,
+    private route                   : ActivatedRoute,
+  )
   {
     this.FormCierreKardex = this.formBuilder.group({
       codigo      : [{ value: null, disabled: false }, Validators.required],
@@ -92,6 +96,21 @@ export class CierrekardexComponent implements OnInit {
   }
 
   limpiar(){
+    const Swal = require('sweetalert2');
+    if (this.prodsbodegaskardexpaginacion.length > 0 ||
+      this.prodsbodegaskardex.length > 0 ) {
+        this.msj = true;
+    }
+    if (this.msj) {
+      Swal.fire({
+        title: 'Limpiar',
+        text: "¿Seguro que desea Limpiar los campos?",
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si'
+      }).then((result) => {
+        if (result.value) {
     this.FormCierreKardex.reset();
     this.activbusqueda= false;
     this.prodsbodegaskardexpaginacion = [];
@@ -99,18 +118,31 @@ export class CierrekardexComponent implements OnInit {
     this.cierrakardex = false;
     this.imprimecierrekardex = false;
     this.FormCierreKardex.get('fecha').setValue(new Date());
+        }
+      });
+    }else{
+      this.FormCierreKardex.reset();
+      this.activbusqueda= false;
+      this.prodsbodegaskardexpaginacion = [];
+      this.prodsbodegaskardex= [];
+      this.cierrakardex = false;
+      this.imprimecierrekardex = false;
+      this.FormCierreKardex.get('fecha').setValue(new Date());
+    }
   }
 
   BuscaBodegaDespachadora(){
     this._BodegasService.listaBodegaTodasSucursal(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.usuario, this.servidor).subscribe(
       response => {
-        this.bodegasSolicitantes = response;
+        if (response != null){
+          this.bodegasSolicitantes = response;
+        }
       },
       error => {
         alert("Error al Buscar Bodegas de cargo");
       }
     );
-    
+
   }
 
   ActivaBotonBusqueda(){
@@ -122,13 +154,14 @@ export class CierrekardexComponent implements OnInit {
     // this.cmecodigo,this.FormLibroControlado.value.bodcodigo);
     this.loading = true;
 
-    this._BodegasService.BuscaProductoBodegaControl(this.servidor,this.hdgcodigo, this.esacodigo, 
+    this._BodegasService.BuscaProductoBodegaControl(this.servidor,this.hdgcodigo, this.esacodigo,
     this.cmecodigo,this.FormCierreKardex.value.bodcodigo ).subscribe(
       response => {
-        console.log("Busca productos en Bodegas para cierre kardex",response)
-        this.prodsbodegaskardex = response;
-        this.prodsbodegaskardexpaginacion = this.prodsbodegaskardex.slice(0,20);
-        this.cierrakardex = true;
+        if (response != null){
+          this.prodsbodegaskardex = response;
+          this.prodsbodegaskardexpaginacion = this.prodsbodegaskardex.slice(0,20);
+          this.cierrakardex = true;
+        }
       },
       error => {
         alert("Error al Buscar productos en Bodegas");
@@ -144,7 +177,7 @@ export class CierrekardexComponent implements OnInit {
   }
 
   ConfirmaGenerarCierreKardex(){
-   
+
     const Swal = require('sweetalert2');
     Swal.fire({
       title: '¿ Desea Grabar el Cierre De Kardex?',
@@ -162,19 +195,20 @@ export class CierrekardexComponent implements OnInit {
   }
 
   GrabaCierreKardex(){
-    console.log("Dato a grabar en el cierre",this.hdgcodigo, this.esacodigo, 
+    console.log("Dato a grabar en el cierre",this.hdgcodigo, this.esacodigo,
     this.cmecodigo,this.servidor,this.usuario,this.FormCierreKardex.value.bodcodigo);
 
-    this._inventarioService.GrabaCierreKardex(this.hdgcodigo, this.esacodigo, 
+    this._inventarioService.GrabaCierreKardex(this.hdgcodigo, this.esacodigo,
       this.cmecodigo,this.servidor,this.usuario,this.FormCierreKardex.value.bodcodigo ).subscribe(
         response => {
-          console.log("Resultado Grabacion cierre",response)
-          this.alertSwal.title = "Kardex Cerrado Exitosamente";
-          this.alertSwal.show();
-          this.imprimecierrekardex = true;
-          this.cierrakardex= false;
-          // this.prodsbodegascontroladas = response;
-          // this.prodsbodegascontroladaspaginacion = this.prodsbodegascontroladas.slice(0,11);
+          if (response != null){
+            this.alertSwal.title = "Kardex Cerrado Exitosamente";
+            this.alertSwal.show();
+            this.imprimecierrekardex = true;
+            this.cierrakardex= false;
+            // this.prodsbodegascontroladas = response;
+            // this.prodsbodegascontroladaspaginacion = this.prodsbodegascontroladas.slice(0,11);
+          }
         },
         error => {
           this.alertSwalError.title = "Error al Grabar Cierre De Kardex";
@@ -182,7 +216,7 @@ export class CierrekardexComponent implements OnInit {
           this.alertSwalError.show();
         }
       );
-  
+
 
   }
 
@@ -200,7 +234,7 @@ export class CierrekardexComponent implements OnInit {
       if (result.value) {
         this.ImprimirLibro();
       }
-    })    
+    })
 
   }
 
@@ -212,10 +246,11 @@ export class CierrekardexComponent implements OnInit {
     this._imprimelibroService.RPTImprimeCierreKardex(this.servidor,this.usuario,
     this.hdgcodigo,this.esacodigo, this.cmecodigo,"pdf",this.FormCierreKardex.value.bodcodigo).subscribe(
       response => {
-        console.log("Imprime Cierre", response);
-        window.open(response[0].url, "", "", true);
-        // this.alertSwal.title = "Reporte Impreso Correctamente";
-        // this.alertSwal.show();
+        if (response != null){
+          window.open(response[0].url, "", "", true);
+          // this.alertSwal.title = "Reporte Impreso Correctamente";
+          // this.alertSwal.show();
+        }
       },
       error => {
         console.log(error);
@@ -225,5 +260,34 @@ export class CierrekardexComponent implements OnInit {
         // })
       }
     );
+  }
+
+  salir(){
+    const Swal = require('sweetalert2');
+    if (this.prodsbodegaskardexpaginacion.length > 0 ||
+      this.prodsbodegaskardex.length > 0 ) {
+        this.msj = true;
+    }
+
+    if(this.msj){
+      Swal.fire({
+        title: 'Salir',
+        text: "¿Seguro que desea Salir sin de guardar?",
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si'
+      }).then((result) => {
+        if (result.value) {
+          this.route.paramMap.subscribe(param => {
+            this.router.navigate(['home']);
+        })
+        }
+      });
+    } else {
+      this.route.paramMap.subscribe(param => {
+        this.router.navigate(['home']);
+      })
+    }
   }
 }

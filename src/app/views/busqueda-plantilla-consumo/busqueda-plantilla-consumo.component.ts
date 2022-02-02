@@ -5,7 +5,7 @@ import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { environment } from 'src/environments/environment';
 import { PageChangedEvent } from 'ngx-bootstrap';
 
-//Manejo de fechas 
+//Manejo de fechas
 import { defineLocale } from 'ngx-bootstrap/chronos';
 import { esLocale } from 'ngx-bootstrap/locale';
 import { BsLocaleService, BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
@@ -63,8 +63,8 @@ export class BusquedaPlantillaConsumoComponent implements OnInit {
 
 
   }
-  
-  
+
+
   ngOnInit() {
 
     this.setDate();
@@ -89,13 +89,15 @@ export class BusquedaPlantillaConsumoComponent implements OnInit {
   buscarPlantillaConsumofiltros() {
 
    this.loading = true;
-    
-    this._solicitudConsumoService.buscarplantillaconsumo(this.lForm.value.numeroplantilla, this.hdgcodigo, this.esacodigo, this.cmecodigo, this.lForm.value.centrocosto , 0, 0, Number(this.lForm.value.estado) ,this.usuario, this.servidor).subscribe(
+
+    this._solicitudConsumoService.buscarplantillaconsumo(this.lForm.value.numeroplantilla,
+      this.hdgcodigo, this.esacodigo, this.cmecodigo, this.lForm.value.centrocosto , 0, 0,
+       Number(this.lForm.value.estado) ,this.usuario, this.servidor,'').subscribe(
       respuestaplantilla => {
         if (respuestaplantilla.length == 0) {
-          this.Limpiar();  
+          this.Limpiar();
           this.loading = false;
-          
+
           this.alertSwalError.title = "Error al Buscar Plantillas de Consumo";
           this.alertSwalError.text = "No encuentra plantillas de consumo para este criterio. Favor intentar nuevamente";
           this.alertSwalError.show();
@@ -134,9 +136,11 @@ export class BusquedaPlantillaConsumoComponent implements OnInit {
 
 
   BuscaCentroCostoSolicitante() {
-    this._unidadesorganizacionaes.buscarCentroCosto("", 0, "CCOS", "", "", 0, this.cmecodigo, 0, 0, "S", this.usuario, this.servidor).subscribe(
+    this._unidadesorganizacionaes.buscarCentroCosto("", 0, "CCOS", "", "", 0, this.cmecodigo, 0, 0, "S", this.usuario, null, this.servidor).subscribe(
       response => {
-        this.ccostosolicitante = response;
+        if (response != null){
+          this.ccostosolicitante = response;
+        }
       },
       error => {
         alert("Error al Buscar Bodegas de cargo");
@@ -164,5 +168,40 @@ export class BusquedaPlantillaConsumoComponent implements OnInit {
   getCmecodigo(event: any) {
     this.cmecodigo = event.cmecodigo;
   }
+
+  getNumPlantilla(numeroplantilla:any){
+    console.log("busca num plantla espe",numeroplantilla)
+    console.log("dato a buscar", parseInt(numeroplantilla), this.hdgcodigo, this.esacodigo, this.cmecodigo, this.lForm.value.centrocosto , 0, 0, Number(this.lForm.value.estado) ,this.usuario, this.servidor)
+    this._solicitudConsumoService.buscarplantillaconsumo(parseInt(numeroplantilla), this.hdgcodigo,
+    this.esacodigo, this.cmecodigo, this.lForm.value.centrocosto , 0, 0,
+    Number(this.lForm.value.estado) ,this.usuario, this.servidor,'').subscribe(
+      respuestaplantilla => {
+        if (respuestaplantilla.length == 0) {
+          this.Limpiar();
+          this.loading = false;
+
+          this.alertSwalError.title = "Error al Buscar Plantillas de Consumo";
+          this.alertSwalError.text = "No encuentra plantillas de consumo para este criterio. Favor intentar nuevamente";
+          this.alertSwalError.show();
+        }
+        else {
+
+          this.listaplantilla = respuestaplantilla;
+          this.listaplantillapaginacion = this.listaplantilla.slice(0, 8);
+        }
+      },
+      error => {
+        console.log(error);
+        this.loading = false;
+        this.alertSwalError.title = "Error al Buscar Plantilla de Consumo";
+        this.alertSwalError.text = "No encuentra Plantilla, puede que no existan. Favor intentar nuevamente";
+        this.alertSwalError.show();
+        this.Limpiar();
+      }
+
+    )
+    this.loading = false;
+  }
+
 
 }

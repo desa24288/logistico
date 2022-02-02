@@ -30,8 +30,8 @@ export class MovimientoDevolucionComponent implements OnInit {
   @Input() cmecodigo: number;
   @Input() descripciontipomov: string;
   @Input() DetalleMovimiento:MovimientosFarmaciaDet;
-  
-  
+
+
 
 
   public editField: any;
@@ -79,31 +79,31 @@ export class MovimientoDevolucionComponent implements OnInit {
       disponible: [{ value: null, disabled: false }, Validators.required],
 
 
-      
-      
+
+
     });
 
-    
+
 
   }
 
   ngOnInit() {
-    
+
     this.onClose = new Subject();
 
 
     this.setDate();
 
 
-    this.FormDevoluciones.get('movimfarid').setValue(this.DetalleMovimiento.movimfarid); 
-    this.FormDevoluciones.get('codigomein').setValue(this.DetalleMovimiento.codigomein); 
-    this.FormDevoluciones.get('descripcionmein').setValue(this.DetalleMovimiento.descripcionmein); 
-    this.FormDevoluciones.get('disponible').setValue(this.DetalleMovimiento.cantidadmov - this.DetalleMovimiento.cantidaddevol ); 
+    this.FormDevoluciones.get('movimfarid').setValue(this.DetalleMovimiento.movimfarid);
+    this.FormDevoluciones.get('codigomein').setValue(this.DetalleMovimiento.codigomein);
+    this.FormDevoluciones.get('descripcionmein').setValue(this.DetalleMovimiento.descripcionmein);
+    this.FormDevoluciones.get('disponible').setValue(this.DetalleMovimiento.cantidadmov - this.DetalleMovimiento.cantidaddevol );
 
-    
+
     this.detalleDevolucion = this.DetalleMovimiento.movimientosfarmaciadetdevol;
     this.detalleDevolucionPaginacion = this.detalleDevolucion.slice(0,8);
-    
+
 
   }
 
@@ -139,7 +139,7 @@ export class MovimientoDevolucionComponent implements OnInit {
         DetalleMovimientoDevolucion.movimfardetid = this.DetalleMovimiento.movimfardetid;
         DetalleMovimientoDevolucion.movimfardetdevolid = 0;
         DetalleMovimientoDevolucion.tipomov = this.DetalleMovimiento.tipomov;
-        DetalleMovimientoDevolucion.fechamovdevol =   this.datePipe.transform(new Date(), 'yyyy-MM-dd');   
+        DetalleMovimientoDevolucion.fechamovdevol =   this.datePipe.transform(new Date(), 'yyyy-MM-dd');
         DetalleMovimientoDevolucion.cantidaddevol = 0;
         DetalleMovimientoDevolucion.responsablenom = usuario;
         DetalleMovimientoDevolucion.cuentacargoid = 0;
@@ -167,7 +167,7 @@ export class MovimientoDevolucionComponent implements OnInit {
       };
       return dtModal;
     }
-  
+
     setModalMensajeAceptar( ) {
       let dtModal: any = {};
       dtModal = {
@@ -182,9 +182,9 @@ export class MovimientoDevolucionComponent implements OnInit {
       };
       return dtModal;
     }
-  
 
-     
+
+
 /* Confiormar guardado de devoluciones del movimiento previamente */
 ConfirmarGuradadoMovimientoDevolucion() {
   // sE CONFIRMA GURADADO DE REGISTRO
@@ -223,15 +223,11 @@ guardardevoluciones()  {
 
   this._MovimientosfarmaciaService.GuardarMovimietosDevoluciones(this._EnvioMovimientosDevolucion).subscribe(
     response => {
-        
-            if (response.length >0) {
-               
-
-              this._BSModalRef.content.onClose.subscribe((RetornoExito: any) => {
-               },
-              )
-            }
-        
+      if (response != null) {
+        if (response.length >0) {
+          this._BSModalRef.content.onClose.subscribe((RetornoExito: any) => {});
+        }
+      }
     },
     error => {
       console.log(error);
@@ -296,13 +292,13 @@ guardardevoluciones()  {
         msgerror='LAS DEVOLUCIONES PREVIAMENTE EXISTENTE, NO SON MODIFICABLES';
         this._BSModalRef.content.onClose.subscribe((Retorno: any) => {
         }
-        ); 
+        );
     this.editField = event.target.textContent;
     }
   }
 
 
-  
+
   setDate() {
     defineLocale(this.locale, esLocale);
     this.localeService.use(this.locale);

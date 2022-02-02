@@ -9,7 +9,7 @@ import { FormaFar } from '../models/entity/FormaFar';
 })
 export class FormaFarService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/formafarma');//'http://172.25.108.236:8181/familia';
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/formafarma');//'http://172.25.108.236:8181/familia';
 
   constructor(public httpClient: HttpClient) {
 

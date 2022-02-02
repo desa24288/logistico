@@ -1,0 +1,196 @@
+<app-main-nav>
+    <div>
+        <div style="margin: 10px;">
+            <form [formGroup]="FormConsultaLotes">
+                <!-- Contenedor feneral de la página -->
+                <div class="my-2 ml-2 titulo text-center">
+                    <!--menu -->
+                    <h3>
+                        Consulta de Lotes de Productos
+                    </h3>
+                </div>
+                <div class="card border-primary" style="padding: 5px;">
+                    <div class="form-row mt-2">
+
+                        <div class="form-group col-md-1">
+                            <label for="lote">Lote *</label>
+                            <input type="text" class="form-control form-control-sm"
+                            formControlName='lote'>
+
+                        </div>
+                        <div class="form-group col-sm-1">
+                            <label for="numidentificacion">Código *</label>
+                            <input type="text" class="form-control form-control-sm"
+                            formControlName="codigo" (keyup.enter)="getProducto()"
+                            (keydown.tab)="getProducto()">
+
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label for="descripcion">Descripción *</label>
+                            <input type="text" class="form-control form-control-sm"
+                            formControlName="descripcion">
+
+                        </div>
+                        <div class="form-group col-md-1 ml-4">
+                            <label for="fechadesde">F. Desde *</label>
+                            <input appSelecttext type="text" placeholder="DD/MM/YYYY"
+                                class="form-control form-control-sm" [bsConfig]="bsConfig"
+                                bsDatepicker formControlName="fechadesde" />
+                        </div>
+                        <div class="form-group col-md-1">
+                            <label for="fechahasta">F. Hasta *</label>
+                            <input appSelecttext type="text" placeholder="DD/MM/YYYY"
+                              class="form-control form-control-sm" [bsConfig]="bsConfig"
+                              bsDatepicker formControlName="fechahasta" />
+
+                        </div>
+
+                        <div class="form-group col-md-3 align-self-end text-right">
+                            <button type="button" id="btnbuscar"
+                                class="btn btn-primary btn-sm button-my-styles-busqueda_01"
+                                (click)="ConsultaLotes()">
+                                Buscar <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="card border-primary" style="padding: 5px;margin-top: 10px">
+              <div id="table" class="table-editable" style="max-height: auto;min-height: 100px;">
+                <div id="table" class="table-editable table-responsive mt-2">
+                    <table
+                      class="table table-sm table-condensed table-bordered table-responsive-md table-striped text-center">
+                        <tr class="table table-sm  table-primary table-bordered ">
+
+                          <th class="text-center">Lote </th>
+                          <th class="text-center">Fecha Vencimiento </th>
+
+                        </tr>
+                        <tr *ngFor="let dato of datoslotesPaginacion" (click)="SeleccionLote(dato)" style="cursor: pointer;">
+
+                          <td>{{ dato.nombre}}</td>
+                          <td>{{ dato.fechavencimiento }} </td>
+
+                        </tr>
+                    </table>
+                </div>
+                <div class="row m-1" *ngIf="datoslotes.length>8">
+                    <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
+                        [totalItems]="datoslotes.length" [itemsPerPage]="8"
+                        [previousText]="'Anterior'" [nextText]="'Siguiente'" [firstText]="'&laquo;'"
+                        [lastText]="'&raquo;'" (pageChanged)="pageChangedLotes($event)">
+                    </pagination>
+                </div>
+            </div>
+          </div>
+
+            <div class="card border-primary" style="padding: 5px;margin-top: 10px">
+                <tabset>
+                    <tab heading="Datos Paciente" id="tab1">
+                        <div id="table" class="table-editable" style="max-height: auto;min-height: 100px;">
+                            <div id="table" class="table-editable table-responsive mt-2">
+                                <table
+                                    class="table table-sm table-condensed table-bordered table-responsive-md table-striped text-center">
+                                    <tr class="table table-sm  table-primary table-bordered ">
+
+                                      <th class="text-center">Fecha </th>
+                                      <th class="text-center">Rut Paciente </th>
+                                      <th class="text-center">Nombre Paciente</th>
+                                      <th class="text-center">Servicio</th>
+                                      <th class="text-center">N°Solicitud</th>
+                                      <th class="text-center">Cantidad</th>
+
+                                    </tr>
+                                    <tr class="table-secondary"
+                                        *ngFor="let registro of detalleconsultalotesPaginacion; let id = index">
+                                        <td>
+                                            <small>{{registro.mfdefecha}} </small>
+                                        </td>
+                                        <td>
+                                            <small>{{registro.glstipidentificacion}} {{registro.clinumidentificacion}}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <small><span>{{registro.nomcompletopac}}</span></small>
+                                        </td>
+                                        <td>
+                                            <small><span>{{registro.servdescripcion}}</span></small>
+                                        </td>
+                                        <td>
+                                            <small><span> {{registro.soliid }}</span></small>
+                                        </td>
+                                        <td>
+                                            <small><span>{{registro.mfdecantidad}}</span></small>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="row m-1" *ngIf="detalleconsultalotes.length>20">
+                                <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
+                                    [totalItems]="detalleconsultalotes.length" [itemsPerPage]=20
+                                    [previousText]="'Anterior'" [nextText]="'Siguiente'" [firstText]="'&laquo;'"
+                                    [lastText]="'&raquo;'" (pageChanged)="pageChanged($event)">
+                                </pagination>
+                            </div>
+                        </div>
+                    </tab>
+                    <tab heading="Datos Bodegas" id="tab1">
+                        <div id="table" class="table-editable" style="max-height: auto;min-height: 100px;">
+                            <div id="table" class="table-editable table-responsive mt-2">
+                                <table
+                                    class="table table-sm table-condensed table-bordered table-responsive-md table-striped text-center">
+                                    <tr class="table table-sm  table-primary table-bordered ">
+
+                                      <th class="text-center">Nombre Bodega</th>
+                                      <th class="text-center">Cantidad</th>
+
+                                    </tr>
+                                    <tr class="table-secondary"
+                                        *ngFor="let registro of detalleconsultalotesbodPaginacion; let id = index">
+
+                                        <td>
+                                            <small><span>{{registro.fboddescripcion}}</span></small>
+                                        </td>
+                                        <td>
+                                            <small><span>{{registro.mfdecantidad}}</span></small>
+                                        </td>
+
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="row m-1" *ngIf="detalleconsultalotesbod.length>20">
+                                <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
+                                    [totalItems]="detalleconsultalotesbod.length" [itemsPerPage]=20
+                                    [previousText]="'Anterior'" [nextText]="'Siguiente'" [firstText]="'&laquo;'"
+                                    [lastText]="'&raquo;'" (pageChanged)="pageChangedBod($event)">
+                                </pagination>
+                            </div>
+                        </div>
+                    </tab>
+
+                </tabset>
+
+            </div>
+
+        </div>
+        <!--  Botones de página -->
+        <div class="row float-right mr-1 mt-2">
+          <div class="form-group  align-self-end">
+              <button type="button" id="btnlimpiar" class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+                  (click)="limpiar()">
+                  LIMPIAR <i class="fas fa-eraser ml-1"></i>
+              </button>
+          </div>
+          <div class="form-group  align-self-end">
+              <button type="button" id="btnsalir" class="btn btn-primary btn-sm button-my-styles-busqueda_02"
+                  routerLink='../home'>
+                  SALIR <i class="fas fa-window-close ml-1"></i>
+              </button>
+          </div>
+        </div>
+        <swal #alertSwal title="" text="" type="success" [showCancelButton]="false"> </swal>
+        <swal #alertSwalAlert title="" text="" type="warning" [showCancelButton]="false"> </swal>
+        <swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
+    </div>
+</app-main-nav>

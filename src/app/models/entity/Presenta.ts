@@ -1,6 +1,6 @@
 export class Presenta {
-    private idprese: number;
-    private descriprese: string;
+    public idprese: number;
+    public descriprese: string;
 
     constructor(idprese: number, descriprese: string) {
         this.idprese = idprese;

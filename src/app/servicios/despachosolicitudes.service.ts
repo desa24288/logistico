@@ -17,14 +17,14 @@ import { Paramgrabadespachos } from '../models/entity/Paramgrabadespachos';
 
 @Injectable()
 export class DespachosolicitudesService {
-    public urlbuscaempresa       : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
-    public urlbuscasucursal      : string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
-    public buscabodega           : string = environment.URLServiciosRest.URLConexion.concat('/bodegas');//'http://172.25.108.236:8189/bodegas';
-    public urlbuscasolic          : string = environment.URLServiciosRest.URLConexion.concat('/retconsultaencsolicitudbod');
-    public urlretornadetsolic     : string = environment.URLServiciosRest.URLConexion.concat('/retornadetsolicitudbod');
-    public urlbuscabodegaorigen   : string = environment.URLServiciosRest.URLConexion.concat('/bodegascargo');
-    public urlretornasolic        : string = environment.URLServiciosRest.URLConexion.concat('/retornaencsolicitudbod');
-    public urlgrabadespacho       : string = environment.URLServiciosRest.URLConexion.concat('/grabadespachos');
+    public urlbuscaempresa       : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
+    public urlbuscasucursal      : string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
+    public buscabodega           : string = sessionStorage.getItem('enlace').toString().concat('/bodegas');//'http://172.25.108.236:8189/bodegas';
+    public urlbuscasolic          : string = sessionStorage.getItem('enlace').toString().concat('/retconsultaencsolicitudbod');
+    public urlretornadetsolic     : string = sessionStorage.getItem('enlace').toString().concat('/retornadetsolicitudbod');
+    public urlbuscabodegaorigen   : string = sessionStorage.getItem('enlace').toString().concat('/bodegascargo');
+    public urlretornasolic        : string = sessionStorage.getItem('enlace').toString().concat('/retornaencsolicitudbod');
+    public urlgrabadespacho       : string = sessionStorage.getItem('enlace').toString().concat('/grabadespachos');
 
     constructor(public _http: HttpClient) {
     }

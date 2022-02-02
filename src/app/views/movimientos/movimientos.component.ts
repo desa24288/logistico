@@ -86,7 +86,7 @@ export class MovimientosComponent implements OnInit {
   public validarecepcion                    : boolean = false;
   public validacantarececpcionar            : boolean = false;
   public validacantadevolver                : boolean = false;
-  public validacantidad                     : number; 
+  public validacantidad                     : number;
   public validacant                         : number;
   public rutpaciente                        : string;
   public nombrepac                          : string;
@@ -115,7 +115,7 @@ export class MovimientosComponent implements OnInit {
 
   constructor(
 
-    private _formBuilder              : FormBuilder, 
+    private _formBuilder              : FormBuilder,
     public _BodegasService            : BodegasService,
     public _TipomovimientoService     : TipomovimientoService,
     public _MotivocargoService        : MotivocargoService,
@@ -160,7 +160,7 @@ export class MovimientosComponent implements OnInit {
       lote                    : [{value: null,disabled: false}, Validators.required],
       fechavto                : [{value: null, disabled: true}, Validators.required]
     });
-    
+
   }
 
   ngOnInit() {
@@ -171,7 +171,7 @@ export class MovimientosComponent implements OnInit {
     this.usuario = sessionStorage.getItem('Usuario').toString();
 
     this.setDate();
-    
+
     this.BuscaBodegaCargo();
 
     this._TipomovimientoService.list(this.usuario,this.servidor).subscribe(
@@ -198,7 +198,7 @@ export class MovimientosComponent implements OnInit {
       }, err => {
         console.log(err.error);
       }
-    );    
+    );
   }
 
   limpiar(){
@@ -252,10 +252,10 @@ export class MovimientosComponent implements OnInit {
       this.validanombrerut = false;
       this.validabodega = false;
       this.validarecepcion = false;
-      this.validagrabar = true; 
+      this.validagrabar = true;
       this.validacantadevolver= false;
       this.validacantarececpcionar = true;
-      
+
     }else{
       // Recepción por devolucion paciente
       if(tipomov ==70){
@@ -276,21 +276,23 @@ export class MovimientosComponent implements OnInit {
           this.validagrabar = false;
           this.validacantadevolver= true;
           this.validacantarececpcionar = false;
-          
+
         }else{
           this.validatipomovim = false;
           this.validanombrerut = false;
         }
-        
+
       }
-      
+
     }
   }
 
   BuscaBodegaCargo() {
     this._BodegasService.listaBodegaCargoSucursal(this.hdgcodigo, this.esacodigo, this.cmecodigo,this.usuario,this.servidor).subscribe(
       response => {
-        this.bodegascargo = response;
+        if (response != null) {
+          this.bodegascargo = response;
+        }
       },
       error => {
         alert("Error al Buscar Bodegas de cargo")
@@ -305,7 +307,7 @@ export class MovimientosComponent implements OnInit {
       this.usuario, this.servidor, this.FormMovimiento.value.bodorigen, 1).subscribe(
       data => {
         this.bodegassuministro = data;
-        
+
       }, err => {
         console.log(err.error);
       }
@@ -366,11 +368,11 @@ export class MovimientosComponent implements OnInit {
 
     this._BSModalRef = this._BsModalService.show(BusquedapacientesComponent, this.setModalPacientes());
     this._BSModalRef.content.onClose.subscribe((RetornoPaciente: any) => {
-      
- 
+
+
       if(RetornoPaciente.codambito ==1 ){
 
-     
+
         this.pacienteamb = RetornoPaciente;
 
         this.cliid = this.pacienteamb.cliid;
@@ -392,7 +394,7 @@ export class MovimientosComponent implements OnInit {
       }else{
         if(RetornoPaciente.codambito == 3){
           this.pacientehosp = RetornoPaciente;
-     
+
           this.cliid = this.pacientehosp.cliid;
           this.ctaid = this.pacientehosp.ctaid;
           this.estid = this.pacientehosp.estid;
@@ -415,7 +417,7 @@ export class MovimientosComponent implements OnInit {
         } else {
 
               this.pacientehosp = RetornoPaciente;
-        
+
               this.cliid = this.pacientehosp.cliid;
               this.ctaid = this.pacientehosp.ctaid;
               this.estid = this.pacientehosp.estid;
@@ -438,7 +440,7 @@ export class MovimientosComponent implements OnInit {
         }
 
       }
-        
+
 
     })
   }
@@ -460,7 +462,7 @@ export class MovimientosComponent implements OnInit {
   }
 
   BusquedaMovimientos() {
-    
+
     this._BSModalRef = this._BsModalService.show(BusquedamovimientosComponent, this.setModalMovimientos());
     this._BSModalRef.content.onClose.subscribe((RetornoMovimiento: any) => {
       // estado es el dato de respuesta, también puede ser un objeto JSON
@@ -479,38 +481,37 @@ export class MovimientosComponent implements OnInit {
 
 
   depliegaMovimiento(IdMovimiento:number, usuario:string, servidor:string){
-            
+
     this._MovimientosfarmaciaService.RecuperaMovimiento(IdMovimiento,usuario,servidor).subscribe(
       response => {
+        if (response != null) {
+          this._MovimientosFarmacia = response[0] ;
+          this.SeleccionaTipoMovim(this._MovimientosFarmacia.tipomov);
+          this.validamotivo = true;
+          this.validabtneliminar = true;
+          this.validagrabar = true;
+          this.FormMovimiento.get('movimfarid').setValue(this._MovimientosFarmacia.movimfarid);
+          this.FormMovimiento.get('tipomov').setValue(this._MovimientosFarmacia.tipomov);
+          this.FormMovimiento.get('movimfecha').setValue(new Date(this._MovimientosFarmacia.movimfecha));
+          this.FormMovimiento.get('bodorigen').setValue(this._MovimientosFarmacia.bodegaorigen);
+          this.FormMovimiento.get('boddestino').setValue(this._MovimientosFarmacia.bodegadestino);
+          this.FormMovimiento.get('numeroreceta').setValue(this._MovimientosFarmacia.numeroreceta);
+          this.FormMovimiento.get('numeroboletacaja').setValue(this._MovimientosFarmacia.numeroboletacaja);
+          this.FormMovimiento.get('numidentificacion').setValue(this._MovimientosFarmacia.clienterut);
+          this.FormMovimiento.get('nombrerutpaciente').setValue(this._MovimientosFarmacia.clientenombres+" "+this._MovimientosFarmacia.clientepaterno+" "+this._MovimientosFarmacia.clientematerno)
+          // this.FormMovimiento.get('motivocargo').setValue(this._MovimientosFarmacia.motivocargoid );
+          this.FormMovimiento.get('paterno').setValue(this._MovimientosFarmacia.clientepaterno);
+          this.FormMovimiento.get('materno').setValue(this._MovimientosFarmacia.clientematerno);
+          this.FormMovimiento.get('nombres').setValue(this._MovimientosFarmacia.clientenombres);
+          this.FormMovimiento.get('nombrepaciente').setValue(this._MovimientosFarmacia.clientenombres+" "+this._MovimientosFarmacia.clientepaterno+" "+this._MovimientosFarmacia.clientematerno);
 
-        this._MovimientosFarmacia = response[0] ;
-   
-        this.SeleccionaTipoMovim(this._MovimientosFarmacia.tipomov);
-        this.validamotivo = true;
-        this.validabtneliminar = true;
-        this.validagrabar = true;
- 
-        this.FormMovimiento.get('movimfarid').setValue(this._MovimientosFarmacia.movimfarid); 
-        this.FormMovimiento.get('tipomov').setValue(this._MovimientosFarmacia.tipomov); 
-        this.FormMovimiento.get('movimfecha').setValue(new Date(this._MovimientosFarmacia.movimfecha)); 
-        this.FormMovimiento.get('bodorigen').setValue(this._MovimientosFarmacia.bodegaorigen); 
-        this.FormMovimiento.get('boddestino').setValue(this._MovimientosFarmacia.bodegadestino); 
-        this.FormMovimiento.get('numeroreceta').setValue(this._MovimientosFarmacia.numeroreceta); 
-        this.FormMovimiento.get('numeroboletacaja').setValue(this._MovimientosFarmacia.numeroboletacaja); 
-        this.FormMovimiento.get('numidentificacion').setValue(this._MovimientosFarmacia.clienterut);
-        this.FormMovimiento.get('nombrerutpaciente').setValue(this._MovimientosFarmacia.clientenombres+" "+this._MovimientosFarmacia.clientepaterno+" "+this._MovimientosFarmacia.clientematerno) 
-        // this.FormMovimiento.get('motivocargo').setValue(this._MovimientosFarmacia.motivocargoid ); 
-        this.FormMovimiento.get('paterno').setValue(this._MovimientosFarmacia.clientepaterno); 
-        this.FormMovimiento.get('materno').setValue(this._MovimientosFarmacia.clientematerno); 
-        this.FormMovimiento.get('nombres').setValue(this._MovimientosFarmacia.clientenombres); 
-        this.FormMovimiento.get('nombrepaciente').setValue(this._MovimientosFarmacia.clientenombres+" "+this._MovimientosFarmacia.clientepaterno+" "+this._MovimientosFarmacia.clientematerno); 
-               
-        this.arregloMovimientosFarmaciaDet = [];
-        this.arregloMovimientosFarmaciaDetPaginacion = [];
+          this.arregloMovimientosFarmaciaDet = [];
+          this.arregloMovimientosFarmaciaDetPaginacion = [];
 
-        this.arregloMovimientosFarmaciaDet = this._MovimientosFarmacia.movimientosfarmaciadet;
-       this.arregloMovimientosFarmaciaDetPaginacion = this.arregloMovimientosFarmaciaDet.slice(0, 20);
-       this.validaCantidad();
+          this.arregloMovimientosFarmaciaDet = this._MovimientosFarmacia.movimientosfarmaciadet;
+          this.arregloMovimientosFarmaciaDetPaginacion = this.arregloMovimientosFarmaciaDet.slice(0, 20);
+          this.validaCantidad();
+        }
       },
       error => {
         console.log("Error :", error)
@@ -518,7 +519,7 @@ export class MovimientosComponent implements OnInit {
     );
   }
 
-  setModalDevoluciones(in_descripcionmeinmovimiento:string,registro: MovimientosFarmaciaDet) 
+  setModalDevoluciones(in_descripcionmeinmovimiento:string,registro: MovimientosFarmaciaDet)
   { let dtModal: any = {};
     dtModal = {
       keyboard: true,
@@ -530,12 +531,12 @@ export class MovimientosComponent implements OnInit {
         esacodigo: this.esacodigo,
         cmecodigo: this.cmecodigo,
         descripciontipomov: in_descripcionmeinmovimiento,
-        DetalleMovimiento:registro,            
+        DetalleMovimiento:registro,
       }
     };
     return dtModal;
-  } 
- 
+  }
+
   setModalMensajeAceptar( ) {
     let dtModal: any = {};
     dtModal = {
@@ -571,9 +572,9 @@ export class MovimientosComponent implements OnInit {
       }
     })
   }
-  
+
   EliminaRegistro(registro: any,id:number){
-  
+
     this.arregloMovimientosFarmaciaDet.splice(id, 1);
     this.arregloMovimientosFarmaciaDetPaginacion =  this.arregloMovimientosFarmaciaDet.slice(0,20);
     this.validaCantidad();
@@ -604,7 +605,7 @@ export class MovimientosComponent implements OnInit {
 
     this.detallemovimiento = [];
     var movimientos = new GrabaMovimientos;
-    
+
      this.respuesta = []
 
     if(this.FormMovimiento.value.tipomov == 180 && this.FormMovimiento.value.tipomov == 70){
@@ -647,7 +648,7 @@ export class MovimientosComponent implements OnInit {
     movimientos.clientenombres= this.nombrepac;
     movimientos.proveedorrut  = null;
     movimientos.proveedordesc = null;
-    movimientos.movimudescr   = null; 
+    movimientos.movimudescr   = null;
     movimientos.bodegadescr   = null;
     movimientos.bodegadestinodes= null;
     movimientos.comprobantecaja= null;
@@ -660,7 +661,7 @@ export class MovimientosComponent implements OnInit {
     this.arregloMovimientosFarmaciaDet.forEach(element=>{
       var detmovim = new GrabaDetalleMovimientoFarmacia;
       detmovim.movimfardetid        = 0;
-      detmovim.movimfarid           = 0; 
+      detmovim.movimfarid           = 0;
       detmovim.fechamovimdet        = this.datePipe.transform(this.FormMovimiento.value.movimfecha, 'yyyy-MM-dd');
       detmovim.tipomov              = this.FormMovimiento.value.tipomov;
       detmovim.codigomein           = element.codigomein;
@@ -679,7 +680,7 @@ export class MovimientosComponent implements OnInit {
       detmovim.incobrablefonasa     = null
       detmovim.descripcionmein      = element.descripcionmein;
       detmovim.lote                 = element.lote;
-      detmovim.fechavto             = element.fechavto;     
+      detmovim.fechavto             = element.fechavto;
       detmovim.tiporeg              = element.tiporegistro;
       detmovim.idtipomotivo         = element.idtipomotivo;
       detmovim.idtipomotivo         = element.idtipomotivo;
@@ -691,15 +692,16 @@ export class MovimientosComponent implements OnInit {
 
     movimientos.movimientosfarmaciadet = this.detallemovimiento;
 
-     
+
      await this._MovimientosfarmaciaService.GrabaMovimiento(movimientos).subscribe(
       response => {
-        this.alertSwal.title = "Movimiento Generado Exitosamente. N°:".concat(response['movimientofarmaciaid']);
-        this.alertSwal.show();
-         /* Llamada a busqueda de movimiento teniendo el ID único */
+        if (response != null) {
+          this.alertSwal.title = "Movimiento Generado Exitosamente. N°:".concat(response['movimientofarmaciaid']);
+          this.alertSwal.show();
+          /* Llamada a busqueda de movimiento teniendo el ID único */
           this.activabtnimprimovim = true;
           this.depliegaMovimiento(response['movimientofarmaciaid'],this.usuario,this.servidor);
-
+        }
       },
       error => {
         console.log(error);
@@ -738,7 +740,7 @@ export class MovimientosComponent implements OnInit {
   }
 
   addArticuloGrilla(dato: any) {
- 
+
     this.validaCantidad();
     if (dato.codigo != null) {
 
@@ -747,11 +749,11 @@ export class MovimientosComponent implements OnInit {
         if (this.detalleslotes.length > 1 && dato.lote == null) {
           this.alertSwalAlert.title = "Debe seleccionar lote";
           this.alertSwalAlert.show();
-        } 
+        }
         else {
           this.detalleslotes.forEach(element => {
             if (element.lote == dato.lote) {
- 
+
               const DetalleMovimiento = new (MovimientosFarmaciaDet);
               this.lote = this.FormMovimiento.value.lote;
               this.codigo = this.FormMovimiento.value.codigo;
@@ -781,9 +783,9 @@ export class MovimientosComponent implements OnInit {
         this.lote = this.FormMovimiento.value.lote;
         this.codigo = this.FormMovimiento.value.codigo;
 
-        this._BusquedaproductosService.BuscarArituculosFiltros(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.codigo, '', 0, 0, 0, '',
-          0, '', '', '', this.usuario, this.servidor).subscribe(response => {
-      
+        this._BusquedaproductosService.BuscarArticulosFiltros(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.codigo, '', 0, 0, 0, '',
+        0, '', '', '', this.usuario, null, this.servidor).subscribe(response => {
+          if (response != null) {
             DetalleMovimiento.codigomein = response[0].codigo;
             DetalleMovimiento.descripcionmein = response[0].descripcion;
             DetalleMovimiento.cantidadmov = 0;
@@ -796,10 +798,8 @@ export class MovimientosComponent implements OnInit {
             this.FormMovimiento.get('codigo').setValue(null);
             this.FormMovimiento.get('lote').setValue(null);
             this.FormMovimiento.get('fechavto').setValue(null);
-
-          })
-
-
+          }
+        });
       }
     }
   }
@@ -818,7 +818,7 @@ export class MovimientosComponent implements OnInit {
   }
 
   async updateList1(id: number, property: string, event: any) {
-   
+
     const editField = event.target.textContent;
     this.arregloMovimientosFarmaciaDetPaginacion[id][property] = parseInt(editField);
     this.arregloMovimientosFarmaciaDet[id][property] = this.arregloMovimientosFarmaciaDetPaginacion[id][property]
@@ -826,11 +826,11 @@ export class MovimientosComponent implements OnInit {
   }
 
   ValidaCantidadADevolver(canadevolver:number,id:number,property:string){
-    
+
   /*  if(this.FormMovimiento.value.tipomov == 70){
       this._MovimientosfarmaciaService.ValidaCantDevolver(this.servidor,this.hdgcodigo,this.esacodigo,
         this.cmecodigo,this.cliid,this.codigo,this.lote, canadevolver).subscribe(
-        response => {  
+        response => {
 
           this.validacant = response[0].validacant;
 
@@ -841,7 +841,7 @@ export class MovimientosComponent implements OnInit {
             this.alertSwalError.show();
           }else{
             if(response[0].validacant == 1){
-  
+
               this.arregloMovimientosFarmaciaDetPaginacion[id][property] = canadevolver;
               this.arregloMovimientosFarmaciaDet[id][property] = this.arregloMovimientosFarmaciaDetPaginacion[id][property]
 
@@ -854,7 +854,7 @@ export class MovimientosComponent implements OnInit {
         this._MovimientosfarmaciaService.ValidaCantDevolverBod(this.servidor,this.hdgcodigo,this.esacodigo,
           this.FormMovimiento.value.bodorigen,this.FormMovimiento.value.boddestino,this.cmecodigo,
           this.codigo,this.lote, canadevolver).subscribe(
-          response => {  
+          response => {
             this.validacant = response[0].validacant;
             if(response[0].validacant == 0){
               this.alertSwalError.title = "Valor es mayor que el dispensado";
@@ -886,37 +886,39 @@ export class MovimientosComponent implements OnInit {
     this.arregloMovimientosFarmaciaDetPaginacion = this.arregloMovimientosFarmaciaDet.slice(startItem, endItem);
     this.validaCantidad();
   }
- 
+
   codigo_ingresado(datoingresado: any){
     this.detalleslotes=[];
-  
+
     if(this.FormMovimiento.value.tipomov == 70){ //Recep x DEvol Pacient
       this._MovimientosfarmaciaService.BuscaLotesProductos(this.servidor,this.hdgcodigo,this.esacodigo,
         this.cmecodigo,datoingresado.codigo,this.FormMovimiento.value.bodorigen,this.FormMovimiento.value.boddestino ,this.cliid).subscribe(
-        response => {  
-
-          this.detalleslotes= response;
-   
-          if(this.detalleslotes.length==1){
-            this.FormMovimiento.get('fechavto').setValue(this.datePipe.transform(this.detalleslotes[0].fechavto, 'dd-MM-yyyy'));
-            this.FormMovimiento.get('lote').setValue(this.detalleslotes[0].lote);
-            this.lote= this.detalleslotes[0].lote;
-            this.fechaveto = this.detalleslotes[0].fechavto;
-          }
-        }
-      )
-    }else{
-      if(this.FormMovimiento.value.tipomov == 180 || this.FormMovimiento.value.tipomov == 90){
-        this._MovimientosfarmaciaService.BuscaLotesProductosBodega(this.servidor,this.hdgcodigo,this.esacodigo,
-          this.cmecodigo,datoingresado.codigo,this.FormMovimiento.value.bodorigen,
-          this.FormMovimiento.value.boddestino).subscribe(
-          response => {  
+        response => {
+          if (response != null) {
             this.detalleslotes= response;
+
             if(this.detalleslotes.length==1){
               this.FormMovimiento.get('fechavto').setValue(this.datePipe.transform(this.detalleslotes[0].fechavto, 'dd-MM-yyyy'));
               this.FormMovimiento.get('lote').setValue(this.detalleslotes[0].lote);
               this.lote= this.detalleslotes[0].lote;
               this.fechaveto = this.detalleslotes[0].fechavto;
+            }
+          }
+        });
+    }else{
+      if(this.FormMovimiento.value.tipomov == 180 || this.FormMovimiento.value.tipomov == 90){
+        this._MovimientosfarmaciaService.BuscaLotesProductosBodega(this.servidor,this.hdgcodigo,this.esacodigo,
+          this.cmecodigo,datoingresado.codigo,this.FormMovimiento.value.bodorigen,
+          this.FormMovimiento.value.boddestino).subscribe(
+          response => {
+            if (response != null) {
+              this.detalleslotes= response;
+              if(this.detalleslotes.length==1){
+                this.FormMovimiento.get('fechavto').setValue(this.datePipe.transform(this.detalleslotes[0].fechavto, 'dd-MM-yyyy'));
+                this.FormMovimiento.get('lote').setValue(this.detalleslotes[0].lote);
+                this.lote= this.detalleslotes[0].lote;
+                this.fechaveto = this.detalleslotes[0].fechavto;
+              }
             }
           }
         )
@@ -932,7 +934,7 @@ export class MovimientosComponent implements OnInit {
       }
     })
   }
-  
+
   ConfirmarRecepcionMovimiento(){
     const Swal = require('sweetalert2');
     Swal.fire({
@@ -973,10 +975,9 @@ export class MovimientosComponent implements OnInit {
     this._imprimesolicitudService.RPTImprimeMovimiento(this.servidor,this.usuario,this.hdgcodigo,
     this.esacodigo,this.cmecodigo, "pdf",this._MovimientosFarmacia.movimfarid).subscribe(
       response => {
-
-        window.open(response[0].url, "", "", true);
-          // this.alertSwal.title = "Reporte Impreso Correctamente";
-          // this.alertSwal.show();
+        if (response != null) {
+          window.open(response[0].url, "", "", true);
+        }
       },
       error => {
         console.log(error);
@@ -986,7 +987,7 @@ export class MovimientosComponent implements OnInit {
         })
       }
     );
-    
+
   }
 
 }

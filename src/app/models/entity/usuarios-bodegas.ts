@@ -5,4 +5,6 @@ export class UsuariosBodegas {
    userid       : number
    glosausuario : string;
    login :string;
+   bloqcampogrilla: boolean;
+   marcacheckgrilla: boolean;
 }

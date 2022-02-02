@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class GenerainventariosistemaService {
-    public urlgenerainv     : string = environment.URLServiciosRest.URLConexion.concat('/generainventario');//"http://172.25.108.236:8195/generainventario";
+    public urlgenerainv     : string = sessionStorage.getItem('enlace').toString().concat('/generainventario');//"http://172.25.108.236:8195/generainventario";
     
     
     constructor(public _http: HttpClient) {

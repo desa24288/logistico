@@ -1,7 +1,9 @@
-<app-navbar></app-navbar>
+<!-- <app-navbar></app-navbar>
 <app-sidebar></app-sidebar>
-<div class="content-wrapper pl-2">
-    <div style="margin: 10px;">
+<div class="content-wrapper pl-4"> -->
+<app-main-nav>
+  <div style="padding: 10px;">
+    <div style="margin: 20px;">
         <form [formGroup]="FormUsuarioRoles">
             <!-- Contenedor feneral de la página -->
             <div class="my-2 ml-2 titulo text-center">
@@ -11,7 +13,7 @@
                 </h3>
             </div>
             <!-- lineas de edición y bpusqueda -->
-            <div class="card border-primary" style="padding: 5px;">
+            <div class="card border-primary" style="padding: 20px;">
                 <div class="form-row mt-2">
                     <div class="form-group col-md-2">
                         <label for="id_usuario">ID-Usuario *</label>
@@ -42,21 +44,25 @@
         <tabset>
             <tab heading="Roles Asociadas"  id="tab1">
 
-                <div class="card border-primary" style="padding: 5px;margin-top: 10px;height: 510px;">
+                <div class="card border-primary" style="padding: 20px;margin-top: 10px">
                     <div id="table" class="table-editable">
                         <a class="btn-floating btn-lg purple-gradient"></a>
                         <button type="button" class="btn btn-info btn-rounded btn-sm ml-2" (click)="addRol()"
                             [disabled]="(activaagregar == false)">Agregar Rol
                             <i class="fas fa-plus ml-2" aria-hidden="true"></i>
                         </button>
-                        <div id="table" class="table-editable table-responsive mt-2" style="height: 410px;">
+                        <div id="table" class="table-editable table-responsive mt-2" style="max-height: auto;min-height: 100px;">
                             <table
                                 class="table table-sm table-condensed table-bordered table-responsive-md table-striped text-center">
                                 <tr class="table table-sm  table-primary table-bordered ">
                                     <th class="text-center">Id-Rol</th>
                                     <th class="text-center">Código Rol</th>
                                     <th class="text-center">Descipción</th>
-                                    <th class="text-center">Eliminar</th>
+                                    <th class="text-center"><button type="button" id="btnElinaRegistro" class="btn btn-info btn-danger btn-sm ml-2 "
+                                        (click)="ConfirmaEliminaRolDeLaGrilla()" [disabled]= "!desactivabtnelimrol">Eliminar
+                                        <i class="fas fa-trash-restore-alt  ml-1"></i>
+                                        </button>
+                                    </th>
                                 </tr>
                                 <tr class="table-secondary"
                                     *ngFor="let registro of arregloRolesUsuarioPaginacion; let id = index">
@@ -66,21 +72,24 @@
                                     <td class="text-nowrap help ">
                                         <small><span> {{registro.codigorol| slice:0:20 }}</span></small>
                                     </td>
-                                    <td class="text-nowrap help   " tooltip="{{registro.nombrerol}}">
-                                        <small><span> {{registro.nombrerol| slice:0:30 }}</span></small>
+                                    <td class="text-nowrap help" tooltip="{{registro.nombrerol}}">
+                                        <small><span> {{registro.nombrerol }}</span></small>
                                     </td>
-
                                     <td>
-                                        <small><span><button type="button" id="btnElinaRegistro"
+                                        <small>
+                                            <input class="mr-2  " type="checkbox"  [disabled]="!registro.bloqcampogrilla"
+                                                (click)="CambioCheckRol(registro,id,$event,registro.marcacheckgrilla)">
+                                        </small>
+                                        <!-- <small><span><button type="button" id="btnElinaRegistro"
                                                     class="btn btn-info btn-rounded btn-sm ml-2"
                                                     (click)="ConfirmaEliminarRolGrilla(registro,id)">Eliminar
                                                 </button></span>
-                                        </small>
+                                        </small> -->
                                     </td>
                                 </tr>
                             </table>
                         </div>
-                        <div class="row m-1">
+                        <div class="row m-1" *ngIf="arregloRolesUsuario.length > 8">
                             <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
                                 [totalItems]="arregloRolesUsuario.length" [itemsPerPage]=8
                                 [previousText]="'Anterior'" [nextText]="'Siguiente'" [firstText]="'&laquo;'"
@@ -92,21 +101,25 @@
             </tab>
 
             <tab heading="Centros de Costo Asociado" id="tab2">
-                
-                <div class="card border-primary" style="padding: 5px;margin-top: 10px;height: 510px;">
+
+                <div class="card border-primary" style="padding: 20px;margin-top: 10px">
                     <div id="table" class="table-editable">
                         <a class="btn-floating btn-lg purple-gradient"></a>
                         <button type="button" class="btn btn-info btn-rounded btn-sm ml-2" (click)="addCentroCosto()"
                             [disabled]="(activaagregar == false)">Agregar Centro Costo
                             <i class="fas fa-plus ml-2" aria-hidden="true"></i>
                         </button>
-                        <div id="table" class="table-editable table-responsive mt-2" style="height: 410px;">
+                        <div id="table" class="table-editable table-responsive mt-2" style="max-height: auto;min-height: 100px;">
                             <table
                                 class="table table-sm table-condensed table-bordered table-responsive-md table-striped text-center">
                                 <tr class="table table-sm  table-primary table-bordered ">
                                     <th class="text-center">Id-Centro Costo</th>
                                      <th class="text-center">Descipción</th>
-                                    <th class="text-center">Eliminar</th>
+                                    <th class="text-center"><button type="button" id="btnElinaRegistro" class="btn btn-info btn-danger btn-sm ml-2 "
+                                        (click)="ConfirmaEliminaCentroCostoDeLaGrilla()" [disabled]= "!desactivabtnelimccosto">
+                                        Eliminar<i class="fas fa-trash-restore-alt  ml-1"></i>
+                                        </button>
+                                    </th>
                                 </tr>
                                 <tr class="table-secondary"
                                     *ngFor="let registro of arregloCentroCostoPaginacion; let id = index">
@@ -118,16 +131,20 @@
                                     </td>
 
                                     <td>
-                                        <small><span><button type="button" id="btnElinaRegistro"
+                                        <small>
+                                            <input class="mr-2  " type="checkbox"  [disabled]="!registro.bloqcampogrilla"
+                                            (click)="CambioCheckCentroCosto(registro,id,$event,registro.marcacheckgrilla)">
+                                        </small>
+                                        <!-- <small><span><button type="button" id="btnElinaRegistro"
                                                     class="btn btn-info btn-rounded btn-sm ml-2"
                                                     (click)="ConfirmaEliminarCentroCostoGrilla(registro,id)">Eliminar
                                                 </button></span>
-                                        </small>
+                                        </small> -->
                                     </td>
                                 </tr>
                             </table>
                         </div>
-                        <div class="row m-1">
+                        <div class="row m-1" *ngIf="arregloCentroCosto.length > 8">
                             <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
                                 [totalItems]="arregloCentroCosto.length" [itemsPerPage]=8
                                 [previousText]="'Anterior'" [nextText]="'Siguiente'" [firstText]="'&laquo;'"
@@ -139,7 +156,7 @@
 
             </tab>
 
-           
+
         </tabset>
 
 
@@ -151,7 +168,8 @@
             <!--Al agregarle col-md-3 queda el espacio entre botones cuando aparece generar solicitud-->
 
             <div  class="form-group  align-self-end">
-                <button type="button" id="BtnModificarUsuario" [disabled]="!ActivaBotonModificar()"  class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02" 
+                <button type="button" id="BtnModificarUsuario" [disabled]="!verificanull"
+                    class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
                     (click)="ConfirmaModificar()">MODIFICAR
                     <i class="fas fa-save"></i>
                 </button>
@@ -172,4 +190,5 @@
     <swal #alertSwal title="" text="" type="success" [showCancelButton]="false"> </swal>
     <swal #alertSwalAlert title="" text="" type="warning" [showCancelButton]="false"> </swal>
     <swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
-</div>
+  </div>
+</app-main-nav>

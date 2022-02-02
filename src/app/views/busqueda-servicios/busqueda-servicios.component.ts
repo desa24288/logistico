@@ -47,15 +47,19 @@ export class BusquedaServiciosComponent implements OnInit {
   ngOnInit() {
 
     this.onClose = new Subject();
-    
+
 
 
     this.loading = true;
     this._Servicios.BuscarServicios(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.usuario, this.servidor, 0,'').subscribe(
       response => {
-        this.loading = false;
-        this.arregloServicios = response;
-        this.arregloServiciosPaginacion = this.arregloServicios.slice(0, 8);
+        if (response != null){
+          this.loading = false;
+          this.arregloServicios = response;
+          this.arregloServiciosPaginacion = this.arregloServicios.slice(0, 8);
+        } else {
+          this.loading = false;
+        }
       },
       error => {
         alert("Error al Buscar Servicios");
@@ -63,7 +67,7 @@ export class BusquedaServiciosComponent implements OnInit {
 
     );
 
-   
+
   }
 
 
@@ -71,9 +75,13 @@ export class BusquedaServiciosComponent implements OnInit {
     this.loading = true;
     this._Servicios.BuscarServicios(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.usuario, this.servidor, 0,nombre_servicio).subscribe(
       response => {
-        this.loading = false;
-        this.arregloServicios = response;
-        this.arregloServiciosPaginacion = this.arregloServicios.slice(0, 8);
+        if (response != null){
+          this.loading = false;
+          this.arregloServicios = response;
+          this.arregloServiciosPaginacion = this.arregloServicios.slice(0, 8);
+        } else {
+          this.loading = false;
+        }
       },
       error => {
         alert("Error al Buscar Servicios");
@@ -81,7 +89,7 @@ export class BusquedaServiciosComponent implements OnInit {
 
     );
 
-   
+
 
 
   }
@@ -92,7 +100,7 @@ limpiar() {
   this.arregloServicios = [];
   this.arregloServiciosPaginacion =[];
   this.lForm.reset();
-  
+
 
 }
 

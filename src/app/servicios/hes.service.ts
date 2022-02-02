@@ -13,9 +13,9 @@ import { Sucursal } from '../models/entity/Sucursal';
 
 @Injectable()
 export class hesService {
-    public urlbuscaholding          : string = environment.URLServiciosRest.URLConexion.concat('/buscaholding');
-    public urlbuscaempresa          : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');
-    public urlbuscasucursal         : string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');
+    public urlbuscaholding          : string = sessionStorage.getItem('enlace').toString().concat('/buscaholding');
+    public urlbuscaempresa          : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');
+    public urlbuscasucursal         : string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');
     constructor(public _http: HttpClient) {
 
     }

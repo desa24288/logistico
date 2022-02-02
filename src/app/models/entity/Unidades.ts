@@ -3,20 +3,23 @@ export class Unidades {
     esacodigo: number;
     cmecodigo: number;
     unidadid: number;
-    servicdescripcion: string;
+    servdescripcion: string;
+    codservicio: string;
 
     constructor(
         hdgcodigo?: number,
         esacodigo?: number,
         cmecodigo?: number,
         unidadid?: number,
-        servicdescripcion?: string
+        servdescripcion?: string,
+        codservicio?: string
     ) {
         this.hdgcodigo = hdgcodigo;
         this.esacodigo = esacodigo;
         this.cmecodigo = cmecodigo;
         this.unidadid = unidadid;
-        this.servicdescripcion = servicdescripcion;
+        this.servdescripcion = servdescripcion;
+        this.codservicio = codservicio;
     }
 
 }

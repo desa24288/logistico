@@ -5,7 +5,7 @@ export class ListaPacientes {
     public paterno           ?: string,
     public materno           ?: string,
     public nombres           ?: string,
-    public sexo              ?: string,
+    public glsexo            ?: string,
     public fechahospitaliza  ?: string,
     public fechaalta         ?: string,
     public camaactual        ?: string,
@@ -22,6 +22,7 @@ export class ListaPacientes {
     public codsexo           ?: number,
     public undglosa          ?: string,
     public ctaid             ?: number,
-    public estid             ?: number
+    public estid             ?: number,
+    public codservicioactual ?: string,
   ) { }
 }

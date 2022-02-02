@@ -36,44 +36,46 @@ export class BusquedaplantillasbodegaComponent implements OnInit {
   @Input() codsolicitante: number;
   @Input() codsuministro: number;
   @Input() vigencia: number;
-  
+  @Input() codbodsolic : number;
+  @Input() tipopedido: number;
 
-  public FormBusquedaPlantillas: FormGroup;
-  public bodegasSolicitantes: Array<BodegasTodas> = [];
-  public onClose: Subject<Plantillas>;
-  public estado: boolean = false;
-  public loading = false;
-  public servidor = environment.URLServiciosRest.ambiente;
-  public usuario = environment.privilegios.usuario;
-  public bodegassuministro: Array<BodegasrelacionadaAccion> = [];
-  public bsConfig: Partial<BsDatepickerConfig>;
+
+  public FormBusquedaPlantillas : FormGroup;
+  public bodegasSolicitantes    : Array<BodegasTodas> = [];
+  public onClose                : Subject<Plantillas>;
+  public estado                 : boolean = false;
+  public loading                = false;
+  public servidor               = environment.URLServiciosRest.ambiente;
+  public usuario                = environment.privilegios.usuario;
+  public bodegassuministro      : Array<BodegasrelacionadaAccion> = [];
+  public bsConfig               : Partial<BsDatepickerConfig>;
   public listaplantillaspaginacion: Array<Plantillas> = [];
-  public listaplantillas: Array<Plantillas> = [];
-  public locale = 'es';
-  public colorTheme = 'theme-blue';
-  public _PageChangedEvent: PageChangedEvent;
-  public arregloservicios: Servicio[] = [];
-  public pplantipo: number = 0
-  // public plantillatipo            : boolean = false;
+  public listaplantillas        : Array<Plantillas> = [];
+  public locale                 = 'es';
+  public colorTheme             = 'theme-blue';
+  public _PageChangedEvent      : PageChangedEvent;
+  public arregloservicios       : Servicio[] = [];
+  public pplantipo              : number = 0;
+  public codplantilla           = null;
 
   constructor(
-    public formBuilder: FormBuilder,
-    public bsModalRef: BsModalRef,
+    public formBuilder    : FormBuilder,
+    public bsModalRef     : BsModalRef,
     public _BodegasService: BodegasService,
-    public localeService: BsLocaleService,
-    public datePipe: DatePipe,
+    public localeService  : BsLocaleService,
+    public datePipe       : DatePipe,
     private _unidadesService: EstructuraunidadesService,
   ) {
 
     this.FormBusquedaPlantillas = this.formBuilder.group({
       numplantilla: [{ value: null, disabled: false }, Validators.required],
-      descripcion: [{ value: null, disabled: false }, Validators.required],
-      estado: [{ value: null, disabled: false }, Validators.required],
-      fechadesde: [new Date(), Validators.required],
-      fechahasta: [new Date(), Validators.required],
-      bodcodigo: [{ value: null, disabled: false }, Validators.required],
+      descripcion : [{ value: null, disabled: false }, Validators.required],
+      estado      : [{ value: null, disabled: false }, Validators.required],
+      fechadesde  : [new Date(), Validators.required],
+      fechahasta  : [new Date(), Validators.required],
+      bodcodigo   : [{ value: null, disabled: false }, Validators.required],
       bodsuministro: [{ value: null, disabled: false }, Validators.required],
-      serviciocod: [{ value: null, disabled: false }, Validators.required],
+      serviciocod : [{ value: null, disabled: false }, Validators.required],
     });
   }
 
@@ -82,20 +84,20 @@ export class BusquedaplantillasbodegaComponent implements OnInit {
     this.setDate();
     this._BodegasService.listaBodegaTodasSucursal(this.hdgcodigo, this.esacodigo, this.cmecodigo, sessionStorage.getItem('Usuario'), this.servidor).subscribe(
       response => {
-        this.bodegasSolicitantes = response;
+        if (response != null){
+          this.bodegasSolicitantes = response;
+        }
       },
       error => {
         alert("Error al Buscar Bodegas de cargo");
       }
     );
 
-
-
-
     this._unidadesService.BuscarServicios(this.hdgcodigo, this.esacodigo, this.cmecodigo, sessionStorage.getItem('Usuario'), this.servidor, 0, '').subscribe(
       response => {
-
-        this.arregloservicios = response;
+        if (response != null){
+          this.arregloservicios = response;
+        }
       }
     );
 
@@ -112,10 +114,7 @@ export class BusquedaplantillasbodegaComponent implements OnInit {
       this.FormBusquedaPlantillas.get('estado').setValue(this.vigencia);
     }
 
-
-
     this.BuscarPlantillasFiltro();
-
 
   }
 
@@ -162,7 +161,9 @@ export class BusquedaplantillasbodegaComponent implements OnInit {
 
     this._BodegasService.listaBodegaRelacionadaAccion(this.hdgcodigo, this.esacodigo, this.cmecodigo, sessionStorage.getItem('Usuario'), servidor, codbodega_solicitante, 1).subscribe(
       response => {
-        this.bodegassuministro = response;
+        if (response != null){
+          this.bodegassuministro = response;
+        }
       },
       error => {
         alert("Error al Buscar Bodegas de Destino");
@@ -173,6 +174,7 @@ export class BusquedaplantillasbodegaComponent implements OnInit {
   BuscarPlantillasFiltro() {
     var fechadesde = this.FormBusquedaPlantillas.value.fechadesde;
     var fechahasta = this.FormBusquedaPlantillas.value.fechahasta;
+    var bodegasolic = null;
     // PPLANTIPO NUMERICO 1= BODEGA Y 2 servicio
     if (this.tipoplantilla == true) {
       this.pplantipo = 1;
@@ -183,30 +185,47 @@ export class BusquedaplantillasbodegaComponent implements OnInit {
     }
     this.loading = true;
 
+    if(this.codbodsolic >0){
+      bodegasolic = this.codbodsolic
+    }else{
+      // if(this.codbodsolic == null){
+        bodegasolic = this.FormBusquedaPlantillas.value.bodcodigo;
+      // }
+    }
+    if(bodegasolic === null && this.FormBusquedaPlantillas.value.bodsuministro === null){
+      bodegasolic = 0;
+      this.FormBusquedaPlantillas.value.bodsuministro = 0;
+      console.log("bodegas en null",bodegasolic, this.FormBusquedaPlantillas.value.bodsuministro)
+    }
     this._BodegasService.BuscaPlantillasCabecera(this.servidor, sessionStorage.getItem('Usuario'), this.hdgcodigo, this.esacodigo,
       this.cmecodigo, this.FormBusquedaPlantillas.value.numplantilla,
       this.FormBusquedaPlantillas.value.descripcion,
       this.datePipe.transform(this.FormBusquedaPlantillas.value.fechadesde, 'yyyy-MM-dd'),
       this.datePipe.transform(this.FormBusquedaPlantillas.value.fechahasta, 'yyyy-MM-dd'),
-      this.FormBusquedaPlantillas.value.bodcodigo, this.FormBusquedaPlantillas.value.bodsuministro,
-      this.FormBusquedaPlantillas.value.estado, this.FormBusquedaPlantillas.value.serviciocod, this.pplantipo).subscribe(
+      bodegasolic, this.FormBusquedaPlantillas.value.bodsuministro,
+      this.FormBusquedaPlantillas.value.estado, this.FormBusquedaPlantillas.value.serviciocod,
+      this.pplantipo,this.tipopedido).subscribe(
         response => {
-          if (response.length == 0) {
-
+          if(response === null){
+            console.log("response:",response)
             this.alertSwalError.title = "No encuentra la Plantilla buscada";
             this.alertSwalError.text = "Puede que la Plantilla no exista, favor intentar nuevamente";
             this.alertSwalError.show();
             this.loading = false;
-          } else {
-            if (response.length > 0) {
-
-              this.listaplantillas = response;
-              this.listaplantillaspaginacion = this.listaplantillas.slice(0, 8);
+          }else{
+            if (response.length == 0) {
+              this.alertSwalError.title = "No encuentra la Plantilla buscada";
+              this.alertSwalError.text = "Puede que la Plantilla no exista, favor intentar nuevamente";
+              this.alertSwalError.show();
               this.loading = false;
+            } else {
+              if (response.length > 0) {
+                this.listaplantillas = response;
+                this.listaplantillaspaginacion = this.listaplantillas.slice(0, 8);
+                this.loading = false;
+              }
             }
-
           }
-
         },
         error => {
           console.log(error);
@@ -218,4 +237,64 @@ export class BusquedaplantillasbodegaComponent implements OnInit {
       )
   }
 
+  getPlantilla(){
+    this.codplantilla = this.FormBusquedaPlantillas.controls.numplantilla.value;
+    if (this.codplantilla === null || this.codplantilla === '' ) {
+      return;
+    } else {
+      if (this.tipoplantilla == true) {
+        this.pplantipo = 1;
+      } else {
+        if (this.tipoplantilla == false) {
+          this.pplantipo = 2;
+        }
+      }
+      this.loading = true;
+      var bodegasolic = null;
+      if(this.codbodsolic >0){
+        bodegasolic = this.codbodsolic
+      }else{
+        // if(this.codbodsolic == null){
+          bodegasolic = this.FormBusquedaPlantillas.value.bodcodigo;
+        // }
+      }
+      this._BodegasService.BuscaPlantillasCabecera(this.servidor, sessionStorage.getItem('Usuario'), this.hdgcodigo, this.esacodigo,
+        this.cmecodigo, this.FormBusquedaPlantillas.value.numplantilla,
+        this.FormBusquedaPlantillas.value.descripcion,
+        this.datePipe.transform(this.FormBusquedaPlantillas.value.fechadesde, 'yyyy-MM-dd'),
+        this.datePipe.transform(this.FormBusquedaPlantillas.value.fechahasta, 'yyyy-MM-dd'),
+        bodegasolic, this.FormBusquedaPlantillas.value.bodsuministro,
+        this.FormBusquedaPlantillas.value.estado, this.FormBusquedaPlantillas.value.serviciocod,
+        this.pplantipo,this.tipopedido).subscribe(
+          response => {
+            if(response === null){
+              console.log("response:",response)
+              this.alertSwalError.title = "No encuentra la Plantilla buscada";
+              this.alertSwalError.text = "Puede que la Plantilla no exista, favor intentar nuevamente";
+              this.alertSwalError.show();
+              this.loading = false;
+            }else{
+              if (response.length == 0 ) {
+                this.alertSwalError.title = "No encuentra la Plantilla buscada";
+                this.alertSwalError.text = "Puede que la Plantilla no exista, favor intentar nuevamente";
+                this.alertSwalError.show();
+                this.loading = false;
+              } else {
+                if (response.length > 0) {
+                  this.listaplantillas = response;
+                  this.listaplantillaspaginacion = this.listaplantillas.slice(0, 8);
+                  this.loading = false;
+                }
+              }
+            }
+          },
+          error => {
+            console.log(error);
+            this.alertSwalError.title = "Error al Buscar Plantillas";
+            this.alertSwalError.text = "No encuentra Plantilla, puede que no exista, intentar nuevamente";
+            this.alertSwalError.show();
+            this.loading = false;
+          });
+    }
+  }
 }

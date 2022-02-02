@@ -1,13 +1,15 @@
-<app-navbar ></app-navbar>
+<!-- <app-navbar ></app-navbar>
 <app-sidebar></app-sidebar>
-<div class="content-wrapper pl-2">
+<div class="content-wrapper pl-4"> -->
+<app-main-nav>
+  <div style="padding: 10px;">
     <form [formGroup]="FormDevolucionSolicitud">
         <!-- Contenedor feneral de la página -->
         <div class="my-2 ml-2 titulo text-center">
             <!--menu -->
-            <h5>
+            <h3>
                 Devoluciones de Solicitudes
-            </h5>
+            </h3>
         </div>
         <!-- lineas de edición y bpusqueda -->
         <div class="card border-primary" style="padding: 10px;">
@@ -53,11 +55,38 @@
         </div>
     </form>
 
-    <div class="card m-2 border-primary" style="padding: 10px;height: 990px;">
+    <div class="card m-2 border-primary" style="padding: 10px">
         <tabset>
             <tab heading="Detalle Solicitud" id="tab1" > <!--style="height: 450px;"-->
-                <div id="table" class="table-editable">
-                    <div id="table" class="table-editable" style="padding: 5px; height:880px;">
+                <form [formGroup]="FormDatosProducto" autocomplete="off" spellcheck="false">
+                    <div class="row form-group align-self-end ml-1">
+                        <!-- <a class="btn-floating btn-lg purple-gradient"></a> -->
+                        <div class="form-group col-md-2">
+                            <label for="codigo">Código *</label>
+                            <input type="text" class="form-control form-control-sm"
+                            formControlName ="codigo">
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label for="descripcion">Descripción *</label>
+                            <input type="text" class="form-control form-control-sm" 
+                                formControlName="descripcion">
+                        </div>
+                        <div class="row form-group align-self-end ml-1">
+                            <button type="button" class="btn btn-info btn-sm ml-2"
+                                [disabled]="!ActivaBotonBuscaGrilla" 
+                                (click)="findArticuloGrilla()">Buscar<i
+                                class="fas fa-search ml-1"></i>
+                            </button>
+                            <button type="button" [disabled]="!ActivaBotonLimpiaBusca"
+                                class="btn btn-danger btn-sm ml-2" 
+                                (click)="limpiarCodigo()">Limpiar Búsqueda<i
+                                class="fas fa-brush ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <div id="table" class="table-editable mt-1">
+                    <div id="table" class="table-editable" style="max-height: auto;min-height: 100px;">
                         <table class="table table-bordered table-sm table-responsive-md table-striped text-center">
                             <tr class="table-primary  table-sm">
                                 <th class="text-center">Código</th>
@@ -71,7 +100,8 @@
                                 <th class="text-center">Eventos</th>
                             </tr>
                             <tr class="table-secondary"
-                                *ngFor="let registro of arreegloDetalleSolicitudpaginacion; let id = index">
+                                *ngFor="let registro of arreegloDetalleSolicitudpaginacion; let id = index"
+                                (dblclick)="BuscaproductoaDevolver(registro.codmei)" style="cursor: pointer;">
                                 <td>
                                     <small><span>{{registro.codmei}}</span></small>
                                 </td>
@@ -106,7 +136,7 @@
                             </tr>
                         </table>
                     </div>
-                    <div class="row m-1">
+                    <div class="row m-1" *ngIf="arreegloDetalleSolicitud.length>20">
                         <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="9"
                             [totalItems]="arreegloDetalleSolicitud.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                             [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
@@ -126,7 +156,7 @@
                             <!--(blur)="codigo_ingresado(FormDevolucionDetalle.value)" -->
                             <div class="form-group col-md-3 align-self-end">
                                 <button type="button" class="btn btn-info btn-rounded btn-sm ml-2"
-                                    (click)="BuscaproductoaDevolver(FormDevolucionDetalle.value.codigo)">
+                                    [disabled]="bloqbtnagregar" (click)="BuscaproductoaDevolver(FormDevolucionDetalle.value.codigo)">
                                     Agregar<i class="fas fa-plus ml-2" aria-hidden="true"></i>
                                     <!--(click)="addArticuloGrillaDispensacion(FormDevolucionDetalle.value)"-->
                                 </button>
@@ -134,22 +164,26 @@
                         </div>
                     </form>
                 </div>
-                <div class="table-responsive mt-1" style="height:815px;">
+                <div class="table-responsive mt-1" style="max-height: auto;min-height: 100px;">
                     <table id="tbldatosordendevolucion" class="table  table-condensed table-sm table-bordered ">
                         <thead class="table-primary  table-sm">
                             <!-- da color de fondo a la columna-->
                             <tr class="text-center table-sm">
                                 <th>Código</th>
                                 <th>Descripción</th>
-                                <th>Recepcionado</th>
                                 <th>Solicitada</th>
                                 <th>Dispensada</th>
+                                <th>Recepcionado</th>
                                 <th>Devuelta</th>
                                 <th>Lote</th>
                                 <th>Fecha</th>
                                 <th>A Devolver*</th>
-                                <th>Eliminar</th>
-                                
+                                <th><button type="button" id="btnElinaRegistro" class="btn btn-info btn-danger btn-sm ml-2 "
+                                    (click)="ConfirmaEliminaProductoDeLaGrilla2()" [disabled]= "!desactivabtnelim">
+                                    Eliminar <i class="fas fa-trash-restore-alt  ml-1"></i>
+                                    </button>
+                                </th>
+
                             </tr>
                         </thead>
                         <tbody>
@@ -158,16 +192,16 @@
                                 <td><small>{{detallesolicitud.codmei}}</small></td>
                                 <td class="text-nowrap help   " tooltip="{{detallesolicitud.meindescri }}">
                                     <small>{{detallesolicitud.meindescri | slice:0:30}}</small></td>
-                                <td><small>{{detallesolicitud.cantrecepcionado}} </small></td>
                                 <td><small>{{detallesolicitud.cantsoli}}</small></td>
                                 <td><small>{{detallesolicitud.cantdespachada}} </small></td>
+                                <td><small>{{detallesolicitud.cantrecepcionado}} </small></td>
                                 <td><small>{{detallesolicitud.cantdevolucion}} </small></td>
                                 <td><small>{{detallesolicitud.lote}}</small></td>
                                 <td><small>{{detallesolicitud.fechavto | date: 'dd/MM/yyyy'}}</small></td>
                                 <td>
                                     <small>
                                         <input type="number" class="form-control form-control-sm text-right" min="1" max="100"
-                                        [(ngModel)]="detallesolicitud.cantidadadevolver"  
+                                        [(ngModel)]="detallesolicitud.cantidadadevolver"
                                         (input)="cambio_cantidad(id, 'cantidadadevolver',detallesolicitud)"
                                         (blur)="validacantidadgrilla(id,detallesolicitud)">
                                     </small>
@@ -176,17 +210,21 @@
                                         (blur)="updateList(id, 'cantidadadevolver', $event)">
                                         {{detallesolicitud.cantidadadevolver}}
                                     </span>-->
-                                </td> 
+                                </td>
                                 <td>
-                                    <small><span><button type="button" id="btnElinaRegistro" class="btn btn-info btn-danger btn-sm ml-2"
+                                    <small>
+                                        <input class="mr-2  " type="checkbox"  [disabled]="!detallesolicitud.bloqcampogrilla"
+                                          (click)="CambioCheck(detallesolicitud,id,$event,detallesolicitud.marcacheckgrilla)">
+                                    </small>
+                                    <!-- <small><span><button type="button" id="btnElinaRegistro" class="btn btn-info btn-danger btn-sm ml-2"
                                        (click)="ConfirmaEliminaProductoDeLaGrilla(detallesolicitud,id)">Eliminar
                                       </button></span>
-                                    </small>
+                                    </small> -->
                                   </td>
                             </tr>
                         </tbody>
                     </table>
-                    <div class="row m-1">
+                    <div class="row m-1" *ngIf="detallessolicitudes.length>20">
                         <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
                             [totalItems]="detallessolicitudes.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                             [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
@@ -199,15 +237,22 @@
     </div>
     <!--  Botones de página -->
     <div class="form-row float-right mr-1 mt-4">
+        <div class="form-group mr-1 align-self-end" *ngIf="modelopermisos.btngrabareceptotalsolic">
+            <button type="button" id="btnguardar" class="btn btn-primary btn-sm button-my-styles-busqueda_02"
+                [disabled]="!activabtndevoltotal"
+                (click)="ConfirmarDevolucionCompleta()"> DEVOLUCIÓN TOTAL
+                <i class="fas fa-save ml-1"></i>
+            </button>
+        </div>
         <div class="form-group align-self-end" *ngIf="modelopermisos.btngrabadevolsolic">
             <button type="button" id="btnguardar" class="btn btn-primary mr-1 btn-sm button-my-styles-busqueda_02"
-                [disabled]="!ActivaBotonDevolver()" (click)="ConfirmarEnviarDevolucion(FormDevolucionDetalle.value)">
+                [disabled]="!verificanull" (click)="ConfirmarEnviarDevolucion(FormDevolucionDetalle.value)">
                 DEVOLVER <i class="fas fa-save ml-1"></i>
             </button>
         </div>
         <div class="form-group align-self-end" *ngIf="modelopermisos.btnimpdevolsolicbod">
             <button type="button" id="btnguardar" [disabled]="!ActivaBotonImprimir()"
-                class="btn mr-1 btn-primary mr-1 btn-sm button-my-styles-busqueda_02" 
+                class="btn mr-1 btn-primary mr-1 btn-sm button-my-styles-busqueda_02"
                 (click)="onImprimir()">IMPRIMIR DEVOLUCIÓN <i class="fas fa-file-pdf ml-1"></i>
             </button>
         </div>
@@ -218,7 +263,7 @@
         </div>
         <div class="form-group align-self-end">
             <button type="button" id="btnsalir" class="btn btn-primary btn-sm button-my-styles-busqueda_02"
-                routerLink='../home'>SALIR <i class="fas fa-window-close ml-1"></i>
+                (click)=salir()>SALIR <i class="fas fa-window-close ml-1"></i>
             </button>
         </div>
     </div>
@@ -230,40 +275,46 @@
         <table class="table table-hover mt-4" *swalPartial>
             <thead class="table-header-text">
                 <tr>
+                    <th>Selección</th>
                     <th>Solicitud</th>
                     <th>F.Recepción</th>
-                    <th>F.Vencimiento</th>
                     <th>Lote</th>
+                    <th>F.Vencimiento</th>
                     <th>Cantidad Recepcionada </th>
                     <th>Cantidad Devuelta</th>
+                    <th>Cantidad Pendiente a Devolver</th>
                 </tr>
             </thead>
             <tbody class="table-body-text text-nowrap">
                 <tr class="text-nowrap" *ngFor="let productorecepcionado of productosrecepcionadospaginacion">
                     <td>
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input pointer"
-                                (click)="onCheck($event, productorecepcionado)"
-                                id="idmov-{{productorecepcionado.soliid}} {{productorecepcionado.mfdeid}}">
-                            <label class="custom-control-label pointer"
-                                for="idmov-{{productorecepcionado.soliid}} {{productorecepcionado.mfdeid}}">
-                                {{ productorecepcionado.soliid }}
-                             *</label>
-                        </div>
+                        <!-- <div class="custom-control custom-checkbox"> -->
+                            <input type="checkbox" [disabled]="productorecepcionado.checkgrilla"
+                                (click)="onCheck($event, productorecepcionado)" >
                     </td>
-                    <td>{{ productorecepcionado.fecharecepcion | date: 'dd/MM/yyyy' }}</td>
-                    <td>{{ productorecepcionado.fechavto | date: 'dd/MM/yyyy'}}</td>
+                                <!--id="idmov-{{productorecepcionado.soliid}} {{productorecepcionado.mfdeid}}"-->
+                            <!-- <label class="custom-control-label pointer" -->
+                                <!-- for="idmov-{{productorecepcionado.soliid}} {{productorecepcionado.mfdeid}}"> -->
+                    <td>
+                        {{ productorecepcionado.soliid }}
+                             <!-- *</label> -->
+                        <!-- </div> -->
+                    </td>
+                    <td>{{ productorecepcionado.fecharecepcion | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
                     <td>{{ productorecepcionado.lote }}</td>
+                    <td>{{ productorecepcionado.fechavto | date: 'dd/MM/yyyy'}}</td>
+
                     <td>{{ productorecepcionado.cantrecepcionada }}</td>
                     <td>{{ productorecepcionado.cantdevuelta }}</td>
+                    <td>{{ productorecepcionado.cantpendientedevolver}} </td>
                 </tr>
             </tbody>
             <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
                 [totalItems]="productosrecepcionados.length" [itemsPerPage]=8 [previousText]="'Anterior'"
                 [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
                 (pageChanged)="pageChanged($event)">
-                -->
             </pagination>
         </table>
     </swal>
-</div>
+  </div>
+</app-main-nav>

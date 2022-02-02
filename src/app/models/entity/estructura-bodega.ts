@@ -19,8 +19,10 @@ export class EstructuraBodega {
 	glosatipobodega : string;
 	glosatiproducto : string;
 	servidor        : string;
+	fbocodigobodega	: string;
 	serviciosunidadbodega : ServicioUnidadBodegas[];
 	productosbodega  : ProductosBodegas[];
 	usuariosbodega   : UsuariosBodegas[];
-	relacionbodegas   : EstructuraRelacionBodega[];
+	relacionbodegas  : EstructuraRelacionBodega[];
+	fbodfraccionable : string;
 }

@@ -20,6 +20,9 @@ import { UsuariosService } from 'src/app/servicios/usuarios.service';
 import { CentroCostoUsuario } from 'src/app/models/entity/centro-costo-usuario';
 import { BusquedaCentrosCostosComponent } from '../busqueda-centros-costos/busqueda-centros-costos.component';
 import { EstructuraCentroCostoUsuario } from 'src/app/models/entity/estructura-centro-costo-usuario';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Permisos } from 'src/app/models/entity/permisos';
+import { analyzeAndValidateNgModules } from '@angular/compiler';
 
 @Component({
   selector: 'app-administracion-roles',
@@ -56,7 +59,17 @@ export class AdministracionRolesComponent implements OnInit {
   private _BSModalRef: BsModalRef;
   public BtnSolConsumoGenerSolictud_activado: boolean;
   public _CentroCostoUsuario: CentroCostoUsuario;
+  public desactivabtnelimrol : boolean = false;
+  public desactivabtnelimccosto: boolean = false;
+  public lengthroles: number;
+  public lengthcentrocosto: number;
+  public verificanull = false;
+  public vacioscentro            = true;
+  public vaciosroles  = true;
+  public permisos = [];
 
+  public valInit : boolean;
+  public arregloRolesUsuarioInit: Array<RolesUsuarios> = [];
 
   onClose: any;
   bsModalRef: any;
@@ -69,6 +82,8 @@ export class AdministracionRolesComponent implements OnInit {
     public datePipe: DatePipe,
     private _ServiciosUsuarios: UsuariosService,
     public _unidadesorganizacionaes: UnidadesOrganizacionalesService,
+    private router: Router,
+    private route: ActivatedRoute,
   ) {
     this.FormUsuarioRoles = this.formBuilder.group({
       id_usuario: [{ value: null, disabled: true }, Validators.required],
@@ -90,14 +105,39 @@ export class AdministracionRolesComponent implements OnInit {
   }
 
   ngOnInit() {
-
-
     this.hdgcodigo = Number(sessionStorage.getItem('hdgcodigo').toString());
     this.esacodigo = Number(sessionStorage.getItem('esacodigo').toString());
     this.cmecodigo = Number(sessionStorage.getItem('cmecodigo').toString());
 
-  }
+    const _ListaRolUsuario = new (EstructuraRolesUsuarios);
+    _ListaRolUsuario.servidor = this.servidor;
+    _ListaRolUsuario.hdgcodigo = this.hdgcodigo;
+    _ListaRolUsuario.cmecodigo = this.cmecodigo;
+    _ListaRolUsuario.esacodigo = this.esacodigo;
+    _ListaRolUsuario.idusuario = Number(sessionStorage.getItem('id_usuario').toString());
 
+    this._ServiciosUsuarios.buscarRolesUsuarios(_ListaRolUsuario).subscribe(
+      response => {
+        if(response != null){
+          this.arregloRolesUsuarioInit = [];
+          this.arregloRolesUsuarioInit = response;
+          this.valInit = true;
+
+          this.arregloRolesUsuarioInit.forEach(element => {
+            if (element.rolid === 0) {
+              this.valInit = false;
+            }
+          });
+          if (this.valInit) {
+            this.route.paramMap.subscribe(param => {
+              this.router.navigate(['home']);
+            })
+          }
+        }
+      },error => {
+        console.log("Error :", error);
+      })
+  }
 
   async addCentroCosto() {
 
@@ -116,7 +156,7 @@ export class AdministracionRolesComponent implements OnInit {
               this.alertSwalError.show();
               return
             }
-    
+
         this._CentroCostoUsuario.servidor = this.servidor;
         this._CentroCostoUsuario.idcentrocosto = response.unorcorrelativo;
         this._CentroCostoUsuario.idusuario = this.id_usuario;
@@ -125,17 +165,14 @@ export class AdministracionRolesComponent implements OnInit {
         this._CentroCostoUsuario.cmecodigo = this.cmecodigo;
         this._CentroCostoUsuario.glounidadesorganizacionales = response.descripcion;
         this._CentroCostoUsuario.accion = 'I';
-
+        this._CentroCostoUsuario.bloqcampogrilla = true;
 
         this.arregloCentroCosto.unshift(this._CentroCostoUsuario);
         this.arregloCentroCostoPaginacion = this.arregloCentroCosto.slice(0, 8);
-
+        this.logicalength();
       }
     });
-
-
   }
-
 
   setModalCentroCosto() {
     let dtModal: any = {};
@@ -148,6 +185,7 @@ export class AdministracionRolesComponent implements OnInit {
         hdgcodigo: this.hdgcodigo,
         esacodigo: this.esacodigo,
         cmecodigo: this.cmecodigo,
+        CentrosCosto: this.arregloCentroCosto
       }
     };
     return dtModal;
@@ -158,23 +196,22 @@ export class AdministracionRolesComponent implements OnInit {
 
   async addRol() {
 
-   let existe = 0
-
-    this._RolUsuario = new (RolesUsuarios);
+    let existe = 0
 
     this._BSModalRef = this._BsModalService.show(BusquedaRolesComponent, this.setModalRoles());
     this._BSModalRef.content.onClose.subscribe((response: Roles) => {
       if (response == undefined) { }
       else {
 
-         //Validaomos que el Rol no esté repetido
-     const resultado = this.arregloRolesUsuario.find( registro => registro.rolid === response.rolid );
-      if  ( resultado != undefined )
-      {
-        this.alertSwalError.title = "Rol no se puede repetir";
-        this.alertSwalError.show();
-        return
-      }
+        //Validaomos que el Rol no esté repetido
+        const resultado = this.arregloRolesUsuario.find( registro => registro.rolid === response.rolid );
+        if  ( resultado != undefined )
+        {
+          this.alertSwalError.title = "Rol no se puede repetir";
+          this.alertSwalError.show();
+          return
+        }
+        this._RolUsuario = new (RolesUsuarios);
         this._RolUsuario.servidor = this.servidor;
         this._RolUsuario.rolid = response.rolid;
         this._RolUsuario.hdgcodigo = response.hdgcodigo;
@@ -185,10 +222,11 @@ export class AdministracionRolesComponent implements OnInit {
         this._RolUsuario.descripcionrol = response.descripcionrol;
         this._RolUsuario.idusuario = this.id_usuario;
         this._RolUsuario.accion = 'I';
-
+        this._RolUsuario.bloqcampogrilla = true;
 
         this.arregloRolesUsuario.unshift(this._RolUsuario);
         this.arregloRolesUsuarioPaginacion = this.arregloRolesUsuario.slice(0, 8);
+        this.logicalength();
       }
     });
 
@@ -207,6 +245,7 @@ export class AdministracionRolesComponent implements OnInit {
         hdgcodigo: this.hdgcodigo,
         esacodigo: this.esacodigo,
         cmecodigo: this.cmecodigo,
+        RolesUsuario : this.arregloRolesUsuario
       }
     };
     return dtModal;
@@ -257,10 +296,12 @@ export class AdministracionRolesComponent implements OnInit {
         this.alertSwal.show();
         this._ServiciosUsuarios.buscarCentroCostoUsuarios(_ECentroCostoUsuario).subscribe(
           response => {
-            this.arregloCentroCosto = [];
-            this.arregloCentroCostoPaginacion = [];
-            this.arregloCentroCosto = response;
-            this.arregloCentroCostoPaginacion = this.arregloCentroCosto.slice(0, 8);
+            if (response != null){
+              this.arregloCentroCosto = [];
+              this.arregloCentroCostoPaginacion = [];
+              this.arregloCentroCosto = response;
+              this.arregloCentroCostoPaginacion = this.arregloCentroCosto.slice(0, 8);
+            }
           },
           error => {
             console.log("Error :", error)
@@ -278,8 +319,6 @@ export class AdministracionRolesComponent implements OnInit {
 
 
   ConfirmaEliminarRolGrilla(registro: RolesUsuarios, id: number) {
-    console.log("registro", registro.accion);
-
     const Swal = require('sweetalert2');
     Swal.fire({
       title: '¿ Confirme eliminación rol del usuario ?',
@@ -321,19 +360,23 @@ export class AdministracionRolesComponent implements OnInit {
 
       this._ServiciosUsuarios.guardarRolesUsuarios(_ListaRolUsuario).subscribe(
         response => {
-          this.alertSwal.title = "Rol Eliminado";
-          this.alertSwal.show();
-          this._ServiciosUsuarios.buscarRolesUsuarios(_ListaRolUsuario).subscribe(
-            response => {
-              this.arregloRolesUsuario = [];
-              this.arregloRolesUsuarioPaginacion = [];
-              this.arregloRolesUsuario = response;
-              this.arregloRolesUsuarioPaginacion = this.arregloRolesUsuario.slice(0, 8);
-            },
-            error => {
-              console.log("Error :", error)
-            }
-          )
+          if (response != null){
+            this.alertSwal.title = "Rol Eliminado";
+            this.alertSwal.show();
+            this._ServiciosUsuarios.buscarRolesUsuarios(_ListaRolUsuario).subscribe(
+              response => {
+                if (response != null){
+                  this.arregloRolesUsuario = [];
+                  this.arregloRolesUsuarioPaginacion = [];
+                  this.arregloRolesUsuario = response;
+                  this.arregloRolesUsuarioPaginacion = this.arregloRolesUsuario.slice(0, 8);
+                }
+              },
+              error => {
+                console.log("Error :", error)
+              }
+            );
+          }
         },
         error => {
           console.log("Error :", error)
@@ -415,19 +458,16 @@ export class AdministracionRolesComponent implements OnInit {
 
       this._ServiciosUsuarios.guardarRolesUsuarios(_ListaRolUsuario).subscribe(
         response => {
-          modificado = true;
-          this.despelgar_informacion_usuario(this.id_usuario);
-
+          if(response != null){
+            modificado = true;
+            this.despelgar_informacion_usuario(this.id_usuario);
+          }
         },
         error => {
           console.log("Error :", error)
           modificado = false;
-
         }
-
-      )
-
-
+      );
     }
 
     _ECentroCostoUsuario.servidor = this.servidor;
@@ -525,7 +565,12 @@ export class AdministracionRolesComponent implements OnInit {
         this.arregloRolesUsuario = [];
         this.arregloRolesUsuarioPaginacion = [];
         this.arregloRolesUsuario = response;
+
+        this.arregloRolesUsuario.forEach(x=>{
+          x.bloqcampogrilla = true;
+        })
         this.arregloRolesUsuarioPaginacion = this.arregloRolesUsuario.slice(0, 8);
+        this.lengthroles = this.arregloRolesUsuario.length;
       },
       error => {
         console.log("Error :", error)
@@ -543,12 +588,19 @@ export class AdministracionRolesComponent implements OnInit {
         this.arregloCentroCosto = [];
         this.arregloCentroCostoPaginacion = [];
         this.arregloCentroCosto = response;
+        this.arregloCentroCosto.forEach(x=>{
+          x.bloqcampogrilla = true;
+        })
         this.arregloCentroCostoPaginacion = this.arregloCentroCosto.slice(0, 8);
+
+        this.lengthcentrocosto = this.arregloCentroCosto.length;
+        this.logicalength();
       },
       error => {
         console.log("Error :", error)
       }
     )
+
   }
 
 
@@ -576,19 +628,308 @@ export class AdministracionRolesComponent implements OnInit {
     this.arregloCentroCosto = [];
     this.arregloCentroCostoPaginacion = [];
     this.id_usuario = 0;
-
+    this.desactivabtnelimrol = false;
+    this.desactivabtnelimccosto = false;
   }
 
   ActivaBotonModificar()
   {
 
-      
+
       if (this.FormUsuarioRoles.get('id_usuario').value != null) {
       return true
-    
+
     } else {
       return false
     }
-}
+  }
+
+  async CambioCheckRol(registro: RolesUsuarios,id:number,event:any,marcacheckgrilla: boolean){
+    if(event.target.checked){
+      registro.marcacheckgrilla = true;
+      this.desactivabtnelimrol = true;
+      await this.isEliminaGrillaRol(registro)
+      await this.arregloRolesUsuario.forEach(d=>{
+        if(d.marcacheckgrilla === true){
+          this.desactivabtnelimrol = true;
+        }
+      })
+
+    }else{
+      registro.marcacheckgrilla = false;
+      this.desactivabtnelimrol = false;
+      await this.isEliminaGrillaRol(registro);
+      await this.arregloRolesUsuario.forEach(d=>{
+        if(d.marcacheckgrilla === true){
+          this.desactivabtnelimrol = true;
+        }
+      })
+
+    }
+  }
+
+  isEliminaGrillaRol(registro: RolesUsuarios) {
+    let indice = 0;
+    for (const articulo of this.arregloRolesUsuario) {
+      if (registro.codigorol === articulo.codigorol && registro.rolid === articulo.rolid) {
+        articulo.marcacheckgrilla = registro.marcacheckgrilla;
+
+        return indice;
+      }
+      indice++;
+    }
+    return -1;
+  }
+
+  ConfirmaEliminaRolDeLaGrilla() {
+
+    const Swal = require('sweetalert2');
+    Swal.fire({
+      title: '¿ Confirme eliminación el rol ?',
+      text: "Confirmar la eliminación",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Aceptar'
+    }).then((result) => {
+      if (result.value) {
+        this.EliminaRolDeLaGrilla();
+      }
+    })
+  }
+
+  EliminaRolDeLaGrilla() {
+    const _ListaRolUsuario = new (EstructuraRolesUsuarios);
+    this.arregloRolesUsuarioPaginacion.forEach(registro=>{
+      if (registro.accion == "I" && this.isEliminaIdRol(registro) >= 0) {
+        // Eliminar registro nuevo la grilla
+        if(registro.marcacheckgrilla == true){
+          this.arregloRolesUsuario.splice(this.isEliminaIdRol(registro), 1);
+          this.arregloRolesUsuarioPaginacion = this.arregloRolesUsuario.slice(0, 8);
+          this.alertSwal.title = "Rol Eliminado";
+          this.alertSwal.show();
+          this.logicalength();
+        }
+      } else {
+        if(registro.marcacheckgrilla == true){
+
+          _ListaRolUsuario.servidor = this.servidor;
+          _ListaRolUsuario.hdgcodigo = this.hdgcodigo;
+          _ListaRolUsuario.cmecodigo = this.cmecodigo;
+          _ListaRolUsuario.idusuario = this.id_usuario;
+          registro.accion = "E";
+          registro.idusuario = this.id_usuario;
+          _ListaRolUsuario.detalle = [];
+          _ListaRolUsuario.detalle.push(registro);
+
+          this._ServiciosUsuarios.guardarRolesUsuarios(_ListaRolUsuario).subscribe(
+            response => {
+              this.alertSwal.title = "Rol Eliminado";
+              this.alertSwal.show();
+              this._ServiciosUsuarios.buscarRolesUsuarios(_ListaRolUsuario).subscribe(
+                response => {
+                  this.arregloRolesUsuario = [];
+                  this.arregloRolesUsuarioPaginacion = [];
+                  this.arregloRolesUsuario = response;
+                  this.arregloRolesUsuario.forEach(x=>{
+                    x.bloqcampogrilla = true;
+                  })
+                  this.arregloRolesUsuarioPaginacion = this.arregloRolesUsuario.slice(0, 8);
+                  this.logicalength();
+                },
+                error => {
+                  console.log("Error :", error)
+                }
+              )
+            },
+            error => {
+              console.log("Error :", error)
+            }
+
+          )
+        }
+      }
+    })
+  }
+
+  isEliminaIdRol(registro: RolesUsuarios) {
+
+    let indice = 0;
+    for (const articulo of this.arregloRolesUsuario) {
+      if (registro.codigorol === articulo.codigorol) {
+        return indice;
+      }
+      indice++;
+    }
+    return -1;
+  }
+
+  async CambioCheckCentroCosto(registro: CentroCostoUsuario,id:number,event:any,marcacheckgrilla: boolean){
+    if(event.target.checked){
+      registro.marcacheckgrilla = true;
+      this.desactivabtnelimccosto = true;
+      await this.isEliminaGrillaCentroCosto(registro)
+      await this.arregloCentroCosto.forEach(d=>{
+        if(d.marcacheckgrilla === true){
+          this.desactivabtnelimccosto = true;
+        }
+      })
+
+    }else{
+      registro.marcacheckgrilla = false;
+      this.desactivabtnelimccosto = false;
+      await this.isEliminaGrillaCentroCosto(registro);
+      await this.arregloCentroCosto.forEach(d=>{
+        if(d.marcacheckgrilla === true){
+          this.desactivabtnelimccosto = true;
+        }
+      })
+
+    }
+  }
+
+  isEliminaGrillaCentroCosto(registro: CentroCostoUsuario) {
+    let indice = 0;
+    for (const articulo of this.arregloCentroCosto) {
+      if (registro.idcentrocosto === articulo.idcentrocosto ) {
+        articulo.marcacheckgrilla = registro.marcacheckgrilla;
+        return indice;
+      }
+      indice++;
+    }
+    return -1;
+  }
+
+  ConfirmaEliminaCentroCostoDeLaGrilla() {
+
+    const Swal = require('sweetalert2');
+    Swal.fire({
+      title: '¿ Confirme eliminación de Centro Costo ?',
+      text: "Confirmar la eliminación",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Aceptar'
+    }).then((result) => {
+      if (result.value) {
+        this.EliminaCentroCostoDeLaGrilla();
+      }
+    })
+  }
+
+  EliminaCentroCostoDeLaGrilla() {
+    const _ECentroCostoUsuario = new (EstructuraCentroCostoUsuario);
+    this.arregloCentroCostoPaginacion.forEach(registro=>{
+      if (registro.accion == "I" && this.isEliminaIdCentroCosto(registro) >= 0) {
+        // Eliminar registro nuevo la grilla
+        if(registro.marcacheckgrilla ===true){
+          this.desactivabtnelimccosto = false;
+          this.arregloCentroCosto.splice(this.isEliminaIdCentroCosto(registro), 1);
+          this.arregloCentroCostoPaginacion = this.arregloCentroCosto.slice(0, 8);
+          this.alertSwal.title = "Centro Costo Eliminado Para Este Usuario";
+          this.alertSwal.show();
+          this.logicalength();
+        }
+      } else {
+        if(registro.marcacheckgrilla ===true){
+          this.desactivabtnelimccosto = false;
+          _ECentroCostoUsuario.servidor = this.servidor;
+          _ECentroCostoUsuario.hdgcodigo = this.hdgcodigo;
+          _ECentroCostoUsuario.cmecodigo = this.cmecodigo;
+          _ECentroCostoUsuario.idusuario = this.id_usuario;
+          _ECentroCostoUsuario.detalle = [];
+          registro.accion = "E";
+          registro.idusuario = this.id_usuario;
+          _ECentroCostoUsuario.detalle.push(registro);
+
+          this._ServiciosUsuarios.guardarCentroCostoUsuarios(_ECentroCostoUsuario).subscribe(response => {
+            this.alertSwal.title = "Centro de Costo Eliminado";
+            this.alertSwal.show();
+            this._ServiciosUsuarios.buscarCentroCostoUsuarios(_ECentroCostoUsuario).subscribe(
+              response => {
+                this.arregloCentroCosto = [];
+                this.arregloCentroCostoPaginacion = [];
+                this.arregloCentroCosto = response;
+                this.arregloCentroCosto.forEach(x=>{
+                  x.bloqcampogrilla = true;
+                })
+                this.arregloCentroCostoPaginacion = this.arregloCentroCosto.slice(0, 8);
+                this.logicalength();
+              },
+              error => {
+                console.log("Error :", error)
+              }
+            )
+          },
+            error => {
+              console.log("Error :", error)
+            }
+          )
+        }
+      }
+    })
+
+  }
+
+  isEliminaIdCentroCosto(registro: CentroCostoUsuario) {
+
+    let indice = 0;
+    for (const articulo of this.arregloCentroCosto) {
+      if (registro.idcentrocosto === articulo.idcentrocosto) {
+        return indice;
+      }
+      indice++;
+    }
+    return -1;
+  }
+
+  async logicalength(){
+    await this.NuevosRegistrosRoles();
+    await this.NuevosRegistrosCentros();
+
+    if(this.vaciosroles === true && this.vacioscentro === true){
+      this.verificanull = false;
+
+    }else{
+      if (this.vaciosroles === true && this.vacioscentro === false){
+        this.verificanull = true;
+
+      }else {
+        if(this.vaciosroles === false && this.vacioscentro === true){
+          this.verificanull = true;
+
+        }else{
+          if(this.vaciosroles)
+          this.verificanull = true;
+        }
+      }
+    }
+  }
+
+  NuevosRegistrosRoles(){
+    if(this.arregloCentroCosto.length ===this.lengthcentrocosto ){
+      this.vacioscentro = true;
+
+      return
+    }else{
+      this.vacioscentro = false;
+
+    }
+
+  }
+
+  NuevosRegistrosCentros(){
+    if(this.arregloRolesUsuario.length === this.lengthroles){
+      this.vaciosroles = true;
+
+      return;
+    }else{
+      this.vaciosroles = false;
+
+    }
+  }
+
 
 }

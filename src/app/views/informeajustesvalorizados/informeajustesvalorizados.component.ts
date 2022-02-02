@@ -37,7 +37,7 @@ export class InformeajustesvalorizadosComponent implements OnInit {
     private formBuilder   : FormBuilder,
     public _BsModalService: BsModalService,
     public _BodegasService: BodegasService,
-    
+
     public localeService                : BsLocaleService,
     public datePipe                     : DatePipe,
     private TiporegistroService: TiporegistroService
@@ -48,7 +48,7 @@ export class InformeajustesvalorizadosComponent implements OnInit {
       tipoprod  : [{ value: null, disabled: false }, Validators.required],
       fechadesde: [new Date(), Validators.required],
       fechahasta: [new Date(), Validators.required]
-      
+
     });
    }
 
@@ -75,7 +75,7 @@ export class InformeajustesvalorizadosComponent implements OnInit {
 
   getCmecodigo(event: any) {
     this.cmecodigo = event.cmecodigo;
-     
+
   }
 
   setDate() {
@@ -85,11 +85,12 @@ export class InformeajustesvalorizadosComponent implements OnInit {
   }
 
   BuscaBodegaDestino() {
-   
+
     this._BodegasService.listaBodegaTodasSucursal(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.usuario, this.servidor).subscribe(
       response => {
-        console.log(response);
-        this.bodegas = response;
+        if (response != null) {
+          this.bodegas = response;
+        }
       },
       error => {
         alert("Error al Buscar Bodegas de cargo");
@@ -115,7 +116,7 @@ export class InformeajustesvalorizadosComponent implements OnInit {
       if (result.value) {
         this.Impresion(tiporeport);
       }
-    })    
+    })
 
   }
 
@@ -123,6 +124,6 @@ export class InformeajustesvalorizadosComponent implements OnInit {
     console.log("Imprime PDF",tiporeport);
   }
 
-  
+
 
 }

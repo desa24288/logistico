@@ -1,6 +1,6 @@
 export class FormaFar {
-    private idforma: number;
-    private descriforma: string;
+    public idforma: number;
+    public descriforma: string;
 
     constructor(idforma: number, descriforma: string) {
         this.idforma = idforma;

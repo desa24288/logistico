@@ -10,7 +10,7 @@ import { environment } from '../../environments/environment';
 })
 export class HoldingService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/buscaholding');//'http://172.25.108.236:8181/buscaholding';
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/buscaholding');//'http://172.25.108.236:8181/buscaholding';
 
   constructor(private httpClient: HttpClient) {
 

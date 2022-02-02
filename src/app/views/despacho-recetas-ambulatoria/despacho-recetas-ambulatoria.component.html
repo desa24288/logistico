@@ -1,435 +1,484 @@
-<app-navbar></app-navbar>
-<app-sidebar></app-sidebar>
-<div class="content-wrapper pl-2">
-    <!-- <div class="container"> -->
-    <!-- Contenedor feneral de la página -->
-    <div class="my-2 ml-2 titulo text-center">
-        <!--menu -->
-        <h5>
-            Despacho Recetas
-        </h5>
-    </div>
-    <!-- Mensaje de alerta en caso de errores -->
-    <div *ngFor="let alert of alerts">
-        <alert [type]="alert.type" [dismissOnTimeout]="alert.timeout" (onClosed)="onClosed(alert)">
-            {{ alert.msg }}
-        </alert>
-    </div>
-    <!-- lineas de edición y bpusqueda -->
+<app-main-nav>
+    <div style="margin: 10px;">
+        <!-- Contenedor feneral de la página -->
+        <div class="my-2 ml-2 titulo text-center">
+            <!--menu -->
+            <h2>
+                {{glsambito}}
+            </h2>
+            <h3>
+                Despacho Recetas
+            </h3>
 
-    <div class="card border-primary mt-0" style="padding: 5px; height: 350px; width: 700">
-        <form [formGroup]="FormDatosPaciente" autocomplete="off" spellcheck="false">
-            <div class="table-responsive mt-1" style="height: 360px;">
-                <div class="form-row">
-                    <div class="form-group col-sm-2">
-                        <label for="numsolicitud">N°Solicitud *</label>
-                        <input type="text" class="form-control form-control-sm" formControlName="numsolicitud">
+        </div>
+        <!-- Mensaje de alerta en caso de errores -->
+        <div *ngFor="let alert of alerts">
+            <alert [type]="alert.type" [dismissOnTimeout]="alert.timeout" (onClosed)="onClosed(alert)">
+                {{ alert.msg }}
+            </alert>
+        </div>
+        <!-- lineas de edición y bpusqueda -->
+
+        <div class="card border-primary mt-0" style="padding: 10px; height: auto; width: auto">
+            <form [formGroup]="FormDatosPaciente" autocomplete="off" spellcheck="false">
+                <div class="content" style="height: auto;">
+                    <div class="form-row">
+                        <div class="form-group col-sm-2">
+                            <label for="numsolicitud">N°Solicitud *</label>
+                            <input type="text" class="form-control form-control-sm" formControlName="numsolicitud">
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label for="fechahora">Fecha *</label>
+                            <input appSelecttext type="text" placeholder="DD/MM/YYYY"
+                                class="form-control form-control-sm" [bsConfig]="bsConfig" bsDatepicker
+                                formControlName="fechahora" />
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label for="estado">Estado Solicitud *</label>
+                            <select class="form-control form-control-sm" formControlName="estado">
+                                <option *ngFor="let estadosolicitud of estadosolicitudes"
+                                    [ngValue]='estadosolicitud.estsolcodigo'>
+                                    {{ estadosolicitud.estsoldescripcion }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-group col-sm-2">
+                            <label for="tipoDocumento">Tipo Documento *</label>
+                            <input type="text" class="form-control  form-control-sm" formControlName="tipodocumento">
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label for="numidentificacion">N° Identificación *</label>
+                            <input type="text" class="form-control  form-control-sm" formControlName="numidentificacion">
+
+                        </div>
+                        <div class="form-group col-sm-2 align-self-end">
+                            <button type="button" id="paciente" [disabled]="!bloqueabuscapac"
+                                class="btn btn-primary btn-sm button-my-styles-busqueda_01"
+                                (click)="BuscarPaciente()">Buscar Paciente <i class="fas fa-search ml-1"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="form-group col-md-2">
-                        <label for="fechahora">Fecha *</label>
-                        <input appSelecttext type="text" placeholder="DD/MM/YYYY" class="form-control form-control-sm"
-                            [bsConfig]="bsConfig" bsDatepicker formControlName="fechahora" />
-                    </div>
-                    <div class="form-group col-md-2">
-                        <label for="estado">Estado Solicitud *</label>
-                        <select class="form-control form-control-sm" formControlName="estado">
-                            <option *ngFor="let estadosolicitud of estadosolicitudes"
-                                [ngValue]='estadosolicitud.estsolcodigo'>
-                                {{ estadosolicitud.estsoldescripcion }}
-                            </option>
-                        </select>
+                    <div class="form-row">
+                        <div class="form-group col-sm-6">
+                            <label for="nombrepaciente">Nombres y Apellidos del Paciente *</label>
+                            <input type="text" class="form-control form-control-sm" formControlName="nombrepaciente">
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label for="sexo">Sexo *</label>
+                            <input type="text" class="form-control  form-control-sm" formControlName="sexo">
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label for="edad">Edad *</label>
+                            <input type="text" class="form-control  form-control-sm" formControlName="edad">
+                        </div>
+                        <div class="form-group col-md-2 align-self-end">
+                            <button type="button" id="btbuscasolicitud" class="btn btn-primary btn-sm
+                                button-my-styles-busqueda_01" [disabled]="!existpaciente"
+                                (click)="BuscarSolicitud()">Solicitudes Paciente
+                                <i class="fas fa-search ml-1"></i>
+                            </button>
+                        </div>
+
                     </div>
 
-                    <div class="form-group col-sm-2">
-                        <label for="tipoDocumento">Tipo Documento *</label>
-                        <input type="text" class="form-control form-control-sm" formControlName="tipodocumento">
-                    </div>
-                    <div class="form-group col-sm-2">
-                        <label for="numidentificacion">N° Identificación *</label>
-                        <input type="text" class="form-control form-control-sm" formControlName="numidentificacion">
-                    </div>
-                    <div class="form-group col-sm-2 align-self-end">
-                        <button type="button" id="paciente" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
-                            (click)="BuscarPaciente()">Buscar Paciente <i class="fas fa-search ml-1"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col-sm-6">
-                        <label for="nombrepaciente">Nombres y Apellidos del Paciente *</label>
-                        <input type="text" class="form-control form-control-sm" formControlName="nombrepaciente">
-                    </div>
-                    <div class="form-group col-sm-2">
-                        <label for="sexo">Sexo *</label>
-                        <input type="text" class="form-control form-control-sm" formControlName="sexo">
-                    </div>
-                    <div class="form-group col-sm-2">
-                        <label for="edad">Edad *</label>
-                        <input type="text" class="form-control form-control-sm" formControlName="edad">
-                    </div>
-                    <!-- <div class="form-group col-md-2 align-self-end">
-                        <button type="button" id="btbuscasolicitud" class="btn btn-primary btn-sm
-                            button-my-styles-busqueda_01" [disabled]="!existpaciente"
-                            (click)="BuscarSolicitud()">Busca Plantillas
-                            <i class="fas fa-search ml-1"></i>
-                        </button>
-                    </div> -->
-                </div>
-                <div class="form-row">
-                    <div class="form-group col-sm-1">
-                        <label for="numeroreceta">N° Receta *</label>
-                        <input type="text" appSelecttext appNumberonly class="form-control form-control-sm"
-                            maxlength="10" (blur)="BuscaReceta(FormDatosPaciente.value.numeroreceta)"
-                            formControlName="numeroreceta">
-                    </div>
-                    <div class="form-group col-sm-2">
-                        <label for="numidentificacionmedico">N° Identificación Médico *</label>
-                        <input type="text" class="form-control form-control-sm"
+                    <div class="form-row">
+                      <div class="form-group col-sm-1">
+                          <label for="tipoDocumento">Tipo Doc. *</label>
+                          <select class="form-control form-control-sm"
+                              formControlName="tipodocumentomed"
+                              (change)="SeleccionTipoDoc()">
+                              <option *ngFor="let tipodoc of docsidentis" [ngValue]='tipodoc.docidentcodigo'>
+                                  {{ tipodoc.docidentdescripcion }}
+                              </option>
+                          </select>
+
+                      </div>
+                      <div class="form-group col-sm-2">
+                          <label for="numidentificacionmedico">N° Identificación Médico *</label>
+
+                          <input type="text" class="form-control  form-control-sm"
+                            (keyup.enter)="getMedicoTipoDoc()"
+                            (keydown.tab)="getMedicoTipoDoc()"
                             formControlName="numidentificacionmedico">
-                    </div>
-                    <div class="form-group col-sm-4">
-                        <label for="nombremedico">Nombres y Apellidos del Médico *</label>
-                        <input type="text" class="form-control form-control-sm" formControlName="nombremedico">
-                    </div>
-                    <!--<div class="form-group col-md-2">
-                         <label for="marcacheck">Entrega Programada *</label>
-                        <input class="mr-2 form-control form-control-sm col-md-2" type="checkbox"
-                            formControlName="marcacheck" (change)="cambio_check('todoslosproductos', $event)"
-                            name="marcacheck"> 
-                    </div>-->
-                    <!--<div class="form-group col-md-1" *ngIf="activacomboentrega">
-                         <label for="entrega">Entrega En *</label>
-                        <select class="form-control form-control-sm" formControlName="entrega"
-                            (change)="SeleccionaCombo($event,FormDatosPaciente.value.entrega)">
-                            <option *ngFor="let estadoreceta of estadorecetasprogs"
-                                [ngValue]='estadoreceta.diasentregacodigo'>
-                                {{ estadoreceta.diasentregadesc }}
-                            </option>
-                        </select> 
-                    </div>-->
-                    <!-- <div class="form-group col-md-3"></div>  -->
-                    <div class="form-group col-md-3">
-                        <label for="bodcodigo">Bodega *</label>
-                        <select name="bodcodigo" class='form-control form-control-sm'
-                            (change)="SeleccionaBodegaActivaBtnAgregar(FormDatosPaciente.value.bodcodigo)"
-                            formControlName='bodcodigo'>
-                            <option *ngFor='let listaBodegasSolictante of bodegasSolicitantes'
-                                [ngValue]='listaBodegasSolictante.bodcodigo'>
-                                {{ listaBodegasSolictante.boddescripcion }}
-                            </option>
-                        </select>
-                    </div>
-                    <div class="form-group col-md-2 align-self-end">
-                        <button type="button" id="btbuscasolicitud" class="btn btn-primary btn-sm
-                            button-my-styles-busqueda_01" [disabled]="!existpaciente"
-                            (click)="BuscarSolicitud()">Solicitudes Paciente
-                            <i class="fas fa-search ml-1"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col-sm-2" *ngIf="ambito">
-                        <label for="numcuenta">Número Cuenta *</label>
-                        <input type="text" class="form-control form-control-sm" formControlName="numcuenta">
-                    </div>
-                    <div class="form-group col-sm-2" *ngIf="!ambito">
-                        <label for="comprobantecaja">Número Comprobante *</label>
-                        <input type="text" class="form-control form-control-sm" formControlName="comprobantecaja">
-                    </div>
-                    <div class="form-group col-md-3" *ngIf="!ambito">
-                        <label for="estadocomprobantecaja">Estado Comprobante *</label>
-                        <select class="form-control form-control-sm" formControlName="estadocomprobantecaja">
-                            <option *ngFor="let estadosolicitud of estadosolicitudes"
-                                [ngValue]='estadosolicitud.estsolcodigo'>
-                                {{ estadosolicitud.estsoldescripcion }}
-                            </option>
-                        </select>
-                    </div>
-                    <div class="form-group col-sm-2" *ngIf="ambito">
-                        <label for="servicio">Servicio *</label>
-                        <input type="text" class="form-control form-control-sm" formControlName="servicio">
-                    </div>
-
-                    <div class="form-group col-sm-2" *ngIf="!ambito">
-                        <label for="numeroboleta">Número Boleta *</label>
-                        <input type="text" appSelecttext appNumberonly class="form-control form-control-sm"
-                            maxlength="12" formControlName="numeroboleta">
-                    </div>
-                    <div class="form-group col-sm-2" *ngIf="ambito">
-                        <label for="pieza">Pieza y Cama *</label>
-                        <input type="text" appSelecttext appNumberonly class="form-control form-control-sm"
-                            maxlength="12" formControlName="pieza">
-                    </div>
 
 
-                    <div class="form-group col-md-2 align-self-end">
+                      </div>
+                      <div class="form-group col-sm-3">
+                          <label for="nombremedico">Nombres Médico *</label>
+                          <input type="text" class="form-control form-control-sm" (keyup.enter)="getMedicoNombres()"
+                              (keydown.tab)="getMedicoNombres()" formControlName="nombremedico">
+                      </div>
+                      <div class="form-group col-sm-2">
+                          <label for="apellidopatemedico">Apellido Paterno del Médico *</label>
+                          <input type="text" class="form-control form-control-sm" (keyup.enter)="getMedicoNombres()"
+                              (keydown.tab)="getMedicoNombres()" formControlName="apellidopatemedico">
+                      </div>
+                      <div class="form-group col-sm-2">
+                          <label for="apellidomatemedico">Apellidos Materno Médico *</label>
+                          <input type="text" class="form-control form-control-sm" (keyup.enter)="getMedicoNombres()"
+                              (keydown.tab)="getMedicoNombres()" formControlName="apellidomatemedico">
+                      </div>
+                      <div class="form-group col-md-2 align-self-end">
+                          <button type="button" id="btbuscareceta" class="btn btn-primary btn-sm
+                              button-my-styles-busqueda_01" [disabled]="!activabtnbuscaprof"
+                              (click)="BuscaProfesional()">
+                              Busca Médico <i class="fas fa-search ml-1"></i>
+                          </button>
+                      </div>
+
+                  </div>
+
+
+                    <div class="form-row">
+
+                        <div class="form-group col-sm-1" *ngIf="ambito">
+                          <label for="numcuenta">N° Cuenta *</label>
+                          <input type="text" class="form-control form-control-sm" formControlName="numcuenta">
+                        </div>
+
+                        <div class="form-group col-sm-2" *ngIf="ambito">
+                          <label for="servicio">Servicio *</label>
+                          <input type="text" class="form-control form-control-sm" formControlName="servicio">
+                        </div>
+
+                        <div class="form-group col-sm-2" *ngIf="ambito">
+                          <label for="pieza">Pieza y Cama *</label>
+                          <input type="text" appSelecttext appNumberonly class="form-control form-control-sm"
+                              maxlength="12" formControlName="pieza">
+                        </div>
+
+                        <div class="form-group col-md-3">
+                            <label for="bodcodigo">Bodega *</label>
+                            <select name="bodcodigo" class='form-control form-control-sm'
+                                (dropdown)="SeleccionaBodegaActiva()"
+                                (change)="SeleccionaBodegaActivaBtnAgregar(FormDatosPaciente.value.bodcodigo)"
+                                formControlName='bodcodigo'>
+                                <option *ngFor='let listaBodegasSolictante of bodegasSolicitantes'
+                                    [ngValue]='listaBodegasSolictante.bodcodigo' >
+                                    {{ listaBodegasSolictante.boddescripcion }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-group col-sm-2">
+                            <label for="numeroreceta">N° Receta *</label>
+                            <input type="number" class="form-control col-6 form-control-sm" min="0"
+                              max="9999999999" formControlName="numeroreceta">
+                        </div>
+
+                        <div class="form-group col-md-2 align-self-end">
+                            <button type="button" id="btbuscareceta" class="btn btn-primary btn-sm
+                                button-my-styles-busqueda_01" [disabled]="!btnbuscareceta"
+                                (click)="getRecetas(FormDatosPaciente.value.numeroreceta)">Busca Recetas
+                                <i class="fas fa-search ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+
+                        <div class="form-group col-sm-2" *ngIf="!ambito">
+                            <label for="comprobantecaja">Número Comprobante *</label>
+                            <input type="text" class="form-control form-control-sm" formControlName="comprobantecaja">
+                        </div>
+
+                        <div class="form-group col-sm-2" *ngIf="!ambito">
+                            <label for="numeroboleta">Número Boleta *</label>
+                            <input type="text" appSelecttext appNumberonly class="form-control form-control-sm"
+                                maxlength="12" formControlName="numeroboleta">
+                        </div>
+
+                        <div class="form-group col-md-3" *ngIf="ambulatorio">
+                            <label for="bodcodigo">Cobro incluído en</label>
+                            <select name="cobroincluido" class='form-control form-control-sm'
+                                formControlName='cobroincluido'>
+                                <option *ngFor='let detalle of listacobros'
+                                    [ngValue]='detalle.codigo'>
+                                    {{ detalle.descripcion }}
+                                </option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="form-row" *ngIf ="ambulatorio">
+                        <div class="form-group col-md-2">
+                            <label for="bodcodigo">Retira Medicamento</label>
+                            <select name="retiro" class='form-control form-control-sm'
+                                (change)="SeleccionaRetiro(FormDatosPaciente.value.retiro)"
+                                formControlName='retiro'>
+                                <option value=1>Paciente </option>
+                                <option value=2>Adquiriente (Otro) </option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-1">
+                            <label for="tipodocumentoretira">Tipo Doc. *</label>
+                            <select class="form-control form-control-sm"
+                                formControlName="tipodocumentoretira" (change)="SeleccionaTipodocRetira()">
+                                <option *ngFor="let tipodoc of docsidentis"
+                                    [ngValue]='tipodoc.docidentcodigo'>
+                                    {{ tipodoc.docidentdescripcion }}
+                                </option>
+                            </select>
+
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label for="rutretira">N° Identificación *</label>
+                            <input type="text" class="form-control  form-control-sm"
+                            formControlName="rutretira" (focusout)="IngresoRutRetira()">
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label for="nombreretira">Nombres y Apellidos del que retira *</label>
+                            <input type="text" class="form-control form-control-sm"
+                            formControlName="nombreretira" (input)="IngresoNombreRetira()">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="form-group col-sm-10"></div>
+                      <div class="form-group col-md-2 align-self-end">
                         <button type="button" id="btnevento" class="btn btn-primary btn-sm
-                                        button-my-styles-busqueda_01" [disabled]="!existsolicitud"
+                                    button-my-styles-busqueda_01" *ngIf="existsolicitud"
                             (click)="eventosSolicitud()">
                             Eventos
                         </button>
+                      </div>
+
                     </div>
                 </div>
-                <div class="form-row">
-                </div>
+            </form>
+        </div>
+        <div class="card border-primary mt-1" style="padding: 5px;">
+            <div class="table-editable mt-1" style="padding: 5px">
+                <tabset>
+                    <tab heading="Medicamentos" id="tab1">
+                        <form [formGroup]="FormDatosProducto" autocomplete="off" spellcheck="false">
+                            <div class="row form-group align-self-end ml-1">
+                                <div class="form-group col-md-2">
+                                    <label for="codigo">Código *</label>
+                                    <input type="text" class="form-control form-control-sm" formControlName="codigo">
+
+                                </div>
+
+                                    <div class="form-group col-md-6 align-self-end">
+                                        <!--NO BORRAR la línea de código, sirve para activar
+                                            el btn agregar con el numero de receta agregado y se agrega en el [disabled]
+                                             || !FormDatosPaciente.controls.numeroreceta.valid)?true:false -->
+                                        <button [disabled]="(!agregarproducto ) || (isbodegacontrolado)"
+                                        type="button" class="btn btn-info btn-sm"
+                                            (click)="getProducto()">Agregar <i class="fas fa-plus ml-1"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-info btn-sm ml-2"
+                                          [disabled]="!ActivaBotonBuscaGrilla || (isbodegacontrolado)"
+                                          (click)="findArticuloGrilla()">Buscar<i class="fas fa-search ml-1"></i>
+                                    </button>
+                                    <button type="button" [disabled]="!ActivaBotonLimpiaBusca"
+                                        class="btn btn-danger btn-sm ml-2" (click)="limpiarCodigo()">Limpiar Búsqueda<i
+                                            class="fas fa-brush ml-1"></i>
+                                    </button>
+                                    </div>
+
+                            </div>
+                        </form>
+                        <div class="table-responsive mt-3" style="max-height: auto;min-height: 100px;">
+                            <table id="tbldatosordendevolucion"
+                                class="table table-striped table ml-1 table-condensed table-bordered ">
+                                <thead class="table-primary  table-sm">
+                                    <!-- da color de fondo a la columna-->
+                                    <tr class="text-center table-sm">
+                                        <th>Código</th>
+                                        <th>Descripción</th>
+                                        <th>Dosifica*</th>
+                                        <th>Veces al Día* </th>
+                                        <th>Días*</th>
+                                        <th>Total</th>
+                                        <th>Posología</th>
+                                        <th>U Medida</th>
+                                        <th>Disp.</th>
+                                        <th>Pend.</th>
+                                        <th>
+                                            <div *ngIf="codambito == 1">
+                                                Pagada*
+                                            </div>
+                                            <div *ngIf="codambito == 2 || codambito == 3">
+                                                A Dispensar*
+                                            </div>
+                                        </th>
+                                        <th>Lote Producto</th>
+                                        <th>Vencimiento</th>
+                                        <th>
+                                            <button type="button" id="btnElinaRegistro" class="btn btn-info btn-danger btn-sm ml-2"
+                                                (click)="ConfirmaEliminaProductoDeLaGrilla2()"
+                                                [disabled]= "(!desactivabtnelim) || (arrdetalleSolicitudMedPaginacion.length===0)">Eliminar
+                                                <i class="fas fa-trash-restore-alt  ml-1"></i>
+                                            </button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let detalle of arrdetalleSolicitudMedPaginacion; let id = index"
+                                        class="table-secondary">
+                                        <td><small>{{ detalle.codmei }}</small></td>
+                                        <td class="text-nowrap help" tooltip="{{detalle.meindescri }}">
+                                            <small>{{ detalle.meindescri | slice: 0:15}}</small>
+                                        </td>
+                                        <td>
+                                            <small><input type="number" class="form-control form-control-sm text-right"
+                                                    min="1" max="100" [(ngModel)]="detalle.dosis"
+                                                    [disabled]="!detalle.bloqcampogrilla" maxlength="2"
+                                                    (keyup.enter)="setCantidadsolicitada(detalle)"
+                                                    (keydown.tab)="setCantidadsolicitada(detalle)">
+                                                <!--bloqueacamposgrilla-->
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <small><input type="number" class="form-control form-control-sm text-right"
+                                                    min="1" max="100" [(ngModel)]="detalle.formulacion"
+                                                    [disabled]="!detalle.bloqcampogrilla"  maxlength="2"
+                                                    (keyup.enter)="setCantidadsolicitada(detalle)"
+                                                    (keydown.tab)="setCantidadsolicitada(detalle)">
+                                                <!--bloqueacamposgrilla-->
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                <input type="number" class="form-control form-control-sm text-right"
+                                                    min="1" max="1000" [(ngModel)]="detalle.dias"
+                                                    [disabled]="!detalle.bloqcampogrilla"
+                                                    (keyup.enter)="setCantidadsolicitada(detalle)"
+                                                    (keydown.tab)="setCantidadsolicitada(detalle)">
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                <input type="number" class="form-control form-control-sm text-right"
+                                                    min="0" max="100" [(ngModel)]="detalle.cantsoli"
+                                                    (ngValue)="detalle.cantsoli" [disabled]="true">
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                <input type="text" class="form-control form-control-sm text-right"
+                                                min="1" max="2000" [(ngModel)]="detalle.posologia"
+                                                [disabled]="!detalle.bloqcampogrilla"
+                                                (keyup.enter)="setCantidadsolicitada(detalle)"
+                                                (keydown.tab)="setCantidadsolicitada(detalle)">
+                                            </small>
+                                        </td>
+
+                                        <td>
+                                            <small>{{ detalle.glosaunidaddespacho}}</small>
+                                        </td>
+                                        <td>
+                                            <small>{{detalle.cantdespachada}}</small>
+                                        </td>
+                                        <td> <small>{{detalle.cantsoli - detalle.cantdespachada}} </small></td>
+                                        <td>
+                                            <div *ngIf="codambito == 1">
+                                                <small>{{detalle.cantidadpagadacaja}}</small>
+                                            </div>
+                                            <div *ngIf="codambito == 2 || codambito == 3">
+                                                <small>
+                                                    <input type="number" class="form-control form-control-sm text-right"
+                                                      min="1" max="10000" [(ngModel)]="detalle.cantadespachar"
+                                                      (ngValue)="detalle.cantadespachar" maxlength="5"
+                                                      [disabled]="!detalle.bloqcampogrilla4"
+                                                      (keydown.tab)="verificaDispensar(detalle)"
+                                                      (keyup.enter)="validacantidadgrilla(detalle)"
+                                                      (change)="verificaDispensar(detalle)">
+                                                </small>
+                                            </div>
+
+                                        </td>
+                                        <td>
+                                            <!--setLote la funcion que tenia antes-->
+                                            <select name="lote" class='form-control form-control-sm'
+                                            (change)="cambiaLotemedicamento($event.target.value, id,detalle)"
+                                            [disabled]="!detalle.bloqcampogrilla2"
+                                            (keyup.enter)="checkLote(detalle)" (keydown.tab)="checkLote(detalle)">
+                                              <option *ngFor="let detalleprod of detalle.detallelote"
+                                                  [ngValue]='detalleprod'
+                                                  value="{{ detalleprod.fechavto }}/{{ detalleprod.lote }}/{{ detalleprod.cantidad }}/{{ detalleprod.codmei }}">
+                                                  <small> {{ detalleprod.glscombo }} </small>
+                                              </option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                <input type="text" class="form-control form-control-sm text-right"
+                                                    value="{{ detalle.fechavto | date:'dd/MM/yyyy' }} " disabled>
+                                            </small>
+                                        </td>
+
+                                        <td>
+                                            <small>
+                                                <input class="mr-2  " type="checkbox"  [disabled]="!detalle.bloqcampogrilla3"
+                                                  (click)="CambioCheck(detalle,id,$event,detalle.marcacheckgrilla)">
+                                            </small>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="row m-1" *ngIf="arrdetalleSolicitudMed.length>20">
+                                <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
+                                    [totalItems]="arrdetalleSolicitudMed.length" [itemsPerPage]=20
+                                    [previousText]="'Anterior'" [nextText]="'Siguiente'" [firstText]="'&laquo;'"
+                                    [lastText]="'&raquo;'" (pageChanged)="pageChanged($event)">
+                                </pagination>
+                            </div>
+                        </div>
+                    </tab>
+
+                </tabset>
             </div>
-        </form>
-    </div>
-    <div class="card border-primary mt-1" style="padding: 5px;">
-        <div class="table-editable mt-3" style="padding: 5px; height:1000px;">
-            <tabset style="height: 320px;">
-                <tab heading="Medicamentos" id="tab1">
-                    <div class="form-group col-md-2 align-self-end">
-                        <button [disabled]="!agregarproducto" type="button" class="btn btn-info btn-sm"
-                            (click)="onBuscarProducto()">Agregar <i class="fas fa-plus ml-1"></i>
-                        </button>
-                    </div>
-                    <div class="table-responsive mt-3" style="padding: 5px; height:820px;">
-                        <table id="tbldatosordendevolucion" class="table ml-1 table-condensed table-bordered ">
-                            <thead class="table-primary  table-sm">
-                                <!-- da color de fondo a la columna-->
-                                <tr class="text-center table-sm">
-                                    <th>Código</th>
-                                    <th>Descripción</th>
-                                    <th>Progr.</th>
-                                    <th>Entrega En</th>
-                                    <th>Dosifica*</th>
-                                    <th>Veces al Día* </th>
-                                    <th>Días*</th>
-                                    <th>Total</th>
-                                    <th>U Medida</th>
-                                    <th>Dispensados</th>
-                                    <th>Pendientes</th>
-                                    <th>A Dispensar*</th>
-                                    <th>Lote </th>
-                                    <th>Vencimiento</th>
-                                    <th>Eventos</th>
-                                    <th>Eliminar</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let detalle of arrdetalleSolicitudMedPaginacion; let id = index"
-                                    class="table-secondary">
-                                    <td><small>{{ detalle.codmei }}</small></td>
-                                    <td class="text-nowrap help" tooltip="{{detalle.meindescri }}">
-                                        <small>{{ detalle.meindescri | slice: 0:15}}</small>
-                                    </td>
-                                    <td>
-                                        <small>
-                                            <input class="mr-2 " type="checkbox" [checked]="detalle.marcacheckgrilla"
-                                                (change)="cambio_checkGrilla( id, $event,detalle)" name="marca">
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <!-- <div *ngIf="checkgrilla"> -->
-                                        <select class="form-control form-control-sm"
-                                            [disabled]="!detalle.marcacheckgrilla"
-                                            (change)="SeleccionaComboGrilla($event,id,detalle.diasentregacodigodet,detalle)"
-                                            [(ngModel)]="detalle.diasentregacodigodet">
-                                            <!-- (change)="cantidadsolicitada(detalle)" -->
-                                            <option *ngFor="let estadoreceta of estadorecetasprogs"
-                                                [ngValue]='estadoreceta.diasentregacodigo'>
-                                                {{ estadoreceta.diasentregadesc }}
-                                            </option>
-                                        </select>
-                                        <!-- </div> -->
-                                        <!-- <div *ngIf="!checkgrilla">
-                                        <select class="form-control form-control-sm" 
-                                            (change)="SeleccionaCombo($event,id,detalle.diasentregacodigodet,detalle)"
-                                            [(ngModel)]="detalle.diasentregacodigodet" >
-                                            <option *ngFor="let estadoreceta of estadorecetasprogs"
-                                               [ngValue]='estadoreceta.diasentregacodigo'>
-                                               {{ estadoreceta.diasentregadesc }}
-                                           </option>
-                                        </select>
-                                    </div> -->
+        </div>
 
-                                    </td>
-                                    <td>
-                                        <small><input type="number" class="form-control form-control-sm text-right"
-                                                min="1" max="100" [(ngModel)]="detalle.dosis" maxlength="2"
-                                                (input)="cantidadsolicitada(detalle)">
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <small><input type="number" class="form-control form-control-sm text-right"
-                                                min="1" max="100" [(ngModel)]="detalle.formulacion"
-                                                (input)="cantidadsolicitada(detalle)" maxlength="2">
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <small>
-                                            <input type="number" class="form-control form-control-sm text-right" min="1"
-                                                max="1000" [(ngModel)]="detalle.dias"
-                                                (input)="cantidadsolicitada(detalle)">
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <small>
-                                            <input type="number" class="form-control form-control-sm text-right" min="0"
-                                                max="100" [(ngModel)]="detalle.cantsoli" (ngValue)="detalle.cantsoli"
-                                                [disabled]="true">
-                                        </small>
-                                    <td>
-                                        <small>{{ detalle.glosaunidaddespacho}}</small>
-                                    </td>
-                                    <td>
-                                        <small>{{detalle.cantdespachada}}</small>
-                                    </td>
-                                    <td> <small>{{detalle.cantsoli - detalle.cantdespachada}} </small></td>
-                                    <td>
-                                        <small>
-                                            <input type="number" class="form-control form-control-sm text-right" min="1"
-                                                max="10000" [(ngModel)]="detalle.cantadespachar"
-                                                (ngValue)="detalle.cantadespachar" maxlength="5"
-                                                (blur)="validacantidadgrilla(detalle)">
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <select name="lote" class='form-control form-control-sm'
-                                            (change)="setLote($event.target.value, id)"  >
-                                            <option *ngFor="let detalleprod of detalle.detallelote"
-                                                [ngValue]='detalleprod'
-                                                value="{{ detalleprod.fechavto }}/{{ detalleprod.lote }}">
-                                                <small> {{ detalleprod.lote }} </small>
-                                            </option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <small>
-                                        <input type="text" class="form-control form-control-sm text-right" value="{{ detalle.fechavto | date:'dd/MM/yyyy' }} "
-                                            disabled>
-                                        </small>
-                                    </td>
-                                        
-                                    <td>
-                                        <small>
-                                            <span><button type="button" id="btnVerEventos"
-                                                    class="btn btn-info btn-rounded btn-sm ml-2"
-                                                    (click)="eventosDetalleSolicitud(detalle)"
-                                                    [disabled]="!existsolicitud">Eventos</button></span>
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <small>
-                                            <span><button type="button" id="btnEliminar"
-                                                    class="btn btn-info btn-rounded btn-sm ml-2"
-                                                    (click)="ConfirmaBorraProductoMed(detalle,id)"
-                                                    [disabled]="existsolicitud">Eliminar
-                                                </button></span>
-                                        </small>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div class="row m-1">
-                            <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-                                [totalItems]="arrdetalleSolicitudMed.length" [itemsPerPage]=20
-                                [previousText]="'Anterior'" [nextText]="'Siguiente'" [firstText]="'&laquo;'"
-                                [lastText]="'&raquo;'" (pageChanged)="pageChanged($event)">
-                            </pagination>
-                        </div>
-                    </div>
-                </tab>
-                <!-- <tab heading="Insumos" id="tab1">
-                    <div class="table-responsive mt-3" style="padding: 5px; height:400px;">
-                        <div class="form-group col-md-2 align-self-end">
-                            <button [disabled]="!agregarproducto" type="button" id="btnbuscar"
-                                class="btn btn-info btn-sm" (click)="onBuscarProducto()">Agregar <i
-                                    class="fas fa-plus ml-1"></i>
-                            </button>
-                        </div>
-                        <table id="tbldatosordendevolucion" class="table ml-1 table-condensed table-bordered ">
-                            <thead class="table-primary  table-sm">
-                                <!-- da color de fondo a la columna->
-                                <tr class="text-center table-sm">
-                                    <th>Código</th>
-                                    <th>Descripción</th>
-                                    <th>Total</th>
-                                    <th>U Medida</th>
-                                    <th>Dispensados</th>
-                                    <th>Pendientes</th>
-                                    <th>A Dispensar</th>
-                                    <th>Eventos</th>
-                                    <th>Eliminar</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let detalle of arrdetalleSolicitudInsPaginacion; let id = index"
-                                    class="table-secondary">
-                                    <td>{{ detalle.codmei }}</td>
-                                    <td>{{ detalle.meindescri }}</td>
-                                    <td> <input type="number" class="form-control form-control-sm text-right" min="0"
-                                            max="100" [(ngModel)]="detalle.cantsoli" (ngValue)="detalle.cantsoli"
-                                            [disabled]="false">
-                                    <td>
-                                        {{ detalle.glosaunidaddespacho}}
-                                    </td>
-                                    <td>
-                                        {{detalle.cantdespachada}}
-                                    </td>
-                                    <td> {{detalle.pendientedespacho}} </td>
-                                    <td>
-                                        <input type="number" class="form-control form-control-sm text-right" min="1"
-                                            max="10000" [(ngModel)]="detalle.cantadespachar" maxlength="5">
-                                    </td>
-
-                                    <td><span><button type="button" id="btnVerEventos"
-                                                class="btn btn-info btn-rounded btn-sm ml-2"
-                                                (click)="eventosDetalleSolicitud(detalle)"
-                                                [disabled]="!existsolicitud">Eventos</button></span>
-                                    </td>
-                                    <td><span><button type="button" id="btnEliminar"
-                                            class="btn btn-info btn-rounded btn-sm ml-2"
-                                            (click)="ConfirmaBorraProductoIns(detalle,id)"
-                                            [disabled]="existsolicitud">Eliminar
-                                        </button></span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div class="row m-1">
-                            <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="6"
-                                [totalItems]="arrdetalleSolicitudIns.length" [itemsPerPage]=8
-                                [previousText]="'Anterior'" [nextText]="'Siguiente'" [firstText]="'&laquo;'"
-                                [lastText]="'&raquo;'" (pageChanged)="pageChanged($event)">
-                            </pagination>
-                        </div>
-                    </div>
-                </tab> -->
-            </tabset>
+        <!--  Botones de página -->
+        <div class="row float-right mr-1 mt-2">
+            <div class="form-group  align-self-end" *ngIf="modelopermisos.btngrabadespachorec">
+                <button type="button" [disabled]="(!btnDispensar)"
+                   id="btnguardar"
+                   class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+                   (click)="grabarSolicitud()">DISPENSAR <i class="fas fa-save"></i>
+                </button>
+            </div>
+            <div class="form-group  align-self-end" *ngIf="modelopermisos.btnmodifdespachorec">
+                <button type="button" id="btnguardar" [disabled]="!btnmodificar"
+                    class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+                    (click)="inicioModificar()">{{ glsbtnmodifica }} <i class="fas fa-save"></i>
+                </button>
+            </div>
+            <div class="form-group  align-self-end"
+              *ngIf="modelopermisos.btnmodifdespachorec && codambito == 1 ">
+                <button type="button" id="btnguardar" [disabled]="(!btnEliminar) || (!nopagada)||
+                 (this._Receta.receestadodespacho==110)"
+                    class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+                    (click)="inicioEliminar()">ELIMINAR
+                    <i class="fas fa-save"></i>
+                </button>
+            </div>
+            <div class="form-group  align-self-end" *ngIf="modelopermisos.btnimprimedespachorec">
+                <button type="button" id="btnimprimir" class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+                    (click)="onImprimir()" [disabled]="!btnimprime">IMPRIMIR PDF
+                    <i class="fas fa-file-pdf ml-1"></i>
+                </button>
+            </div>
+            <div class="form-group  align-self-end">
+                <button type="button" id="btnlimpiar" (click)="limpiar()" [disabled]="!btnlimpiar"
+                    class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02">LIMPIAR
+                    <i class="fas fa-eraser ml-1"></i>
+                </button>
+            </div>
+            <div class="form-group  align-self-end" >
+                <button type="button" id="btnsalir" class="btn btn-primary btn-sm button-my-styles-busqueda_02"
+                    [disabled]="!btnlimpiar" (click)="Salir()">SALIR<i class="fas fa-window-close ml-1"></i>
+                </button>
+            </div>
         </div>
+        <swal #alertSwal title="" text="" type="success" [showCancelButton]="false"> </swal>
+        <swal #alertSwalAlert title="" text="" type="warning" [showCancelButton]="false"> </swal>
+        <swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
+        <swal #alertSwalConfirmar title="" text="" type="question" [showCancelButton]="true"> </swal>
+        <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '3px' }"> </ngx-loading>
     </div>
-
-    <!--  Botones de página -->
-    <div class="row float-right mr-1 mt-2">
-        <div class="form-group  align-self-end" *ngIf="modelopermisos.btngrabadespachorec">
-            <button type="button" [disabled]="!nuevasolicitud" id="btnguardar"
-                class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
-                (click)="grabarSolicitud()">GUARDAR-DISPENSAR <i class="fas fa-save"></i>
-            </button>
-        </div>
-        <div class="form-group  align-self-end" *ngIf="modelopermisos.btnmodifdespachorec">
-            <button type="button" id="btnguardar" [disabled]="!existsolicitud"
-                class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
-                (click)="grabarSolicitud()">MODIFICAR-DISPENSAR <i class="fas fa-save"></i>
-            </button>
-        </div>
-        <div class="form-group  align-self-end">
-            <button type="button" id="btnlimpiar" (click)="limpiar()"
-                class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02">LIMPIAR
-                <i class="fas fa-eraser ml-1"></i>
-            </button>
-        </div>
-        <div class="form-group  align-self-end">
-            <button type="button" id="btnsalir" class="btn btn-primary btn-sm button-my-styles-busqueda_02"
-                (click)="Salir()">SALIR<i class="fas fa-window-close ml-1"></i>
-            </button>
-        </div>
-    </div>
-    <swal #alertSwal title="" text="" type="success" [showCancelButton]="false"> </swal>
-    <swal #alertSwalAlert title="" text="" type="warning" [showCancelButton]="false"> </swal>
-    <swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
-    <swal #alertSwalConfirmar title="" text="" type="question" [showCancelButton]="true"> </swal>
-    <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '3px' }"> </ngx-loading>
-</div>
+</app-main-nav>

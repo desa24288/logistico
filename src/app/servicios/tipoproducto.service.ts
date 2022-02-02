@@ -10,7 +10,7 @@ import { environment } from '../../environments/environment';
 })
 export class TipoproductoService {
 //fALTA EL RESTO DE LA CONEXION
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/buscastockenbodegas');//'http://172.25.108.236:8105/';
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/buscastockenbodegas');//'http://172.25.108.236:8105/';
 
   constructor(private httpClient: HttpClient) {
 

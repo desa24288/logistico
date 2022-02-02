@@ -35,6 +35,7 @@ import { PacientesService } from './servicios/pacientes.service';
 import { TipodocumentoidentService} from '../app/servicios/tipodocumentoident.service';
 import { BusquedaproductosComponent } from './views/busquedaproductos/busquedaproductos.component'
 import { BusquedaproductosService } from './servicios/busquedaproductos.service';
+import { BusquedaProdDevolComponent } from './views/generardevolucionpaciente/modalbuscaproddevol/busquedaproddevol.component'
 import { MovimientoDevolucionComponent } from './views/movimiento-devolucion/movimiento-devolucion.component';
 import { DatePipe } from '@angular/common';
 import { BsDatepickerModule, BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
@@ -111,13 +112,48 @@ import { DespachocostoservicioComponent } from './views/despachocostoservicio/de
 import { CreadispensasolicitudpacienteComponent } from './views/creadispensasolicitudpaciente/creadispensasolicitudpaciente.component';
 import { CierrekardexComponent } from './views/cierrekardex/cierrekardex.component';
 import { PanelIntegracionCargosComponent } from './views/panel-integracion-cargos/panel-integracion-cargos.component';
-import { BodegaspruebaComponent } from './views/pruebas/bodegasprueba/bodegasprueba.component';
-import { CreadispensasolicitudpruebaComponent } from './views/pruebas/creadispensasolicitudprueba/creadispensasolicitudprueba.component';
 import { InterfacesService } from './servicios/interfaces.service';
+import { CreasolicitudesService } from './servicios/creasolicitudes.service';
 import { DevolucionautopedidoComponent } from './views/devolucionautopedido/devolucionautopedido.component';
-import { SidebarModule } from '@syncfusion/ej2-angular-navigations';
 import { BusquedacuentasComponent } from './views/busquedacuentas/busquedacuentas.component';
-//import { Ng2Rut } from 'ng2-rut';
+import { CargofarmaciaComponent } from './views/busquedacuentas/cargofarmacia/cargofarmacia.component';
+import { MainNavComponent } from './main-nav/main-nav.component';
+import { LayoutModule } from '@angular/cdk/layout';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatMenuModule} from '@angular/material/menu';
+import { ConsultapacienteComponent } from './views/busquedacuentas/consultapaciente/consultapaciente.component';
+import { MenuListItemComponent } from './components/menu-list-item/menu-list-item.component';
+import { NavService } from './nav.service';
+import { ReportesComponent } from './views/reportes/reportes.component';
+import { BusquedarecetasComponent } from './views/busquedarecetas/busquedarecetas.component';
+import { SesionexpiradaComponent } from './login/sesionexpirada/sesionexpirada.component';
+import { ConsultafraccionamientoComponent } from './views/consultafraccionamiento/consultafraccionamiento.component';
+import { InflistaconteoinventarioComponent } from './views/inflistaconteoinventario/inflistaconteoinventario.component';
+import { InfconsolidadoxdevolucionesComponent } from './views/infconsolidadoxdevoluciones/infconsolidadoxdevoluciones.component';
+import { InftendenciasComponent } from './views/inftendencias/inftendencias.component';
+import { DevolucionfraccionamientoComponent } from './views/devolucionfraccionamiento/devolucionfraccionamiento.component';
+import { GenerardevolucionpacienteComponent } from './views/generardevolucionpaciente/generardevolucionpaciente.component';
+import { RecepciondevolucionpacienteComponent } from './views/recepciondevolucionpaciente/recepciondevolucionpaciente.component';
+import { ModalsolicitudpacdevueltaComponent } from './views/modalsolicitudpacdevuelta/modalsolicitudpacdevuelta.component';
+import { ModalvalidausuariodevolsolicitudComponent } from './views/modalvalidausuariodevolsolicitud/modalvalidausuariodevolsolicitud.component';
+import { ConsumopacienteporbodegaComponent } from './views/consumopacienteporbodega/consumopacienteporbodega.component';
+import { ModaldetallesolicitudMonitorERPComponent } from './views/modaldetallesolicitud-monitor-erp/modaldetallesolicitud-monitor-erp.component';
+import { PlantillasprocedimientosComponent } from './views/plantillasprocedimientos/plantillasprocedimientos.component';
+import { CreacionrecetasambulatoriasComponent } from './views/creacionrecetasambulatorias/creacionrecetasambulatorias.component';
+import { ModalbusquedaprofesionalComponent } from './views/modalbusquedaprofesional/modalbusquedaprofesional.component';
+import { ConsultalotesComponent } from './views/consultalotes/consultalotes.component';
+import { ConsultasaldosporbodegasComponent } from './views/consultasaldosporbodegas/consultasaldosporbodegas.component';
+import { Autopedido2Component } from './views/autopedido2/autopedido2.component';
+import { ModalbusquedalotesComponent } from './views/consultalotes/modalbusquedalotes/modalbusquedalotes.component';
+import { CambiaenlaceRscComponent } from './views/cambiaenlace-rsc/cambiaenlace-rsc.component';
+import { ModalbusquedadosComponent } from './views/consultalotes/modalbusquedados/modalbusquedados.component';
+import { InfpedidoscongastoservicioComponent } from './views/infpedidoscongastoservicio/infpedidoscongastoservicio.component';
+import { LiberarsolireceComponent } from './views/liberarsolirece/liberarsolirece.component';
+// import { InfconsumoporbodegasComponent } from './views/infconsumoporbodegas/infconsumoporbodegas.component';
 
 @NgModule({
   declarations: [
@@ -132,6 +168,7 @@ import { BusquedacuentasComponent } from './views/busquedacuentas/busquedacuenta
     BusquedapacientesComponent,
     BusquedamovimientosComponent,
     BusquedaproductosComponent,
+    BusquedaProdDevolComponent,
     MovimientoDevolucionComponent,
     DespachosolicitudesComponent,
     ListadopararealizarinventarioComponent,
@@ -197,14 +234,43 @@ import { BusquedacuentasComponent } from './views/busquedacuentas/busquedacuenta
     DespachocostoservicioComponent,
     CreadispensasolicitudpacienteComponent,
     CierrekardexComponent,
-    BodegaspruebaComponent,
     PanelIntegracionCargosComponent,
-    CreadispensasolicitudpruebaComponent,
     DevolucionautopedidoComponent,
     BusquedacuentasComponent,
+    CargofarmaciaComponent,
+    MainNavComponent,
+    ConsultapacienteComponent,
+    MenuListItemComponent,
+    ReportesComponent,
+    BusquedarecetasComponent,
+    SesionexpiradaComponent,
+    ConsultafraccionamientoComponent,
+    InflistaconteoinventarioComponent,
+    InfconsolidadoxdevolucionesComponent,
+    InftendenciasComponent,
+    DevolucionfraccionamientoComponent,
+    GenerardevolucionpacienteComponent,
+    RecepciondevolucionpacienteComponent,
+    ModalsolicitudpacdevueltaComponent,
+    ModalvalidausuariodevolsolicitudComponent,
+    ConsumopacienteporbodegaComponent,
+    ModaldetallesolicitudMonitorERPComponent,
+    PlantillasprocedimientosComponent,
+    CreacionrecetasambulatoriasComponent,
+    ModalbusquedaprofesionalComponent,
+    ConsultalotesComponent,
+    ConsultasaldosporbodegasComponent,
+    Autopedido2Component,
+    ModalbusquedalotesComponent,
+    CambiaenlaceRscComponent,
+    ModalbusquedadosComponent,
+    DevolucionsolicitudesComponent,
+    InfpedidoscongastoservicioComponent,
+    LiberarsolireceComponent 
+    // InfconsumoporbodegasComponent,
   ],
   imports: [
-    BrowserModule, 
+    BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,
     FormsModule,
@@ -228,7 +294,13 @@ import { BusquedacuentasComponent } from './views/busquedacuentas/busquedacuenta
       cancelButtonText: 'Cancelar'
     }),
     NgxLoadingModule.forRoot({}),
-    //Ng2Rut
+    LayoutModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatSidenavModule,
+    MatIconModule,
+    MatListModule,
+    MatMenuModule
   ],
   providers: [
     hesService,
@@ -242,12 +314,14 @@ import { BusquedacuentasComponent } from './views/busquedacuentas/busquedacuenta
     BusquedaproductosService,
     DatePipe,
     BsLocaleService,
-    BsDatepickerConfig, 
+    BsDatepickerConfig,
     SolicitudService,
     RecepcionsolicitudesService,
     BusquedabodegasService,
     InventariosService,
-    InterfacesService
+    InterfacesService,
+    NavService,
+    CreasolicitudesService
   ],
 
   bootstrap: [AppComponent],
@@ -255,6 +329,7 @@ import { BusquedacuentasComponent } from './views/busquedacuentas/busquedacuenta
     BusquedapacientesComponent,
     BusquedamovimientosComponent,
     BusquedaproductosComponent,
+    BusquedaProdDevolComponent,
     MovimientoDevolucionComponent,
     BusquedasolicitudesComponent,
     BusquedasolicitudpacientesComponent,
@@ -276,7 +351,17 @@ import { BusquedacuentasComponent } from './views/busquedacuentas/busquedacuenta
     BusquedaProductosConsumoComponent,
     BusquedaPlantillaConsumoComponent,
     BusquedaRolesComponent,
-    BusquedaCentrosCostosComponent
+    BusquedaCentrosCostosComponent,
+    BusquedarecetasComponent,
+    CargofarmaciaComponent,
+    ConsultapacienteComponent,
+    ModalsolicitudpacdevueltaComponent,
+    ModalvalidausuariodevolsolicitudComponent,
+    ModaldetallesolicitudMonitorERPComponent,
+    ModalbusquedaprofesionalComponent,
+    ModalbusquedalotesComponent,
+    ModalbusquedadosComponent,
+    DevolucionsolicitudesComponent,
   ],
 })
 export class AppModule { }

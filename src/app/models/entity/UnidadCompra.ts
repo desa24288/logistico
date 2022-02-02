@@ -1,10 +1,12 @@
 export class UnidadCompra {
-    private idudecompra: number;
-    private descripcion: string;
+    public idudecompra: number;
+    public descripcion: string;
+    public codigoudecompra: number;
 
-    constructor(idudecompra: number, descripcion: string) {
+    constructor(idudecompra: number, descripcion: string,codigoudecompra: number) {
         this.idudecompra = idudecompra;
         this.descripcion = descripcion;
+        this.codigoudecompra = codigoudecompra
     }
 
     public setIdudecompra(idudecompra: number) {
@@ -19,5 +21,13 @@ export class UnidadCompra {
     }
     public getDescripcion() {
         return this.descripcion;
+    }
+
+    public setCodigoudecompra(codigoudecompra: number){
+        this.codigoudecompra =codigoudecompra
+    }
+
+    public getCodigoudecompra(){
+        return this.codigoudecompra;
     }
 }

@@ -10,13 +10,14 @@
         <form novalidate [formGroup]='FormBusquedaBodega' autocomplete="off" spellcheck="false">
             <div class="form-row">
                 <div class="form-group col-md-2">
-                    <label for="codbodega">Código Bodega *</label>
-                    <input type="number" class="form-control form-control-sm" formControlName="codbodega"  (focusout)="getBodega($event.target.value)"  >
+                    <label for="codigobodega">Código Bodega *</label>
+                    <input type="text" class="form-control form-control-sm" formControlName="codigobodega"  
+                    (keyup.enter)="getBodega($event.target.value)" (keydown.tab)="getBodega($event.target.value)"  >
                 </div>
                 <div class="form-group col-md-4">
                     <label for="descripcion">Descripción Bodega *</label>
                     <input type="text" class="form-control form-control-sm" formControlName="descripcion"
-                    (focusout)="getNombreBodega($event.target.value)">
+                    (keyup.enter)="getNombreBodega($event.target.value)" (keydown.tab)="getNombreBodega($event.target.value)">
                 </div>
                 <div class="form-group col-md-3">
                     <label for="estado">Estado *</label>
@@ -27,7 +28,7 @@
                 </div>
                 <div class="form-group col-md-2 align-self-end">
                     <button type="button" id="btnbuscar" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
-                        (click)="BuscaBodegas(FormBusquedaBodega.value.codbodega,FormBusquedaBodega.value.estadobodega,
+                        (click)="BuscaBodegas(FormBusquedaBodega.value.codigobodega,FormBusquedaBodega.value.estadobodega,
                         FormBusquedaBodega.value.tipobodega,FormBusquedaBodega.value.servicio,FormBusquedaBodega.value.unidad,
                         FormBusquedaBodega.value.descripcion,FormBusquedaBodega.value.tipoproducto)">Buscar Bodega
                         <i class="fas fa-search ml-1"></i>
@@ -77,7 +78,7 @@
                 <tbody>
                     <tr *ngFor="let bodega of listaEstructuraBodegasPaginacion" (click)="onCerrar(bodega)" let id=index
                         style="cursor: pointer;">
-                        <td>{{bodega.codbodega}}</td>
+                        <td>{{bodega.fbocodigobodega}}</td>
                         <td>{{bodega.desbodega}}</td>
                         <div *ngIf="bodega.estado=='S'">
                             <td>VIGENTE</td>

@@ -8,6 +8,7 @@ import { DatePipe } from '@angular/common';
 import { BsDatepickerConfig, BsLocaleService } from 'ngx-bootstrap/datepicker';
 import { environment } from '../../../environments/environment';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
+import { Permisosusuario } from '../../permisos/permisosusuario';
 import { BodegasService } from '../../servicios/bodegas.service';
 import { BodegaDestino } from '../../models/entity/BodegaDestino';
 import { BusquedaproductosComponent } from '../busquedaproductos/busquedaproductos.component';
@@ -19,6 +20,7 @@ import { InventariosService } from 'src/app/servicios/inventarios.service';
 import { PeriodoCierreKardex } from '../../models/entity/PeriodoCierreKardex';
 import { InformesService } from '../../servicios/informes.service';
 import { BusquedaproductosService } from 'src/app/servicios/busquedaproductos.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-consultakardex',
@@ -30,7 +32,8 @@ export class ConsultakardexComponent implements OnInit {
   @ViewChild('alertSwal', { static: false }) alertSwal: SwalComponent;//Componente para visualizar alertas
   @ViewChild('alertSwalAlert', { static: false }) alertSwalAlert: SwalComponent;
   @ViewChild('alertSwalError', { static: false }) alertSwalError: SwalComponent;
-  // @ViewChild('alertSwalGrilla', { static: false }) alertSwalGrilla: SwalComponent;
+
+  public modelopermisos      : Permisosusuario = new Permisosusuario();
   public FormConsultaKardex  : FormGroup;
   public FormDetalleKardex   : FormGroup;
   public bodegasdestino      : Array<BodegaDestino> = [];
@@ -44,8 +47,8 @@ export class ConsultakardexComponent implements OnInit {
   private _BSModalRef        : BsModalRef;
   public servidor            = environment.URLServiciosRest.ambiente;
   public usuario             = environment.privilegios.usuario;
-  public periodos            : Periodo[];
-  public datoskardex         :Array<ConsultaKardex>=[];
+
+  public datoskardex         : Array<ConsultaKardex>=[];
   public datoskardexpaginacion: Array<ConsultaKardex>=[];
   public _PageChangedEvent   : PageChangedEvent;
   public activbusqueda       : boolean = false;
@@ -62,39 +65,49 @@ export class ConsultakardexComponent implements OnInit {
   public codigoproducto      = null;
   public descriproducto      = null;
   public mein                : number = 0;
+  public txtBtnBuscar        : string = "Buscar Producto";
 
+  /** variables para busqueda */
+  public controlado = '';
+  public controlminimo = '';
+  public idBodega = null;
+  public consignacion = '';
+  public codigo = null;
+  public tipodeproducto = null;
+
+  public msj : boolean = false;
   constructor(
     private formBuilder       : FormBuilder,
     public datePipe           : DatePipe,
     public localeService      : BsLocaleService,
     public _BodegasService    : BodegasService,
     public _BsModalService    : BsModalService,
-    private PeriodoService    : PeriodoService,
     private _inventarioService: InventariosService,
     private _imprimelibroService  : InformesService,
-    private _consultakardexService: ConsultakardexService,
     public _BusquedaproductosService: BusquedaproductosService,
+    private router: Router,
+    private route: ActivatedRoute,
 
   ) {
 
     this.FormConsultaKardex = this.formBuilder.group({
-      
+
       hdgcodigo   : [{ value: null, disabled: false }, Validators.required],
       esacodigo   : [{ value: null, disabled: false }, Validators.required],
       cmecodigo   : [{ value: null, disabled: false }, Validators.required],
-      periodo     : [{ value: null, disabled: false }, Validators.required],      
-      codigo      : [{ value: null, disabled: false }, Validators.required],
+      periodo     : [{ value: null, disabled: false }, Validators.required],
+      codigo      : [{ value: '', disabled: false }, Validators.required],
       descripcion : [{ value: null, disabled: false }, Validators.required],
       boddestino  : [{ value: null, disabled: false }, Validators.required],
       saldoperant : [{ value: null, disabled: true }, Validators.required],
       marca       : [{ value: null, disabled: false }, Validators.required]
     });
     this.FormDetalleKardex = this.formBuilder.group({
-      
+
       fecha            : [{ value: null, disabled: true }, Validators.required],
       hora             : [{ value: null, disabled: true }, Validators.required],
       usuario          : [{ value: null, disabled: true }, Validators.required],
-      bodorigen        : [{ value: null, disabled: true }, Validators.required],      
+      bodorigen        : [{ value: null, disabled: true }, Validators.required],
       boddestino       : [{ value: null, disabled: true }, Validators.required],
       rutproveedor     : [{ value: null, disabled: true }, Validators.required],
       proveedordesc    : [{ value: null, disabled: true }, Validators.required],
@@ -116,28 +129,18 @@ export class ConsultakardexComponent implements OnInit {
       bodexteriordest  : [{ value: null, disabled: true }, Validators.required],
       observaciones    : [{ value: null, disabled: true }, Validators.required],
       tipoprestamo     : [{ value: null, disabled: true }, Validators.required]
-      
+
     });
 
   }
 
   ngOnInit() {
-
     this.hdgcodigo = Number(sessionStorage.getItem('hdgcodigo').toString());
     this.esacodigo = Number(sessionStorage.getItem('esacodigo').toString());
     this.cmecodigo = Number(sessionStorage.getItem('cmecodigo').toString());
     this.usuario = sessionStorage.getItem('Usuario').toString();
     this.BuscaBodegaDestino();
     this.setDate();
-
-    // this.PeriodoService.list(this.usuario,this.servidor).subscribe(
-    //   data => {
-    //     this.periodos = data;
-    //     console.log("periodod",this.periodos);
-    //   }, err => {
-    //     console.log(err.error);
-    //   }
-    // );
 
   }
 
@@ -152,11 +155,12 @@ export class ConsultakardexComponent implements OnInit {
   }
 
   BuscaBodegaDestino() {
-    
+
     this._BodegasService.listaBodegaDestinoSucursal(this.hdgcodigo, this.esacodigo, this.cmecodigo,this.usuario, this.servidor).subscribe(
       response => {
-       
-        this.bodegasdestino = response;
+        if (response != null){
+          this.bodegasdestino = response;
+        }
       },
       error => {
         alert("Error al Buscar Bodegas de Destino");
@@ -170,69 +174,74 @@ export class ConsultakardexComponent implements OnInit {
     this.datoskardexpaginacion = this.datoskardex.slice(startItem, endItem);
   }
 
-  ActivaBotonBusqueda(bodcodigo: number,periodo:number){
-    this.activbusqueda= true;
-    console.log("Activa btn",this.FormConsultaKardex.value.periodo,periodo,this.codigoproducto,this.descriproducto,this.mein, this.FormConsultaKardex.value.periodo)
+  ActivaBotonBusqueda(bodcodigo: number, periodo:number){
+    this.activbusqueda = true;
 
     this.periodosmedskardex.forEach(element => {
       if(element.ckarid == periodo ){
         this.periodo = element.ckarid;
-       
+
       }
     })
-    if(this.codigoproducto != null && this.descriproducto != null && this.FormConsultaKardex.value.periodo>=0){
-      console.log("Hay productos en pantalla para buscar",this.codigoproducto,this.descriproducto,this.mein, this.FormConsultaKardex.value.periodo);
+    if(this.codigoproducto !== null && this.descriproducto != null && this.FormConsultaKardex.value.periodo>=0){
       this.BuscaDatosKardex(this.mein)
     }else{}
-    
+
   }
 
   BuscaPeriodoBodega(codigobod: number){
-    
-    this._inventarioService.BuscaPeriodoMedBodegas(this.hdgcodigo, this.esacodigo,this.cmecodigo,
-      this.servidor,this.usuario,codigobod).subscribe(
-      response => {
-        
-        // this.activbusqueda= true;
-        this.periodosmedskardex=response
-        console.log("periodos",this.periodosmedskardex)
-      },
-      error => {
-        console.log(error);
-        alert("Error al Buscar Período");
-      }
-    );
 
-    if(this.codigoproducto != null && this.descriproducto != null && this.FormConsultaKardex.value.boddestino >0){
-      console.log("Hay productos en pantalla para buscar",this.codigoproducto,this.descriproducto,this.mein,this.FormConsultaKardex.value.boddestino);
-      this.BuscaDatosKardex(this.mein)
-    }else{}
+    if(codigobod === 0) { return;
+    } else {
+
+      this._inventarioService.BuscaPeriodoMedBodegas(this.hdgcodigo, this.esacodigo,this.cmecodigo,
+        this.servidor,this.usuario,codigobod).subscribe(
+        response => {
+          if( response === null || response === undefined ){ return; }else {
+            this.periodosmedskardex=response;
+            this.FormConsultaKardex.controls.periodo.setValue(this.periodosmedskardex[0].ckarid);
+            this.activbusqueda = true;
+          }
+        },
+        error => {
+          console.log(error);
+          alert("Error al Buscar Período");
+        }
+      );
+
+      if(this.codigoproducto != null && this.descriproducto != null && this.FormConsultaKardex.value.boddestino >0){
+        this.BuscaDatosKardex(this.mein)
+      }else{}
+    }
+
   }
 
-  BuscaProducto(){
+  async BuscaProducto(){
+
     this._BSModalRef = this._BsModalService.show(BusquedaproductosComponent, this.setModalBusquedaProductos());
     this._BSModalRef.content.onClose.subscribe((response: any) => {
-      if (response == undefined) { }
-      else {
-       
+      if (response != undefined) {
+
         this.codigoproducto = response.codigo;
         this.descriproducto = response.descripcion;
         this.mein = response.mein;
-        // this.FormConsultaKardex.get('codigo').setValue(response.codigo);
-        // this.FormConsultaKardex.get('descripcion').setValue(response.descripcion);
 
         this.muestracoddes = true;
-        // this.desactivaCampos(true);
-        this.BuscaDatosKardex(response.mein)
 
+        this.BuscaDatosKardex(response.mein)
       }
+
     });
+
+    this.txtBtnBuscar = "Buscar Producto";
+    this.activbusqueda = true;
+    this.loading = false;
+
   }
 
- 
+
 
   setModalBusquedaProductos() {
-    console.log("cod y desc",this.codprod, this.descprod)
     let dtModal: any = {};
     dtModal = {
       keyboard: true,
@@ -245,194 +254,175 @@ export class ConsultakardexComponent implements OnInit {
         cmecodigo: this.cmecodigo,
         tipo_busqueda: 'Todo-Medico',
         id_Bodega: this.FormConsultaKardex.value.boddestino,
-        descprod: this.descprod,//
-        codprod: this.codprod
+        descprod: this.descprod,
+        codprod: this.codprod,
       }
     };
     return dtModal;
   }
- 
-  BuscaDatosKardex(meinid: number){
-    // console.log("dAts a buscar kardex",this.hdgcodigo,this.esacodigo,this.cmecodigo,this.servidor,
-    // this.usuario,this.periodo, this.FormConsultaKardex.value.boddestino,meinid)
 
+  /**
+   * Se setea campo codigo y descripcion a null pues se estan asignando un valor vacio lo que genera error
+   * autor: Mlobos miguel.lobos@sonda.com
+   * fecha: 29-12-2020
+   */
+  BuscaDatosKardex(meinid: number){
     this._inventarioService.ConsultaKardex(this.hdgcodigo, this.esacodigo,
       this.cmecodigo,this.servidor,this.usuario,this.periodo,
       this.FormConsultaKardex.value.boddestino,meinid).subscribe(
       response => {
-        if(response.length == 0){
-          this.datoskardex = [];
-          this.datoskardexpaginacion = [];
-          this.alertSwalAlert.title = "No existen Movimientos para el Producto Seleccionado";
-          this.alertSwalAlert.show();
-          this.FormConsultaKardex.get('codigo').setValue(response[0].meincodmei);
-          this.FormConsultaKardex.get('descripcion').setValue(response[0].meincodmei);
-          this.FormConsultaKardex.get('periodo').setValue(-1);
-          
-          // this.descriproducto = null;
-          // this.codigoproducto = null;
-          // this.periodosmedskardex = [];
-          this.desactivaCampos(false);
-          
-        }else{
-          if(response.length>0){
-            // console.log("response 1 producto",response);
-            this.meinid = meinid;
-            this.datoskardex = response;
-            this.datoskardexpaginacion = this.datoskardex.slice(0,20);
-            this.muestracoddes = true;
-            this.btnimprime =true;
-            this.todoslosprod = false;
-            this.FormConsultaKardex.get('codigo').setValue(response[0].meincodmei );
-            this.FormConsultaKardex.get('descripcion').setValue(response[0].meindescri);
-            
-            this.desactivaCampos(true);
-          }              
-        }            
-      }
-    )
+        if (response != null){
+          if(response.length == 0){
+            this.datoskardex = [];
+            this.datoskardexpaginacion = [];
+            this.alertSwalAlert.title = "No existen Movimientos para el Producto Seleccionado";
+            this.alertSwalAlert.show();
+            this.activbusqueda = true;
+          }else{
+            if(response.length>0){
+              this.meinid = meinid;
+              this.datoskardex = [];
+              this.datoskardexpaginacion = [];
+              this.datoskardex = response;
+              this.datoskardexpaginacion = this.datoskardex.slice(0, 20);
 
-  }
-  
-  getProducto(codigo: any) {
-    // var codproducto = this.lForm.controls.codigo.value;
-    this.codprod = codigo;
-    console.log(this.codprod);
-    if(this.codprod === null || this.codprod === ''){
-      return;
-    } else{
-      var tipodeproducto = 'MIM';
-      this.loading = true;
-      var controlado = '';
-      var controlminimo = '';
-      var idBodega = this.FormConsultaKardex.value.boddestino;
-      var consignacion = '';
-      
-      this._BusquedaproductosService.BuscarArituculosFiltros(this.hdgcodigo, this.esacodigo,
-        this.cmecodigo, codigo, this.descprod, null, null, null, tipodeproducto, idBodega, controlminimo, controlado, consignacion
-        , this.usuario, this.servidor).subscribe(
-          response => {
-            if (response.length == 0) {
-              
-              this.loading = false;
-              this.BuscaProducto();
-            }
-            else {
-              if (response.length > 0) {
-                this.loading = false;
-                // this.FormConsultaKardex.get('codigo').setValue(response[0].codigo);
-                // this.FormConsultaKardex.get('descripcion').setValue(response[0].descripcion);
-                this.codigoproducto = response[0].codigo;
-                this.descriproducto = response[0].descripcion;
-                this.mein           = response[0].mein
-                this.BuscaDatosKardex(response[0].mein);
-                // this.desactivaCampos(true);
-                this.muestracoddes = true;
+              this.muestracoddes = true;
+              this.btnimprime =true;
+              this.todoslosprod = false;
+              this.FormConsultaKardex.get('codigo').setValue(response[0].meincodmei );
+              this.FormConsultaKardex.get('descripcion').setValue(response[0].meindescri);
+              this.activbusqueda = true;
 
-                // this.setProducto(response[0]);
-              }
             }
-          }, error => {
-            this.loading = false;
-            console.log('error');
           }
-        );
-    }
+        }
+      }
+    );
+    this.txtBtnBuscar = "Buscar Producto";
+    this.activbusqueda = true;
+    this.loading = false;
+
   }
 
-  desactivaCampos(bool) {
-    if (bool){
-      this.FormConsultaKardex.controls.codigo.disable();
-      this.FormConsultaKardex.controls.descripcion.disable();
+  /**
+   * mod: previamente verifica si existe filtros
+   * aut: mlobos
+   * act.: 21-12-2021
+   */
+  // async getProducto(codigo: string, tipobusqueda: number) {
+  //   const boddestino = this.FormConsultaKardex.value.boddestino===null?0:this.FormConsultaKardex.value.boddestino;
+  //   this.descprod = this.FormConsultaKardex.controls.descripcion.value;
+
+  //   if( boddestino === 0 || this.FormConsultaKardex.value.periodo === null){
+  //     this.FormConsultaKardex.reset();
+  //     this.alertmsg('Debe Seleccionar Bodega y Período', '');
+  //     this.activbusqueda = false;
+  //     this.txtBtnBuscar = "Buscar Producto";
+
+  //     this.periodosmedskardex = [];
+
+  //   } else {
+  //     this.activbusqueda = false;
+  //     this.txtBtnBuscar = "Buscando...";
+  //     this.loading = true;
+  //     this.idBodega = this.FormConsultaKardex.value.boddestino;
+  //     this.codprod = codigo;
+  //     this.tipodeproducto = 'MIM';
+  //     switch (tipobusqueda) {
+  //       case 1:
+  //          this.busquedaProductotab();
+  //         break;
+
+  //       case 2:
+  //         this.busquedaProductobtn();
+  //         break;
+  //     }
+  //   }
+  // }
+
+  /**
+   * mod: se indica que no debe buscar por descripcion
+   * aut: miguel.lobos@sonda.com
+   * fec: 25-02-2021
+   */
+  setDatabusqueda(value: string) {
+    const boddestino = this.FormConsultaKardex.value.boddestino===null?0:this.FormConsultaKardex.value.boddestino;
+    if( boddestino === 0 || this.FormConsultaKardex.value.periodo === null){
+      return;
+
     } else {
-      this.FormConsultaKardex.controls.codigo.enable();
-      this.FormConsultaKardex.controls.descripcion.enable();
-    }
-  }
 
-  setDatabusqueda(value: any, swtch: number) {
-    console.log(value);
-    if (swtch === 1) {
-        this.codprod = value;
-    } else if (swtch === 2) {
-        this.descprod = value;
+      let codprod: string  = this.FormConsultaKardex.controls.codigo.value;
+      this.codprod = this.FormConsultaKardex.controls.codigo.value;
+      if (value.trim().length) {
+        if(codprod === null || !codprod.trim().length) {
+          this.descprod = value;
+          this.BuscaProducto();
+        }else{
+          this.codprod= null;
+          this.descprod = value;
+          this.BuscaProducto();
+        }
+      }else{
+        this.BuscaProducto();
+      }
     }
   }
 
   Limpiar(){
-    this.FormConsultaKardex.reset();
-    this.datoskardexpaginacion= [];
-    this.datoskardex=[];
-    this.activbusqueda = false;
-    this.muestracoddes = false;
-    this.muestragrillacoddes = false;
-    this.btnimprime = false;
-    this.periodosmedskardex = [];
-    this.todoslosprod = false;
-    this.desactivaCampos(false);
-    this.codprod = null;
-    this.descprod = null;
-    this.codigoproducto = null;
-    this.descriproducto = null;
-  }
-
-  cambio_check(tipo:string, event: any){
-    // console.log("selecciona el check",this.periodo,tipo,event, event.target.checked)
-    if(event.target.checked == true){
-      this.todoslosprod = true;
-      this.activbusqueda = false;
-      this.datoskardexpaginacion = [];
-      this.datoskardex = [];
-      this.muestracoddes = false;
-      this.meinid = 0;
-      // console.log("buscará todos los productos", this.hdgcodigo, this.esacodigo,
-      // this.cmecodigo,this.servidor,this.usuario,this.periodo,
-      // this.FormConsultaKardex.value.boddestino,0)
-
-      this.btnimprime =true;
-      this.ImprimirLibro('pdf');
-      // this._inventarioService.ConsultaKardex(this.hdgcodigo, this.esacodigo,
-      //   this.cmecodigo,this.servidor,this.usuario,this.periodo,
-      //   this.FormConsultaKardex.value.boddestino,0).subscribe(
-      //     response => {
-      //       if(response.length == 0){
-      //         console.log("resultado busqueda",response)
-      //         this.alertSwalAlert.title = "No existen Movimientos para el Producto Seleccionado";
-      //         this.alertSwalAlert.show();
-    
-      //       }else{
-      //         if(response.length>0){
-      //           console.log("PErido todos los productos:", response)
-      //           this.btnimprime =true;
-      //           this.datoskardex = response;
-      //           this.datoskardexpaginacion = this.datoskardex.slice(0,50);
-      //           this.muestragrillacoddes = true;
-      //           this.FormConsultaKardex.get('codigo').setValue(response[0].meincodmei );
-      //           this.FormConsultaKardex.get('descripcion').setValue(response[0].meindescri);
-      //           this.meinid = response[0].meinid;
-      //         }          
-      //       }        
-      //     }
-      //   )
-
-    }else{
-      if(event.target.checked == false){
-        // console.log("falso",event.target.checked)
-        // this.todoslosprod = false;
-        this.activbusqueda = false;
-        this.btnimprime = false;
-        this.datoskardex = [];
-        this.muestragrillacoddes = false;
-        this.datoskardexpaginacion = [];
-        this.FormConsultaKardex.reset();
-        this.periodosmedskardex = [];
-        // console.log("check desactivado",this.FormConsultaKardex,this.datoskardex,this.datoskardexpaginacion,this.periodosmedskardex)
-      }
+    const Swal = require('sweetalert2');
+    console.log("this.datoskardexpaginacion.length : ", this.datoskardexpaginacion.length)
+    if(this.datoskardexpaginacion.length > 0){
+      this.msj = true;
     }
-  } 
+    if (this.msj){
+      Swal.fire({
+        title: 'Limpiar',
+        text: "¿Seguro que desea Limpiar los campos?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Aceptar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.value) {
+          this.FormConsultaKardex.reset();
+          this.datoskardexpaginacion= [];
+          this.datoskardex=[];
+          this.activbusqueda = false;
+          this.txtBtnBuscar = "Buscar Producto";
+          this.muestracoddes = false;
+          this.muestragrillacoddes = false;
+          this.btnimprime = false;
+          this.periodosmedskardex = [];
+          this.todoslosprod = false;
 
-  onConfirm(){
-    this.FormDetalleKardex.reset();
+          this.codprod = null;
+          this.descprod = null;
+          this.codigoproducto = null;
+          this.descriproducto = null;
+          this.msj = false;
+
+        }
+      });
+    }else{
+      this.FormConsultaKardex.reset();
+      this.datoskardexpaginacion= [];
+      this.datoskardex=[];
+      this.muestracoddes = false;
+      this.muestragrillacoddes = false;
+      this.btnimprime = false;
+      this.periodosmedskardex = [];
+      this.todoslosprod = false;
+      this.codprod = null;
+      this.descprod = null;
+      this.codigoproducto = null;
+      this.descriproducto = null;
+      this.txtBtnBuscar = "Buscar Producto";
+      this.activbusqueda = false;
+
+    }
   }
 
   onImprimir(tiporeporte: string){
@@ -449,26 +439,21 @@ export class ConsultakardexComponent implements OnInit {
       if (result.value) {
         this.ImprimirLibro(tiporeporte);
       }
-    })    
+    })
 
   }
 
   ImprimirLibro(tiporeporte: string) {
 
-    // console.log("Imprime el reporte de consulta de kardex",this.servidor,this.usuario,
-    // this.hdgcodigo,this.esacodigo, this.cmecodigo,this.periodo,
-    // this.FormConsultaKardex.value.boddestino,this.meinid, tiporeporte,this.todoslosprod);
     if(tiporeporte=="pdf"){
       if(this.todoslosprod ==false){
-        // console.log("imprime un solo producto",this.meinid)
         this._imprimelibroService.RPTImprimeConsultaKardex(this.servidor,this.usuario,
         this.hdgcodigo,this.esacodigo, this.cmecodigo,"pdf",this.periodo,
         this.FormConsultaKardex.value.boddestino,this.meinid).subscribe(
           response => {
-            console.log("Imprime Solicitud producto", response);
-            window.open(response[0].url, "", "", true);
-            // this.alertSwal.title = "Reporte Impreso Correctamente";
-            // this.alertSwal.show();
+            if (response != null){
+              window.open(response[0].url, "", "", true);
+            }
           },
           error => {
             console.log(error);
@@ -480,17 +465,13 @@ export class ConsultakardexComponent implements OnInit {
         );
       }else{
         if(this.todoslosprod == true){
-          // console.log("imprime todos los productos",this.servidor,this.usuario,
-          // this.hdgcodigo,this.esacodigo, this.cmecodigo,"pdf",this.periodo,
-          // this.FormConsultaKardex.value.boddestino,0)
           this._imprimelibroService.RPTImprimeConsultaKardex(this.servidor,this.usuario,
           this.hdgcodigo,this.esacodigo, this.cmecodigo,"pdf",this.periodo,
           this.FormConsultaKardex.value.boddestino,0).subscribe(
             response => {
-              // console.log("Imprime Solicitud", response);
-              window.open(response[0].url, "", "", true);
-              // this.alertSwal.title = "Reporte Impreso Correctamente";
-              // this.alertSwal.show();
+              if (response != null){
+                window.open(response[0].url, "", "", true);
+              }
             },
             error => {
               console.log(error);
@@ -502,19 +483,17 @@ export class ConsultakardexComponent implements OnInit {
           );
         }
       }
-      
+
     }else{
       if(tiporeporte == "xls"){
         if(this.todoslosprod ==false){
-          // console.log("Imprime reporte en excel",tiporeporte)
           this._imprimelibroService.RPTImprimeConsultaKardex(this.servidor,this.usuario,
           this.hdgcodigo,this.esacodigo, this.cmecodigo,"xls",this.periodo,
           this.FormConsultaKardex.value.boddestino,this.meinid).subscribe(
             response => {
-              // console.log("Imprime Solicitud", response);
-              window.open(response[0].url, "", "", true);
-              // this.alertSwal.title = "Reporte Impreso Correctamente";
-              // this.alertSwal.show();
+              if (response != null){
+                window.open(response[0].url, "", "", true);
+              }
             },
             error => {
               console.log(error);
@@ -526,16 +505,14 @@ export class ConsultakardexComponent implements OnInit {
           );
         }else{
           if(this.todoslosprod == true){
-            // console.log("imprime todos los productos")
             this._imprimelibroService.RPTImprimeConsultaKardex(this.servidor,this.usuario,
             this.hdgcodigo,this.esacodigo, this.cmecodigo,"xls",this.periodo,
             this.FormConsultaKardex.value.bodcodigo,0).subscribe(
               response => {
-                console.log("Imprime Solicitud", response);
-                window.open(response[0].url, "", "", true);
-                this.todoslosprod = false;
-                // this.alertSwal.title = "Reporte Impreso Correctamente";
-                // this.alertSwal.show();
+                if (response != null){
+                  window.open(response[0].url, "", "", true);
+                  this.todoslosprod = false;
+                }
               },
               error => {
                 console.log(error);
@@ -548,6 +525,154 @@ export class ConsultakardexComponent implements OnInit {
           }
         }
       }
-    }    
+    }
   }
+
+  limpiarprodnoencontrado() {
+    this.codigoproducto = this.FormConsultaKardex.controls.codigo.value;
+    const descripcion = this.FormConsultaKardex.controls.descripcion.setValue('');
+    this.descprod = descripcion;
+    this.datoskardexpaginacion = [];
+    this.BuscaProducto();
+  }
+
+  salir(){
+    const Swal = require('sweetalert2');
+    if(this.datoskardexpaginacion.length > 0){
+      this.msj = true;
+    }
+    if (this.msj){
+      Swal.fire({
+        title: 'Salir',
+        text: "¿Seguro que desea Salir?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si'
+      }).then((result) => {
+        if (result.value) {
+          this.route.paramMap.subscribe(param => {
+            this.router.navigate(['home']);
+        })
+        }
+      });
+    } else {
+      this.route.paramMap.subscribe(param => {
+        this.router.navigate(['home']);
+      })
+    }
+  }
+
+  alertmsg( title: string, text: string ){
+    this.alertSwalAlert.title= title;
+    this.alertSwalAlert.text= text;
+    this.alertSwalAlert.show();
+
+  }
+
+  busquedaProductotab( codigo:string ) {
+    const boddestino = this.FormConsultaKardex.value.boddestino===null?0:this.FormConsultaKardex.value.boddestino;
+    if( boddestino === 0 || this.FormConsultaKardex.value.periodo === null){
+      return;
+
+    } else {
+      this.loading = true;
+      this.idBodega = this.FormConsultaKardex.value.boddestino;
+      this.codprod = codigo;
+      this.tipodeproducto = 'MIM';
+
+      this._BusquedaproductosService.BuscarArticulosFiltros(this.hdgcodigo, this.esacodigo,
+        this.cmecodigo, this.codprod, this.descprod, null, null, null, this.tipodeproducto,
+        this.idBodega, this.controlminimo, this.controlado, this.consignacion, this.usuario,
+        null, this.servidor).subscribe(
+          response => {
+            if (response != null){
+              if (response.length === 0) {
+                this.alertSwalError.text ="El producto buscado no pertenece a la bodega";
+                this.alertSwalError.show();
+                this.activbusqueda = true;
+                this.limpiarprodnoencontrado();
+              } else {
+                if (response.length === 1) {
+                  this.codigoproducto = response[0].codigo;
+                  this.descriproducto = response[0].descripcion;
+                  this.mein           = response[0].mein;
+                  this.BuscaDatosKardex(response[0].mein);
+                  this.muestracoddes = true;
+
+                }else{
+                  this.loading = false;
+                  return;
+                }
+              }
+            }
+          }, error => {
+            this.loading = false;
+
+          }
+        );
+
+      this.loading = false;
+      this.txtBtnBuscar = "Buscar Producto";
+      this.activbusqueda = true;
+    }
+
+  }
+
+  busquedaProductobtn( codigo:string ) {
+
+    this.idBodega = this.FormConsultaKardex.value.boddestino;
+    this.codprod = codigo;
+
+    this.descprod = this.FormConsultaKardex.controls.descripcion.value;
+    if(this.codprod!== null){
+
+      this._BusquedaproductosService.BuscarArticulosFiltros(this.hdgcodigo, this.esacodigo,
+        this.cmecodigo, this.codigo, this.descprod, null, null, null, this.tipodeproducto,
+        this.idBodega, this.controlminimo, this.controlado, this.consignacion, this.usuario, null, this.servidor).subscribe(
+          response => {
+            if (response != null){
+              if (response.length === 0) {
+                this.alertSwalError.text ="El producto buscado no pertenece a la bodega";
+                this.alertSwalError.show();
+                this.activbusqueda = true;
+                this.txtBtnBuscar = "Buscar Producto";
+                this.limpiarprodnoencontrado();
+                this.loading = false;
+              }else {
+                if (response.length === 1) {
+                  this.loading = false;
+                  this.codigoproducto = response[0].codigo;
+                  this.descriproducto = response[0].descripcion;
+                  this.mein           = response[0].mein;
+                  this.BuscaDatosKardex(response[0].mein);
+                  this.muestracoddes = true;
+                  this.BuscaProducto();
+
+                }else if(response.length >1){
+                  this.BuscaProducto();
+                  this.loading = false;
+                }else {
+                  this.loading = false;
+                  return;
+
+                }
+              }
+            } else {
+              this.loading = false;
+            }
+          }, error => {
+            this.loading = false;
+
+          }
+        );
+        this.txtBtnBuscar = "Buscar Producto";
+        this.activbusqueda = true;
+        this.loading = false;
+
+    }
+
+  }
+
 }

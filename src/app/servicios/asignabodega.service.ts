@@ -10,7 +10,7 @@ import { environment } from '../../environments/environment';
 })
 export class AsignabodegaService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/bodegasparaasignar');//'http://172.25.108.236:8189/bodegasparaasignar';
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/bodegasparaasignar');//'http://172.25.108.236:8189/bodegasparaasignar';
 
   constructor(private httpClient: HttpClient) {
 

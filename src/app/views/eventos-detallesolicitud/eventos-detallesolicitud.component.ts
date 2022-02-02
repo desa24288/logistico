@@ -32,7 +32,7 @@ export class EventosDetallesolicitudComponent implements OnInit {
   @Input() _Solicitud: Solicitud;
   @Input() _DetalleSolicitud: DetalleSolicitud;
 
-  public onClose: Subject<any>;   
+  public onClose: Subject<any>;
 
   public lForm                              : FormGroup;
   public locale                             = 'es';
@@ -55,8 +55,8 @@ export class EventosDetallesolicitudComponent implements OnInit {
     public datePipe         : DatePipe,
     public localeService    : BsLocaleService,
     public _BodegasService  : BodegasService,
-    public _solicitudService: SolicitudService,          
-    ) { 
+    public _solicitudService: SolicitudService,
+    ) {
 
       this.lForm = this.formBuilder.group({
         estadosolicitudde   : [{ value: null, disabled: false }, Validators.required],
@@ -74,14 +74,14 @@ export class EventosDetallesolicitudComponent implements OnInit {
         desorigensolicitud  :  [{ value: null, disabled: false }, Validators.required],
         bodorigendesc       :  [{ value: null, disabled: false }, Validators.required],
         boddestinodesc      :  [{ value: null, disabled: false }, Validators.required],
-        
+
         meindescri          : [{ value: null, disabled: false }, Validators.required],
         codmei              : [{ value: null, disabled: false }, Validators.required],
         cantdespachada      : [{ value: null, disabled: false }, Validators.required],
         cantpendiente       : [{ value: null, disabled: false }, Validators.required],
         cantdevolucion      : [{ value: null, disabled: false }, Validators.required],
         cantsoli            : [{ value: null, disabled: false }, Validators.required],
-       
+
 
       });
     }
@@ -93,7 +93,7 @@ export class EventosDetallesolicitudComponent implements OnInit {
 
     this.usuario = environment.privilegios.usuario;
     this.servidor = environment.URLServiciosRest.ambiente;
-    this.lForm.get('desorigensolicitud').setValue(this._Solicitud.desorigensolicitud); 
+    this.lForm.get('desorigensolicitud').setValue(this._Solicitud.desorigensolicitud);
 
     this.lForm.get('tiposolicitud').setValue(this._Solicitud.tiposolicitud);
     this.lForm.get('numerosolicitud').setValue(this._Solicitud.soliid);
@@ -101,26 +101,26 @@ export class EventosDetallesolicitudComponent implements OnInit {
     this.lForm.get('bodorigendesc').setValue(this._Solicitud.bodorigendesc);
     this.lForm.get('boddestinodesc').setValue(this._Solicitud.boddestinodesc);
     this.lForm.get('estadosolicitudde').setValue(this._Solicitud.estadosolicitudde);
-    this.lForm.get('fecha').setValue(new Date(this._Solicitud.fechacreacion)); 
+    this.lForm.get('fecha').setValue(new Date(this._Solicitud.fechacreacion));
 
-    this.BuscaEventosDetalleSolictudes ();    
-    
-    this.lForm.get('codmei').setValue(this._DetalleSolicitud.codmei); 
-    this.lForm.get('meindescri').setValue(this._DetalleSolicitud.meindescri); 
-    this.lForm.get('cantsoli').setValue(this._DetalleSolicitud.cantsoli); 
-    this.lForm.get('cantdespachada').setValue(this._DetalleSolicitud.cantdespachada); 
-    this.lForm.get('cantpendiente').setValue(this._DetalleSolicitud.cantsoli-this._DetalleSolicitud.cantdespachada); 
-    this.lForm.get('cantdevolucion').setValue(this._DetalleSolicitud.cantdevolucion);     
+    this.BuscaEventosDetalleSolictudes ();
+
+    this.lForm.get('codmei').setValue(this._DetalleSolicitud.codmei);
+    this.lForm.get('meindescri').setValue(this._DetalleSolicitud.meindescri);
+    this.lForm.get('cantsoli').setValue(this._DetalleSolicitud.cantsoli);
+    this.lForm.get('cantdespachada').setValue(this._DetalleSolicitud.cantdespachada);
+    this.lForm.get('cantpendiente').setValue(this._DetalleSolicitud.cantsoli-this._DetalleSolicitud.cantdespachada);
+    this.lForm.get('cantdevolucion').setValue(this._DetalleSolicitud.cantdevolucion);
   }
 
   BuscaEventosDetalleSolictudes () {
     this._solicitudService.BuscaEventoDetalleSolicitud(this._Solicitud.soliid, this._DetalleSolicitud.sodeid, this.servidor).subscribe(
       response => {
-        console.log("eventos:",response)
-        this.listaEventosSolicitud = response;
-        this.listaEventosSolicitudPaginacion = this.listaEventosSolicitud.slice(0,8)
-      },
-      error => {
+        if (response != null) {
+          this.listaEventosSolicitud = response;
+          this.listaEventosSolicitudPaginacion = this.listaEventosSolicitud.slice(0,8);
+        }
+      }, error => {
         alert("Error al Buscar Familias")
       }
     );
@@ -133,7 +133,7 @@ export class EventosDetallesolicitudComponent implements OnInit {
   }
 
   onCerrarSalir() {
- 
+
     this.onClose.next();
     this.bsModalRef.hide();
   };

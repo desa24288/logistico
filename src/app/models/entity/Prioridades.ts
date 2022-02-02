@@ -1,6 +1,6 @@
 export class Prioridades {
-    private codprioridad: number;
-    private desprioridad : string;   
+    public codprioridad: number;
+    public desprioridad : string;   
 
 
     constructor( codprioridad: number, desprioridad: string) {

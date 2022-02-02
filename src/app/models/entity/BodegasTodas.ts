@@ -9,6 +9,8 @@ export class BodegasTodas{
     public bodestado       ?: string,
     public bodtipobodega   ?: string,
     public bodtipoproducto ?: string,
-
+    public bodfraccionable ?: string,
+    public bodcontrolado   ?: string,
+    public row             ?: number
     ) {}
 }

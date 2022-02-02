@@ -24,6 +24,7 @@
               "src/assets"
             ],
             "styles": [
+              "src/custom-theme.scss",
               "src/styles.css",
               "src/assets/fontawesome/css/all.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
@@ -31,13 +32,12 @@
               "node_modules/admin-lte/dist/css/adminlte.css"
             ],
             "scripts": [
-       
               "node_modules/jquery/dist/jquery.js",
               "node_modules/bootstrap/dist/js/bootstrap.js",
               "node_modules/fastclick/lib/fastclick.js",
               "node_modules/admin-lte/dist/js/adminlte.js",
               "node_modules/admin-lte/dist/js/demo.js"
-            ]          
+            ]
           },
           "configurations": {
             "production": {
@@ -90,8 +90,7 @@
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
-          "options": 
-          {
+          "options": {
             "main": "src/test.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
@@ -112,9 +111,7 @@
               "node_modules/fastclick/lib/fastclick.js",
               "node_modules/admin-lte/dist/js/adminlte.js",
               "node_modules/admin-lte/dist/js/demo.js"
-
-            ]          
-
+            ]
           }
         },
         "lint": {
@@ -143,6 +140,7 @@
           }
         }
       }
-    }},
+    }
+  },
   "defaultProject": "logistico"
 }

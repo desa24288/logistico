@@ -1,6 +1,6 @@
 export class EstadoSolicitudBodega {
-    private codestado: number;
-    private desestado : string;   
+    public codestado: number;
+    public desestado : string;   
 
 
     constructor( codestado: number, desestado: string) {

@@ -11,8 +11,8 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class BuscasolicitudespacientesService {
-    public urlbuscasolicadispensar: string = environment.URLServiciosRest.URLConexion.concat('/buscasolicitudes'); 
-    public urldetallesolicitud    : string = environment.URLServiciosRest.URLConexion.concat('/buscasolicituddet');
+    public urlbuscasolicadispensar: string = sessionStorage.getItem('enlace').toString().concat('/buscasolicitudes'); 
+    public urldetallesolicitud    : string = sessionStorage.getItem('enlace').toString().concat('/buscasolicituddet');
     
     constructor(public _http: HttpClient) {
 

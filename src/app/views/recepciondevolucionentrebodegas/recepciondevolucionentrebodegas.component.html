@@ -1,18 +1,20 @@
-<app-navbar ></app-navbar>
+<!-- <app-navbar ></app-navbar>
 <app-sidebar></app-sidebar>
-<div class="content-wrapper pl-2 pr-1">
-<div class="my-2 ml-2 titulo text-center">
-    <!--menu -->
-    <h5>
-        Recepción Devoluciones Entre Bodegas
-    </h5>
-</div>
-<!-- Mensaje de alerta en caso de errores -->
-<div *ngFor="let alert of alerts">
-    <alert [type]="alert.type" [dismissOnTimeout]="alert.timeout" (onClosed)="onClosed(alert)">
-        {{ alert.msg }}
-    </alert>
-</div>
+<div class="content-wrapper pl-4 pr-1"> -->
+<app-main-nav>
+  <div style="padding: 10px;">
+    <div class="my-2 ml-2 titulo text-center">
+        <!--menu -->
+        <h3>
+            Recepción Devoluciones Entre Bodegas
+        </h3>
+    </div>
+    <!-- Mensaje de alerta en caso de errores -->
+    <div *ngFor="let alert of alerts">
+        <alert [type]="alert.type" [dismissOnTimeout]="alert.timeout" (onClosed)="onClosed(alert)">
+            {{ alert.msg }}
+        </alert>
+    </div>
     <div class="card border-primary" style="padding: 5px;">
         <form  [formGroup]='FormRecepcionDevolucion' >
         <div class="form-row">
@@ -56,10 +58,32 @@
         </div>
     </form>
     </div>
-    <div class="card border-primary mt-0" style="padding: 5px;height: 990px;">
+    <div class="card border-primary mt-0" style="padding: 10px">
         <tabset>
             <tab heading="Detalle Solicitud" id="tab1">
-                <div class="table-responsive mt-3" style="height: 880px;">
+                <form [formGroup]="FormDatosProducto" autocomplete="off" spellcheck="false">
+                    <div class="row form-group align-self-end ml-1">
+                        <!-- <a class="btn-floating btn-lg purple-gradient"></a> -->
+                        <div class="form-group col-md-2">
+                            <label for="codigo">Código *</label>
+                            <input type="text" class="form-control form-control-sm"
+                            formControlName ="codigo">
+                        </div>
+                        <div class="row form-group align-self-end ml-1">
+                            <button type="button" class="btn btn-info btn-sm ml-2"
+                                [disabled]="!ActivaBotonBuscaGrilla" 
+                                (click)="findArticuloGrilla()">Buscar<i
+                                class="fas fa-search ml-1"></i>
+                            </button>
+                            <button type="button" [disabled]="!ActivaBotonLimpiaBusca"
+                                class="btn btn-danger btn-sm ml-2" 
+                                (click)="limpiarCodigo()">Limpiar Búsqueda<i
+                                class="fas fa-brush ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <div class="table-responsive mt-3" style="max-height: auto;min-height: 100px;">
                     <table class="table table-sm  table-primary table-bordered">
                         <tr>
                             <th class="text-center">Código</th>
@@ -116,7 +140,7 @@
                         </tr>
                     </table>
                 </div>
-                <div class="row m-1">
+                <div class="row m-1" *ngIf="listaDetalleSolicitudpaginacion.length>20">
                     <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
                         [totalItems]="listaDetalleSolicitud.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                         [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
@@ -131,21 +155,21 @@
                             <div class="form-group col-md-2">
                                 <label for="codigo">Código *</label>
                                 <input type="text" class="form-control form-control-sm"
-                                   
+
                                     formControlName="codigo">
                                     <!-- (blur)="codigo_ingresado(FormRecepcionDevolucionDetalle.value)" -->
                             </div>
                             <div class="form-group col-md-3 align-self-end">
-                                <button type="button"
+                                <button type="button" [disabled]="bloqbtnagregar"
                                     class="btn btn-info btn-rounded  btn-sm button-my-styles-busqueda_03 "
                                     (click)="BuscaproductoaRecepcionar(FormRecepcionDevolucionDetalle.value)"
                                     >Agregar <i class="fas fa-plus ml-1"></i>
-                                 </button><!--(click)="addArticuloGrillaRecepcion(FormRecepcionDevolucionDetalle.value)" -->
+                                </button><!--(click)="addArticuloGrillaRecepcion(FormRecepcionDevolucionDetalle.value)" -->
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="table-responsive mt-1" style="height: 815px;">
+                <div class="table-responsive mt-1" style="max-height: auto;min-height: 100px;">
                     <table class="table table-sm  table-primary table-bordered">
                         <tr>
                             <th class="text-center">Código</th>
@@ -191,7 +215,7 @@
                             <td>
                                 <small>
                                     <input type="number" class="form-control form-control-sm text-right" min="1" max="100"
-                                    [(ngModel)]="registrodespacho.cantdevolarecepcionar"  
+                                    [(ngModel)]="registrodespacho.cantdevolarecepcionar"
                                     (input)="cambio_cantidad(id, 'cantdevolarecepcionar',registrodespacho)"
                                     (blur)="validacantidadgrilla(id,registrodespacho)">
                                 </small>
@@ -201,7 +225,7 @@
                         </tr>
                     </table>
                 </div>
-                <div class="row m-1">
+                <div class="row m-1" *ngIf="detallessolicitudespaginacion.length>20">
                     <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
                         [totalItems]="detallessolicitudes.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                         [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
@@ -213,7 +237,7 @@
     </div>
 
     <!--  Botones de página -->
-    <div class="form-row float-right mt-2">
+    <div class="form-row float-right mt-2 mr-1">
         <div class="form-group  align-self-end" *ngIf="modelopermisos.btngrabarecepdevolsolicbod">
             <button type="button" id="btnguardar" class="btn btn-primary mr-1 btn-sm button-my-styles-busqueda_02"
                 [disabled]="!activabtnrecepdevol" (click)="ConfirmarEnviarRecepcion(FormRecepcionDevolucionDetalle.value)">
@@ -222,7 +246,7 @@
         </div>
         <div class="form-group  align-self-end" *ngIf="modelopermisos.btnimprecepdevolsolicbod">
             <button type="button" id="btnsguardar" [disabled]="!activabtnimprime"
-                class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02" 
+                class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
                 (click)="onImprimir()">IMPRIMIR RECEPCIÓN  <i class="fas fa-file-pdf ml-1"></i>
             </button>
         </div>
@@ -233,50 +257,44 @@
         </div>
         <div class="form-group col-md-3 align-self-end">
             <button type="button" id="btnsalir" class="btn btn-primary btn-sm button-my-styles-busqueda_02"
-                routerLink='../home'>SALIR <i class="fas fa-window-close ml-1"></i>
+                (click)=salir()>SALIR <i class="fas fa-window-close ml-1"></i>
             </button>
         </div>
         <swal #alertSwal title="" text="" type="success" [showCancelButton]="false" > </swal>
         <swal #alertSwalAlert title="" text="" type="warning" [showCancelButton]="false"> </swal>
         <swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
         <!--ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '3px' }"> </ngx-loading-->
-        
+
         <swal #alertSwalGrilla title="" text="" [showCancelButton]="true" (confirm)="onConfirm()" grow="row"
             (cancel)="onCancel()" showCloseButton="true">
             <table class="table table-hover mt-4" *swalPartial>
                 <thead class="table-header-text">
                     <tr>
+                        <th>Selección</th>
                         <th>Solicitud</th>
-                        <th>F.Recepción</th>
-                        <th>F.Vencimiento</th>
+                        <!-- <th>F.Devolución</th> -->
                         <th>Lote</th>
-                        <th>Cantidad Recepcionada </th>
+                        <th>F.Vencimiento</th>
+                        <!-- <th>Cantidad Recepcionada </th> -->
                         <th>Cantidad Devuelta</th>
                         <th>Cantidad Devuelta Recepcionada </th>
+                        <th>Cant. Pendiente Devuelta Recepcionada  </th>
                     </tr>
                 </thead>
                 <tbody class="table-body-text text-nowrap">
-                    <tr class="text-nowrap" *ngFor="let productorecepcionado of productosrecepcionadospaginacion">
+                    <tr class="text-nowrap" *ngFor="let productorecepcionado of productosrecepcionadospaginacion; let id = index">
+                        <td><small> <!---->
+                                <span><input type="checkbox" [disabled]="productorecepcionado.checkgrilla"
+                                (click)="onCheck($event, productorecepcionado,id)"></span>
+                            </small>
+                        </td>
                         <td><small>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input pointer"
-                                    (click)="onCheck($event, productorecepcionado)"
-                                    id="idmov-{{productorecepcionado.soliid}} {{productorecepcionado.mdevid}}">
-                                <label class="custom-control-label pointer"
-                                    for="idmov-{{productorecepcionado.soliid}} {{productorecepcionado.mdevid}}">
-                                    {{ productorecepcionado.soliid }}
-                                 *</label>
-                            </div>
+                                <span> {{ productorecepcionado.soliid }}</span>
                             </small>
                         </td>
                         <td>
                             <small><span>
-                                {{ productorecepcionado.fecharecepcion | date: 'dd/MM/yyyy hh:mm' }}
-                            </span></small>
-                        </td>
-                        <td>
-                            <small><span>
-                                {{ productorecepcionado.fechavto | date: 'dd/MM/yyyy'}}
+                                {{ productorecepcionado.fechadevolucion | date: 'dd/MM/yyyy HH:mm:ss' }}
                             </span></small>
                         </td>
                         <td>
@@ -284,11 +302,16 @@
                                 {{ productorecepcionado.lote }}
                             </span></small>
                         </td>
-                        <td>
+                        <!-- <td>
+                            <small><span>
+                                {{ productorecepcionado.fechavto | date: 'dd/MM/yyyy'}}
+                            </span></small>
+                        </td>                         -->
+                        <!-- <td>
                             <small><span>
                                 {{ productorecepcionado.cantrecepcionada }}
                             </span></small>
-                        </td>
+                        </td> -->
                         <td>
                             <small><span>
                                 {{ productorecepcionado.cantdevuelta }}
@@ -296,7 +319,11 @@
                         </td>
                         <td>
                             <small><span>
-                                {{productorecepcionado.sodecantrecepdevo}}
+                                {{productorecepcionado.cantrecepdevol}}
+                            </span></small>
+                        </td>
+                        <td><small><span>
+                            {{productorecepcionado.cantpendienterecepdevol}}
                             </span></small>
                         </td>
                     </tr>
@@ -309,3 +336,5 @@
             </table>
         </swal>
     </div>
+  </div>
+</app-main-nav>

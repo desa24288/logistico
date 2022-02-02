@@ -14,18 +14,20 @@ import { DetallePlantillaConsumo } from '../models/entity/detalle-plantilla-cons
   providedIn: 'root'
 })
 export class SolicitudConsumoService {
-  private url_grabarsolicitudconsumo = environment.URLServiciosRest.URLConexionSolicitudConsumo.concat('/grabarsolicitudconsumo');
-  private url_buscarsolicitudconsumo = environment.URLServiciosRest.URLConexionSolicitudConsumo.concat('/buscarsolicitudconsumo');
-  private url_buscarproductosconsumo = environment.URLServiciosRest.URLConexionSolicitudConsumo.concat('/buscarproductosconsumo');
-  private url_buscargrupoconsumo = environment.URLServiciosRest.URLConexionSolicitudConsumo.concat('/buscargrupoconsumo');
-  private url_buscarsubgrupoconsumo = environment.URLServiciosRest.URLConexionSolicitudConsumo.concat('/buscarsubgrupoconsumo');
-  private url_eliminardetallearticulosolicitudconsumo = environment.URLServiciosRest.URLConexionSolicitudConsumo.concat('/eliminardetallearticulosolicitudconsumo');
-  private url_eliminarsolicitudconsumo = environment.URLServiciosRest.URLConexionSolicitudConsumo.concat('/eliminarsolicitudconsumo');
+  private url_grabarsolicitudconsumo = sessionStorage.getItem('enlace').toString().concat('/grabarsolicitudconsumo');
+  private url_buscarsolicitudconsumo = sessionStorage.getItem('enlace').toString().concat('/buscarsolicitudconsumo');
+  private url_buscarsolicitudconsumocabecera = sessionStorage.getItem('enlace').toString().concat('/buscarsolicitudconsumocabecera');
+  
+  private url_buscarproductosconsumo = sessionStorage.getItem('enlace').toString().concat('/buscarproductosconsumo');
+  private url_buscargrupoconsumo = sessionStorage.getItem('enlace').toString().concat('/buscargrupoconsumo');
+  private url_buscarsubgrupoconsumo = sessionStorage.getItem('enlace').toString().concat('/buscarsubgrupoconsumo');
+  private url_eliminardetallearticulosolicitudconsumo = sessionStorage.getItem('enlace').toString().concat('/eliminardetallearticulosolicitudconsumo');
+  private url_eliminarsolicitudconsumo = sessionStorage.getItem('enlace').toString().concat('/eliminarsolicitudconsumo');
 
-  private url_grabarplantillaconsumo = environment.URLServiciosRest.URLConexionSolicitudConsumo.concat('/grabarplantillaconsumo');
-  private url_buscarplantillaconsumo = environment.URLServiciosRest.URLConexionSolicitudConsumo.concat('/buscarplantillaconsumo');
-  private url_eliminardetallearticuloplantillaconsumo = environment.URLServiciosRest.URLConexionSolicitudConsumo.concat('/eliminardetalleplantillaconsumo');
-  private url_eliminarplantillaconsumo = environment.URLServiciosRest.URLConexionSolicitudConsumo.concat('/eliminarplantillaconsumo');
+  private url_grabarplantillaconsumo = sessionStorage.getItem('enlace').toString().concat('/grabarplantillaconsumo');
+  private url_buscarplantillaconsumo = sessionStorage.getItem('enlace').toString().concat('/buscarplantillaconsumo');
+  private url_eliminardetallearticuloplantillaconsumo = sessionStorage.getItem('enlace').toString().concat('/eliminardetalleplantillaconsumo');
+  private url_eliminarplantillaconsumo = sessionStorage.getItem('enlace').toString().concat('/eliminarplantillaconsumo');
 
   constructor(public httpClient: HttpClient) { }
 
@@ -43,7 +45,9 @@ export class SolicitudConsumoService {
   }
   
 
-  buscarplantillaconsumo(id: number, hdgcodigo : number, esacodigo: number,cmecodigo: number,centrocosto: number,idpresupuesto: number,operacioncontable: number,estado: number,usuario: string,servidor: string
+  buscarplantillaconsumo(id: number, hdgcodigo : number, esacodigo: number,cmecodigo: number,
+    centrocosto: number,idpresupuesto: number,operacioncontable: number,estado: number,
+    usuario: string,servidor: string,codmei:string
     ):Observable<PlantillaConsumo[]>{
     return this.httpClient.post<PlantillaConsumo[]>(this.url_buscarplantillaconsumo, {   
       'id'                   : id, 
@@ -56,6 +60,7 @@ export class SolicitudConsumoService {
       'estado'               : estado,
       'usuario'              : usuario,
       'servidor'             : servidor ,
+      'codmei'               : codmei
         });
 }
 
@@ -73,10 +78,32 @@ export class SolicitudConsumoService {
     return this.httpClient.post(this.url_grabarsolicitudconsumo,_SolicitudConsumo);
   }
   
-
-  buscarsolicitudconsumo(id: number, hdgcodigo : number, esacodigo: number,cmecodigo: number,centrocosto: number,idpresupuesto: number,
+  buscarsolicitudconsumocabecera(id: number, hdgcodigo : number, esacodigo: number,cmecodigo: number,centrocosto: number,idpresupuesto: number,
     referenciacontable: number,operacioncontable: number,estado: number, prioridad: number,usuariosolicita: string, 
     usuarioautoriza: string,usuario: string,servidor: string,fechadesde: string,fechahasta: string
+    ):Observable<SolicitudConsumo[]>{
+    return this.httpClient.post<SolicitudConsumo[]>(this.url_buscarsolicitudconsumocabecera, {   
+      'id'                   : id, 
+      'hdgcodigo'            : hdgcodigo, 
+      'esacodigo'            : esacodigo,
+      'cmecodigo'            : cmecodigo,
+      'centrocosto'          : centrocosto,
+      'idpresupuesto'        : idpresupuesto,
+      'referenciacontable'   : referenciacontable, 
+      'operacioncontable'    : operacioncontable,
+      'estado'               : estado,
+      'prioridad'            : prioridad,
+      'usuariosolicita'      : usuariosolicita,
+      'usuarioautoriza'      : usuarioautoriza,
+      'usuario'              : usuario,
+      'servidor'             : servidor ,
+      'fechadesde'           : fechadesde,  
+      'fechahasta'           : fechahasta
+        });
+}
+  buscarsolicitudconsumo(id: number, hdgcodigo : number, esacodigo: number,cmecodigo: number,centrocosto: number,idpresupuesto: number,
+    referenciacontable: number,operacioncontable: number,estado: number, prioridad: number,usuariosolicita: string, 
+    usuarioautoriza: string,usuario: string,servidor: string,fechadesde: string,fechahasta: string,codmei: string
     ):Observable<SolicitudConsumo[]>{
     return this.httpClient.post<SolicitudConsumo[]>(this.url_buscarsolicitudconsumo, {   
       'id'                   : id, 
@@ -94,7 +121,8 @@ export class SolicitudConsumoService {
       'usuario'              : usuario,
       'servidor'             : servidor ,
       'fechadesde'           : fechadesde,  
-      'fechahasta'           : fechahasta
+      'fechahasta'           : fechahasta,
+      'codmei'               : codmei
         });
 }
 

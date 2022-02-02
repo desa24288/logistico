@@ -34,8 +34,16 @@ export class Articulos{
         public glosaunidaddespacho ?: string,
         public desunidaddespacho?: string,
         public desctiporegistro ?: string,
-        public consignacion     ?: string
-        
+        public consignacion     ?: string,
+        public fechainiciovigencia?: string,
+        public fechafinvigencia ?: string,
+        public codigoudecompra  ?: number,
+        public mensaje          ?: string,
+        public vigencia         ?: boolean,
+        public saldo            ?: string,
+        public meinid           ?: number,
+        public codmei           ?: string,
+        public meindescri       ?: string
         
     ) {}
 }

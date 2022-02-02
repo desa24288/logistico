@@ -1,6 +1,6 @@
 export class TipoAmbito {
-    private ambitocodigo     : number;
-    private ambitodescripcion: string;
+    public ambitocodigo     : number;
+    public ambitodescripcion: string;
 
     constructor(ambitocodigo: number, ambitodescripcion: string) {
         this.ambitocodigo = ambitocodigo;

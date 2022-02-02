@@ -45,9 +45,9 @@ export class BusquedaSolicitudPacienteAmbulatorioComponent implements OnInit {
   @Input() tipodocumeto: number;
   @Input() numeroidentificacion: string;
   @Input() origen : string;
-  
+
   public onClose                     : Subject<ListaPacientes>;
-  public loading = false; 
+  public loading = false;
 
   public FormBusquedaSolPac          : FormGroup;
   public locale                      = 'es';
@@ -61,9 +61,9 @@ export class BusquedaSolicitudPacienteAmbulatorioComponent implements OnInit {
   public unidades                    : Array<Unidades> = [];
   public piezas                      : Array<Piezas> = [];
   public camas                       : Array<Camas> = [];
-  listasolicitudespacientes          : Array<Solicitud> =[];  
+  listasolicitudespacientes          : Array<Solicitud> =[];
   listasolicitudespacientespaginacion: Array<Solicitud>=[];
-  
+
   public estado                      : boolean = false;
   public servidor = environment.URLServiciosRest.ambiente;
   public usuario = environment.privilegios.usuario;
@@ -105,37 +105,30 @@ export class BusquedaSolicitudPacienteAmbulatorioComponent implements OnInit {
     this.setDate();
     this.ListarEstUnidades();
     this.FormBusquedaSolPac.value.ambito = 2;
-    
+
     this.TipoambitoService.list(this.hdgcodigo,this.esacodigo,this.cmecodigo,this.usuario,this.servidor).subscribe(
       data => {
         this.tiposambitos = data;
- 
-      }, err => {
-        console.log(err.error);
+
       }
+
     );
 
     this.TiporegistroService.list(this.usuario,this.servidor).subscribe(
       data => {
         this.tiposderegistros = data;
 
-      }, err => {
-        console.log(err.error);
       }
     );
     this.PrioridadesService.list(this.usuario,this.servidor).subscribe(
       data => {
         this.prioridades = data;
-      }, err => {
-        console.log(err.error);
       }
     );
     this.EstadosolicitudService.list(this.usuario,this.servidor).subscribe(
       data => {
         this.estadossolicitudes = data;
 
-      }, err => {
-        console.log(err.error);
       }
     );
 
@@ -143,14 +136,12 @@ export class BusquedaSolicitudPacienteAmbulatorioComponent implements OnInit {
       data => {
         this.docsidentis = data;
 
-      }, err => {
-        console.log(err.error);
       }
     );
 
-    this.FormBusquedaSolPac.get('ambito').setValue(this.ambito);  
+    this.FormBusquedaSolPac.get('ambito').setValue(this.ambito);
     this.FormBusquedaSolPac.get('tipoidentificacion').setValue(this.tipodocumeto);
-    this.FormBusquedaSolPac.get('numeroidentificacion').setValue(this.numeroidentificacion); 
+    this.FormBusquedaSolPac.get('numeroidentificacion').setValue(this.numeroidentificacion);
   }
 
   ngAfterViewInit() {
@@ -170,7 +161,7 @@ export class BusquedaSolicitudPacienteAmbulatorioComponent implements OnInit {
       ).toPromise();
     } catch (err) {
       alert(err.message);
-    } 
+    }
   }
 
   async ListarPiezas(idunidad: number) {
@@ -233,57 +224,52 @@ export class BusquedaSolicitudPacienteAmbulatorioComponent implements OnInit {
     this.localeService.use(this.locale);
     this.bsConfig = Object.assign({}, { containerClass: this.colorTheme });
   }
-  
+
   BuscarSolicitudesPacientes(){
-    
-    var fechadesde=this.datePipe.transform(this.FormBusquedaSolPac.value.fechadesde, 'yyyy-MM-dd'); 
+
+    var fechadesde=this.datePipe.transform(this.FormBusquedaSolPac.value.fechadesde, 'yyyy-MM-dd');
     var fechahasta=this.datePipe.transform(this.FormBusquedaSolPac.value.fechahasta, 'yyyy-MM-dd');
     this.loading = true;
     var idOrigen = 0;
-    console.log("origen solic",idOrigen,this.origen);
     switch (this.origen) {
-      case "Solicitud_Receta": 
+      case "Solicitud_Receta":
               // tipodeproducto = 'M';
-              idOrigen= 70;       
+              idOrigen= 70;
               break;
-      // case "Insumos-Medicos":  
-      //         tipodeproducto = 'I';     
-      //         idBodega = this.id_Bodega;  
+      // case "Insumos-Medicos":
+      //         tipodeproducto = 'I';
+      //         idBodega = this.id_Bodega;
       //         break;
-      // case "Insumos_No_Medicos": 
-      //         tipodeproducto = 'O';       
+      // case "Insumos_No_Medicos":
+      //         tipodeproducto = 'O';
       //         break;
-      
 
-     
-      
+
+
+
       default:
         // idOrigen = this.FormBusquedaSolPac.value.codorigen;
     }
 
-    
-    console.log(0,this.hdgcodigo,
-      this.esacodigo,this.cmecodigo,0,fechadesde,fechahasta,0,0,this.FormBusquedaSolPac.value.estado,
-      this.servidor,this.FormBusquedaSolPac.value.prioridad,this.ambito, 0,0,0,this.FormBusquedaSolPac.value.tipoidentificacion,
-      this.FormBusquedaSolPac.value.numeroidentificacion,idOrigen)
-      
     this._buscasolicitudService.BuscaSolicitud(0,this.hdgcodigo,
       this.esacodigo,this.cmecodigo,0,fechadesde,fechahasta,0,0,this.FormBusquedaSolPac.value.estado,
       this.servidor,this.FormBusquedaSolPac.value.prioridad,this.ambito, 0,0,0,this.FormBusquedaSolPac.value.tipoidentificacion,
-      this.FormBusquedaSolPac.value.numeroidentificacion,idOrigen).subscribe(
+      this.FormBusquedaSolPac.value.numeroidentificacion,idOrigen, "","").subscribe(
       response => {
-        this.listasolicitudespacientes= response;
-        console.log("soic buscado",this.listasolicitudespacientes)
-        this.listasolicitudespacientespaginacion = this.listasolicitudespacientes.slice(0,8);
-        this.loading = false;       
+        if (response != null){
+          this.listasolicitudespacientes= response;
+          this.listasolicitudespacientespaginacion = this.listasolicitudespacientes.slice(0,8);
+          this.loading = false;
+        } else {
+          this.loading = false;
+        }
       },
       error => {
-        console.log(error); 
         this.loading = false;
         this.alertSwalError.title="Error al Buscar Solicitudes";
         this.alertSwalError.text="No encuentra Solicitudes, puede que no existan. Favor intentar nuevamente";
         this.alertSwalError.show();
-      } 
+      }
     );
   }
 
@@ -296,5 +282,5 @@ export class BusquedaSolicitudPacienteAmbulatorioComponent implements OnInit {
   Limpiar(){
     this.listasolicitudespacientes = [];
     this.listasolicitudespacientespaginacion = [];
-  } 
+  }
 }

@@ -14,4 +14,11 @@ export class DetallePlantillaConsumo {
 	usuario                 : string;
 	servidor                : string;
 	glosaunidadconsumo      : string;
+	marcacheckgrilla		: boolean;
+	bloqcampogrilla			: boolean;
+  excedecant: boolean;
+  constructor(
+    excedecant?: boolean) {
+      this.excedecant = false;
+  }
 }

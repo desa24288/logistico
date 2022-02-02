@@ -3,6 +3,7 @@ import { DetalleRecetas } from './detalle-recetas';
 export class Receta {
     constructor (
         public servidor             ?: string,
+        public cliid                ?: string,
         public fechainicio          ?: string,
         public fechahasta           ?: string,
         public receid               ?: number,
@@ -48,7 +49,18 @@ export class Receta {
         public codigoestadocomprobante?: string,
         public glosaestadocomprobante?: string,
         public pestid               ?: number,
-        public recetadetalle        ?: DetalleRecetas[], 
-            
+        public ctanumcta            ?: number,
+        public recetadetalle        ?: DetalleRecetas[],
+        public profnombre           ?: string,
+        public profapepaterno       ?: string,
+        public profapematerno       ?: string,
+        public receobservacion      ?: string,
+        public glsexo               ?: string,
+        public edad                 ?: string,
+        public bandera              ?: number,
+        public codcobroincluido     ?: number,
+        public glosacobro           ?: string,
+        public rececodbodega        ?: number,
+        public cuentanumcuenta      ?: string,
     ) {}
 }

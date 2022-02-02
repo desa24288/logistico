@@ -1,6 +1,6 @@
 export class TipoReposicion {
-    private codtiporeposicion     : number;
-    private destiporeposicion   : string;
+    public codtiporeposicion     : number;
+    public destiporeposicion   : string;
 
     constructor(codtiporeposicion: number, destiporeposicion: string) {
         this.codtiporeposicion = codtiporeposicion;

@@ -1,6 +1,6 @@
 export class BodegasDespachadoras {
     public codbodegaperi: number;
-    private desbodegaperi: string;
+    public desbodegaperi: string;
 
     constructor(codbodegaperi: number, desbodegaperi: string) {
         this.codbodegaperi = codbodegaperi;

@@ -193,7 +193,7 @@
                                 </div>
                             </li>
                             
-                            <li class="nav-item">
+                            <li class="nav-item" hidden>
                                 <a class="nav-link collapsed text-truncate" href="#submenuinventarios"
                                     data-toggle="collapse" data-target="#submenuajustes" style="color:white"
                                     *ngIf="modelopermisos.btnajustes">
@@ -269,13 +269,13 @@
                                     <p id="sidem"><small>Recepción Devolución entre Bodegas</small></p>
                                 </a>
                             </li>
-                            <li class="nav-item">
+                            <!-- <li class="nav-item">
                                 <a style="color:white" [routerLink]="['/movimientos']" class="nav-link"
                                 *ngIf="modelopermisos.btnmovimientosb">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p id="sidem"><small>Movimientos</small></p>
                                 </a>
-                            </li>
+                            </li> -->
                             <li class="nav-item">
                                 <a style="color:white" [routerLink]="['/controlstockminimo']" class="nav-link"
                                 *ngIf="modelopermisos.btnctrlstockmin">
@@ -304,8 +304,8 @@
                     </a>
                     <div class="collapse" id="submenusolicitudespac" aria-expanded="false">
                         <ul class="flex-column pl-2 nav">
-                            <li class="nav-item">
-                                <a [routerLink]="['/solicitudpaciente']" style="color:white" class="nav-link"
+                            <li class="nav-item" >
+                                <a style="color:white" class="nav-link" (click)="onSolpaciente()"
                                 *ngIf="modelopermisos.btnsolpaciente">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p id="sidem"><small> Solicitud Paciente</small></p>
@@ -352,13 +352,13 @@
                                     <p id="sidem"><small>Consulta Recetas Programadas</small></p>
                                 </a>
                             </li>
-                            <li class="nav-item">
+                            <!-- <li class="nav-item">
                                 <a style="color:white" [routerLink]="['/movimientos']" class="nav-link"
                                 *ngIf="modelopermisos.btnmovimientosp">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p id="sidem"><small>Movimientos</small></p>
                                 </a>
-                            </li>
+                            </li> -->
                         </ul>
                     </div>
                 </li>
@@ -396,20 +396,43 @@
 
                 <li class="nav-item">
                     <a class="nav-link collapsed text-truncate" href="#submenuadmusuarios" data-toggle="collapse"
-                        [routerLink]="['/despachocostoservicio']" style="color:white" >
-                        <!-- *ngIf="modelopermisos.btndepachocostoservi" -->
+                        [routerLink]="['/despachocostoservicio']" style="color:white"
+                        data-target="#submenusolicitudautopedido"
+                        *ngIf="modelopermisos.btnautopedido" >
+                        
                         <i class="fas fa-angle-right mr-1"></i>
                         <p><small>Autopedido</small> </p>
                     </a>
+                    <div class="collapse" id="submenusolicitudautopedido" aria-expanded="false">
+                        <ul class="flex-column pl-2 nav">
+                            <li class="nav-item">
+                                <a class="nav-link" style="color:white" [routerLink]="['/solicitudconsumo']"
+                                *ngIf="modelopermisos.btnsolautopedido">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p><small>Solicitud Autopedido</small></p>
+                                </a>
+                            </li>
+                        </ul>
+                        <ul class="flex-column pl-2 nav">
+                            <li class="nav-item">
+                                <a class="nav-link" style="color:white" 
+                                [routerLink]="['/devolucionautopedido']" style="color:white" >
+                                <!-- *ngIf="modelopermisos.btndepachocostoservi" -->
+                                <i class="fas fa-angle-right mr-1"></i>
+                                <p><small>Dev.Autopedido</small> </p>
+                                </a>
+                            </li>
+                        </ul>
+                   </div>
                 </li>
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <a class="nav-link collapsed text-truncate" href="#submenuadmusuarios" data-toggle="collapse"
                         [routerLink]="['/devolucionautopedido']" style="color:white" >
-                        <!-- *ngIf="modelopermisos.btndepachocostoservi" -->
+                        <!-- *ngIf="modelopermisos.btndepachocostoservi" ->
                         <i class="fas fa-angle-right mr-1"></i>
                         <p><small>Dev.Autopedido</small> </p>
                     </a>
-                </li>
+                </li> -->
 
                 <li class="nav-item" hidden>
                     <a class="nav-link collapsed text-truncate" href="#submenuadmusuarios" data-toggle="collapse"

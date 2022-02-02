@@ -32,64 +32,86 @@ import { ProductoConsumo } from 'src/app/models/entity/producto-consumo';
 import { BusquedaPlantillaConsumoComponent } from '../busqueda-plantilla-consumo/busqueda-plantilla-consumo.component';
 import { PlantillaConsumo } from 'src/app/models/entity/plantilla-consumo';
 import { Permisosusuario } from '../../permisos/permisosusuario';
+import { SolicitudService } from '../../servicios/Solicitudes.service';
+import { RespustaTransaccion } from 'src/app/models/entity/RespuestaTransaccion';
+import { element } from 'protractor';
+import { InformesService } from 'src/app/servicios/informes.service';
 
 
 
 @Component({
   selector: 'app-solicitud-consumo',
   templateUrl: './solicitud-consumo.component.html',
-  styleUrls: ['./solicitud-consumo.component.css']
+  styleUrls: ['./solicitud-consumo.component.css'],
+  providers: [ InformesService]
 })
 export class SolicitudConsumoComponent implements OnInit {
   @ViewChild('alertSwal', { static: false }) alertSwal: SwalComponent;//Componente para visualizar alertas
   @ViewChild('alertSwalAlert', { static: false }) alertSwalAlert: SwalComponent;
   @ViewChild('alertSwalError', { static: false }) alertSwalError: SwalComponent;
 
-  public modelopermisos    : Permisosusuario = new Permisosusuario();
-  public FormCreaSolicitud: FormGroup;
-  public estadossolbods: Array<EstadoSolicitudBodega> = [];
-  public estadossolicitudes: Array<EstadoSolicitud> = [];
-  public tiposderegistros: Array<TipoRegistro> = [];
-  public prioridades: Array<Prioridades> = [];
-  public ccostosolicitante: Array<UnidadesOrganizacionales> = [];
+  public modelopermisos     : Permisosusuario = new Permisosusuario();
+  public FormCreaSolicitud  : FormGroup;
+  public FormDatosProducto  : FormGroup;
+  public estadossolbods     : Array<EstadoSolicitudBodega> = [];
+  public estadossolicitudes : Array<EstadoSolicitud> = [];
+  public tiposderegistros   : Array<TipoRegistro> = [];
+  public prioridades        : Array<Prioridades> = [];
+  public ccostosolicitante  : Array<UnidadesOrganizacionales> = [];
 
-  public _SolicitudConsumo: SolicitudConsumo;   /* Solictud de creación y modificaicíón */
+  public _SolicitudConsumo    : SolicitudConsumo;   /* Solictud de creación y modificaicíón */
   public grabadetallesolicitud: Array<DetalleSolicitudConsumo> = [];
   public arregloDetalleProductoSolicitudPaginacion: Array<DetalleSolicitudConsumo> = [];
   public arregloDetalleProductoSolicitud: Array<DetalleSolicitudConsumo> = [];
-  public locale = 'es';
-  public bsConfig: Partial<BsDatepickerConfig>;
+  public arregloDetalleProductoSolicitudPaginacion_aux: Array<DetalleSolicitudConsumo> = [];
+  public arregloDetalleProductoSolicitud_aux: Array<DetalleSolicitudConsumo> = [];
+  public arregloDetalleProductoSolicitud_2: Array<DetalleSolicitudConsumo> = [];
+  public locale     = 'es';
+  public bsConfig   : Partial<BsDatepickerConfig>;
   public colorTheme = 'theme-blue';
-  public usuario = environment.privilegios.usuario;
-  public servidor = environment.URLServiciosRest.ambiente;
+  public usuario    = environment.privilegios.usuario;
+  public servidor   = environment.URLServiciosRest.ambiente;
   public elimininaproductogrilla: boolean = false;
   public existesolicitud: boolean = false;
-  public hdgcodigo: number;
-  public esacodigo: number;
-  public cmecodigo: number;
+  public hdgcodigo  : number;
+  public esacodigo  : number;
+  public cmecodigo  : number;
   public _DetalleSolicitud: DetalleSolicitudConsumo;
   public productoselec: Articulos;
-  private _BSModalRef: BsModalRef;
+  private _BSModalRef : BsModalRef;
   public BtnSolConsumoGenerSolictud_activado : boolean;
   public activabtnmodificar : boolean = false;
   public activabtncrear     : boolean = false;
+  public loading            = false;
+  public codprod            = null;
+  public activabtneliminar  : boolean = false;
+  public desactivabtnelim   :boolean = false;
+  public verificanull       = false;
+  public vacios             = true;
+  public activabtnagregaryplantilla : boolean = false;
+  public verificanullmodif  : boolean = false;
+  public ActivaBotonLimpiaBusca : boolean = false;
+  public ActivaBotonBuscaGrilla : boolean = false;
 
-  onClose: any;
+  onClose   : any;
   bsModalRef: any;
-  editField: any;
+  editField : any;
 
   constructor(
-    private formBuilder: FormBuilder,
+    private formBuilder            : FormBuilder,
     private EstadoSolicitudBodegaService: EstadosolicitudbodegaService,
-    private PrioridadesService: PrioridadesService,
-    public _BsModalService: BsModalService,
-    public localeService: BsLocaleService,
-    public datePipe: DatePipe,
+    private PrioridadesService     : PrioridadesService,
+    public _BsModalService         : BsModalService,
+    public localeService           : BsLocaleService,
+    public datePipe                : DatePipe,
     public _solicitudConsumoService: SolicitudConsumoService,
     public _unidadesorganizacionaes: UnidadesOrganizacionalesService,
+    public _PlantillaConsumoService: SolicitudConsumoService,
+    public _solicitudService       : SolicitudService,
+    private _imprimesolicitudService: InformesService,
   ) {
     this.FormCreaSolicitud = this.formBuilder.group({
-      numsolicitud  : [{ value: null, disabled: true }, Validators.required],
+      numsolicitud  : [{ value: null, disabled: false }, Validators.required],
       esticod       : [{ value: 10, disabled: false }, Validators.required],
       hdgcodigo     : [{ value: null, disabled: false }, Validators.required],
       esacodigo     : [{ value: null, disabled: false }, Validators.required],
@@ -100,6 +122,12 @@ export class SolicitudConsumoComponent implements OnInit {
       referenciaerp : [{ value: null, disabled: true }, Validators.required],
       estadoerp     : [{ value: null, disabled: true }, Validators.required],
       glosa         : [{ value: null, disabled: false }, Validators.required],
+    });
+
+    this.FormDatosProducto = this.formBuilder.group({
+      codigo  : [{ value: null, disabled: false }, Validators.required],
+      descripcion:[{ value: null, disabled: false }, Validators.required],
+      cantidad: [{ value: null, disabled: false }, Validators.required]
     });
   }
 
@@ -112,7 +140,9 @@ export class SolicitudConsumoComponent implements OnInit {
     this.cmecodigo = Number(sessionStorage.getItem('cmecodigo').toString());
     this.usuario   = sessionStorage.getItem('Usuario');
 
-
+    this.FormCreaSolicitud.controls.numsolicitud.disable();
+    this.FormCreaSolicitud.controls.esticod.disable();
+    this.FormCreaSolicitud.controls.glosa.disable();
     this.PrioridadesService.list(sessionStorage.getItem('Usuario'), this.servidor).subscribe(
       data => {
         this.prioridades = data;
@@ -141,45 +171,112 @@ export class SolicitudConsumoComponent implements OnInit {
     this.bsConfig = Object.assign({}, { containerClass: this.colorTheme });
   }
 
+  ActivaGlosa(){
+    this.FormCreaSolicitud.controls.glosa.enable();
+  }
+
   BuscaCentroCostoSolicitante() {
 
-    this._unidadesorganizacionaes.buscarCentroCosto("", 0, "CCOS", "", "", 0, this.cmecodigo, 0, 0, "S", sessionStorage.getItem('Usuario'), this.servidor).subscribe(
+    this._unidadesorganizacionaes.buscarCentroCosto("", 0, "CCOS", "", "", 0, this.cmecodigo, 0, 0, "S", sessionStorage.getItem('Usuario'), null,this.servidor).subscribe(
       response => {
-        this.ccostosolicitante = response;
+        if (response != null) {
+          this.ccostosolicitante = response;
+        }
       },
       error => {
-        alert("Error al Buscar Bodegas de cargo");
+        alert("Error al Cargar Centros de Costos");
       }
     );
+  }
+
+
+  activaBotonRefrescar(){
+    if (this.FormCreaSolicitud.get('numsolicitud').value != null) {
+       return (true);
+    } else {
+       return (false);
+    }
+ }
+
+
+
+  RefrescarPantalla() {
+    this.CargarFormSolictudIndividual(this.FormCreaSolicitud.controls.numsolicitud.value);
+  }
+
+  CargarFormSolictudIndividual(id_solicitud:number){
+    this._solicitudConsumoService.buscarsolicitudconsumo(id_solicitud, this.hdgcodigo, this.esacodigo, this.cmecodigo, 0, 0, 0, 0, 0, 0, "", "", sessionStorage.getItem('Usuario'), this.servidor, "", "","").subscribe(
+      respuestasolicitud => {
+        this._SolicitudConsumo = respuestasolicitud[0];
+        this.FormCreaSolicitud.get('numsolicitud').setValue(this._SolicitudConsumo.id);
+        this.FormCreaSolicitud.get('centrocosto').setValue(this._SolicitudConsumo.centrocosto);
+        this.FormCreaSolicitud.get('fecha').setValue(this.datePipe.transform(this._SolicitudConsumo.fechasolicitud, 'dd-MM-yyyy'));
+        this.FormCreaSolicitud.get('prioridad').setValue(this._SolicitudConsumo.prioridad);
+        this.FormCreaSolicitud.get('referenciaerp').setValue(this._SolicitudConsumo.referenciacontable);
+        this.FormCreaSolicitud.get('glosa').setValue(this._SolicitudConsumo.glosa);
+        this.FormCreaSolicitud.get('esticod').setValue(this._SolicitudConsumo.estado)
+        if(this._SolicitudConsumo.referenciacontable > 0 ){
+          this.FormCreaSolicitud.disable();
+        }
+        this.arregloDetalleProductoSolicitudPaginacion = [];
+        this.arregloDetalleProductoSolicitud = [];
+        this.arregloDetalleProductoSolicitud_aux = [];
+        this.arregloDetalleProductoSolicitudPaginacion_aux = [];
+
+        if(this._SolicitudConsumo.referenciacontable >0){
+          // this.FormDatosProducto.controls.codigo.disable();
+          this.activabtnagregaryplantilla = false;
+          this.ActivaBotonBuscaGrilla = true;
+        }else{
+          this.FormDatosProducto.controls.codigo.enable();
+          this.activabtnagregaryplantilla = true;
+        }
+
+        if (this._SolicitudConsumo.detsolicitudconsumo != null) {
+          this.arregloDetalleProductoSolicitud = this._SolicitudConsumo.detsolicitudconsumo;
+          this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
+
+          this.arregloDetalleProductoSolicitud_aux = this.arregloDetalleProductoSolicitud;
+          this.arregloDetalleProductoSolicitudPaginacion_aux = this.arregloDetalleProductoSolicitudPaginacion;
+        }
+        this.arregloDetalleProductoSolicitud.forEach(x=>{
+          if(this._SolicitudConsumo.referenciacontable == 0){
+            if(this._SolicitudConsumo.estado === 80){
+              x.bloqcampogrilla = false;
+              x.bloqcampogrilla = false;
+            }else{
+              x.bloqcampogrilla = true;
+            }
+          }else{
+            x.bloqcampogrilla = false;
+          }
+        });
+
+      if(this._SolicitudConsumo.estado === 80){
+        this.FormCreaSolicitud.disable();
+        this.FormDatosProducto.disable();
+        this.verificanull = false;
+        this.activabtnagregaryplantilla = false;
+        this.desactivabtnelim = false;
+        this.  ActivaBotonBuscaGrilla = false;
+      }
+    });
   }
 
 
   BuscarSolicitudesConsumo() {
     this._BSModalRef = this._BsModalService.show(BusquedaSolicitudConsumoComponent, this.setModalBusquedaSolicitud());
     this._BSModalRef.content.onClose.subscribe((response: SolicitudConsumo) => {
-      if (response == undefined) { }
-      else {
+      if (response != undefined) {
 
-        this._SolicitudConsumo = response;
-        this.FormCreaSolicitud.get('numsolicitud').setValue(this._SolicitudConsumo.id);
-        this.FormCreaSolicitud.get('prioridad').setValue(this._SolicitudConsumo.prioridad);
-        this.FormCreaSolicitud.get('glosa').setValue(this._SolicitudConsumo.glosa);
-        this.FormCreaSolicitud.get('centrocosto').setValue(this._SolicitudConsumo.centrocosto);
-        this.FormCreaSolicitud.get('fecha').setValue(this.datePipe.transform(this._SolicitudConsumo.fechasolicitud, 'dd-MM-yyyy'));
-        this.FormCreaSolicitud.get('esticod').setValue(this._SolicitudConsumo.estado);
-        this.FormCreaSolicitud.get('referenciaerp').setValue(this._SolicitudConsumo.referenciacontable);
+        this.CargarFormSolictudIndividual(response.id);
 
         this.existesolicitud = true;
         this.activabtnmodificar = true;
         this.activabtncrear = false;
         this.arregloDetalleProductoSolicitudPaginacion = [];
         this.arregloDetalleProductoSolicitud = [];
-
-        if (this._SolicitudConsumo.detsolicitudconsumo != null) {
-          this.arregloDetalleProductoSolicitud = this._SolicitudConsumo.detsolicitudconsumo;
-          this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
-        }
-
+        this.verificanull = false;
       }
     });
   }
@@ -195,14 +292,15 @@ export class SolicitudConsumoComponent implements OnInit {
         hdgcodigo: this.hdgcodigo,
         esacodigo: this.esacodigo,
         cmecodigo: this.cmecodigo,
+        usuario  : this.usuario
       }
     };
     return dtModal;
   }
 
 
-  async addArticuloGrilla() {
-
+  addArticuloGrilla() {
+    this.alertSwalAlert.title = null;
     this._BSModalRef = this._BsModalService.show(BusquedaProductosConsumoComponent, this.setModalBusquedaProductos());
     this._BSModalRef.content.onClose.subscribe((response: ProductoConsumo) => {
       if (response == undefined) { }
@@ -215,6 +313,10 @@ export class SolicitudConsumoComponent implements OnInit {
           DetalleMovimiento.id = this.FormCreaSolicitud.value.numsolicitud;
         }
 
+        this.arregloDetalleProductoSolicitud_aux = [];
+        this.arregloDetalleProductoSolicitudPaginacion_aux = [];
+
+        this.activabtneliminar = true;
         DetalleMovimiento.iddetalle = 0;
         DetalleMovimiento.servidor = this.servidor;
         DetalleMovimiento.usuario = sessionStorage.getItem('Usuario');
@@ -233,6 +335,7 @@ export class SolicitudConsumoComponent implements OnInit {
         DetalleMovimiento.glosaproducto = response.proddescripcion;
         DetalleMovimiento.glosaunidadconsumo = response.glosaunidadconsumo;
         DetalleMovimiento.idproducto = response.prodid;
+        DetalleMovimiento.bloqcampogrilla = true;
 
         if (this.activabtnmodificar == true) {
           this.activabtncrear = false;
@@ -242,16 +345,24 @@ export class SolicitudConsumoComponent implements OnInit {
           this.activabtncrear = true;
         }
 
-        this.arregloDetalleProductoSolicitud.unshift(DetalleMovimiento);
-        this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
+        const indx = this.arregloDetalleProductoSolicitud.findIndex(x => x.codigoproducto === DetalleMovimiento.codigoproducto, 1);
+        if (indx >= 0) {
+          this.alertSwalError.title = "Código ya existe en la grilla";
+          this.alertSwalError.show();
 
+        }else{
+          this.arregloDetalleProductoSolicitud.unshift(DetalleMovimiento);
+          this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
 
+          this.arregloDetalleProductoSolicitud_aux = this.arregloDetalleProductoSolicitud;
+          this.arregloDetalleProductoSolicitudPaginacion_aux = this.arregloDetalleProductoSolicitudPaginacion;
+        }
+        this.FormDatosProducto.reset();
+        this.ActivaBotonBuscaGrilla = true;
+        this.logicaVacios();
       }
     });
-
-
   }
-
 
   setModalBusquedaProductos() {
     let dtModal: any = {};
@@ -265,12 +376,12 @@ export class SolicitudConsumoComponent implements OnInit {
         esacodigo: this.esacodigo,
         cmecodigo: this.cmecodigo,
         tipo_busqueda: 'Todo-Insumos_No_Medicos',
+        codprod: this.FormDatosProducto.controls.codigo.value,
+        descprod: this.FormDatosProducto.controls.descripcion.value
       }
     };
     return dtModal;
   }
-
-
 
   cambio_cantidad(id: number, property: string, registro: DetalleSolicitudConsumo) {
 
@@ -282,43 +393,33 @@ export class SolicitudConsumoComponent implements OnInit {
     }
 
     this.arregloDetalleProductoSolicitud[id][property] = this.arregloDetalleProductoSolicitudPaginacion[id][property];
-
-
   }
 
   validacantidadgrilla(despacho: DetalleSolicitudConsumo){
     var idg =0;
-   // console.log("Valida cantidad",despacho)
-   
+
       if(this.IdgrillaDespacho(despacho)>=0){
         idg = this.IdgrillaDespacho(despacho)
-       
-        // if(this.arregloDetalleProductoSolicitud[idg].cantadespachar > this.arrdetalleSolicitudMed[idg].cantsoli- this.arrdetalleSolicitudMed[idg].cantdespachada ){
-        //   this.alertSwalAlert.text = "La cantidad a Dispensar debe ser menor o igual a la cantidad Pendiente";
-        //   this.alertSwalAlert.show();
-        //   // this.listaDetalleDespacho[idg].cantidadarecepcionar = this.listaDetalleDespacho[idg].cantdespachada- this.listaDetalleDespacho[idg].cantrecepcionada;
-
-        // }else{
           if(this.arregloDetalleProductoSolicitud[idg].cantidadsolicitada <0){
             this.alertSwalAlert.text = "La cantidad a despachar debe ser mayor a 0";
             this.alertSwalAlert.show();
+            this.arregloDetalleProductoSolicitud[idg].cantidadsolicitada = 0;
+            this.arregloDetalleProductoSolicitudPaginacion[idg].cantidadsolicitada = this.arregloDetalleProductoSolicitud[idg].cantidadsolicitada;
           }
-          // else{
-          //   if(despacho.cantadespachar < despacho.cantsoli- despacho.cantdespachada || despacho.cantadespachar >0){
-          //     // console.log("cantidad >0 y menor que pendiente")
-          //   }
-          // }        
-
-        // }
+      }
+      if(this.FormCreaSolicitud.controls.numsolicitud.value >0){
+        this.logicaVaciosModif();
+      }else{
+        this.logicaVacios();
       }
   }
 
   IdgrillaDespacho(registro: DetalleSolicitudConsumo) {
-   
+
     let indice = 0;
     for (const articulo of this.arregloDetalleProductoSolicitud) {
       if (registro.codigoproducto === articulo.codigoproducto) {
-       
+
         return indice;
       }
       indice++;
@@ -332,7 +433,6 @@ export class SolicitudConsumoComponent implements OnInit {
 
     this.arregloDetalleProductoSolicitudPaginacion[id][property] = parseInt(editField);
     this.arregloDetalleProductoSolicitud[id][property] = this.arregloDetalleProductoSolicitudPaginacion[id][property]
-
   }
 
   limpiar() {
@@ -345,6 +445,19 @@ export class SolicitudConsumoComponent implements OnInit {
     this.FormCreaSolicitud.get('esticod').setValue(10);
     this.activabtnmodificar = false;
     this.activabtnmodificar = false;
+    this.codprod = null;
+    this.FormDatosProducto.reset();
+    this.desactivabtnelim = false;
+    this.verificanull = false;
+    this.FormDatosProducto.controls.codigo.enable();
+    this.FormCreaSolicitud.controls.glosa.disable();
+    this.ActivaBotonAgregar();
+    this.activabtnagregaryplantilla = false;
+    this.verificanullmodif = false;
+    this.arregloDetalleProductoSolicitud_aux = [];
+    this.arregloDetalleProductoSolicitudPaginacion_aux = [];
+    this.ActivaBotonBuscaGrilla = false;
+
   }
 
   ConfirmaEliminaProductoDeLaGrilla(registro: DetalleSolicitudConsumo, id: number) {
@@ -376,24 +489,29 @@ export class SolicitudConsumoComponent implements OnInit {
       registro.usuario = sessionStorage.getItem('Usuario');
       this._solicitudConsumoService.eliminardetallearticulosolicitudconsumo(registro).subscribe(
         response => {
-          this._solicitudConsumoService.buscarsolicitudconsumo(registro.id, this.hdgcodigo, this.esacodigo, this.cmecodigo, 0, 0, 0, 0, 0, 0, "", "", this.usuario, this.servidor, "", "").subscribe(
+          this._solicitudConsumoService.buscarsolicitudconsumo(registro.id, this.hdgcodigo, this.esacodigo, this.cmecodigo, 0, 0, 0, 0, 0, 0, "", "", this.usuario, this.servidor, "", "","").subscribe(
             respuestasolicitud => {
-              this._SolicitudConsumo = respuestasolicitud[0];
-              this.FormCreaSolicitud.get('numsolicitud').setValue(this._SolicitudConsumo.id);
-              this.FormCreaSolicitud.get('centrocosto').setValue(this._SolicitudConsumo.centrocosto);
-              this.FormCreaSolicitud.get('fecha').setValue(this.datePipe.transform(this._SolicitudConsumo.fechasolicitud, 'dd-MM-yyyy'));
-              this.FormCreaSolicitud.get('prioridad').setValue(this._SolicitudConsumo.estado);
-              this.FormCreaSolicitud.get('referenciaerp').setValue(this._SolicitudConsumo.referenciacontable);
-              this.FormCreaSolicitud.get('glosa').setValue(this._SolicitudConsumo.glosa);
+              if (respuestasolicitud != null) {
+                this._SolicitudConsumo = respuestasolicitud[0];
+                this.FormCreaSolicitud.get('numsolicitud').setValue(this._SolicitudConsumo.id);
+                this.FormCreaSolicitud.get('centrocosto').setValue(this._SolicitudConsumo.centrocosto);
+                this.FormCreaSolicitud.get('fecha').setValue(this.datePipe.transform(this._SolicitudConsumo.fechasolicitud, 'dd-MM-yyyy'));
+                this.FormCreaSolicitud.get('prioridad').setValue(this._SolicitudConsumo.estado);
+                this.FormCreaSolicitud.get('referenciaerp').setValue(this._SolicitudConsumo.referenciacontable);
+                this.FormCreaSolicitud.get('glosa').setValue(this._SolicitudConsumo.glosa);
 
+                this.arregloDetalleProductoSolicitudPaginacion = [];
+                this.arregloDetalleProductoSolicitud = [];
+                this.arregloDetalleProductoSolicitud_aux = [];
+                this.arregloDetalleProductoSolicitudPaginacion_aux = [];
 
-              this.arregloDetalleProductoSolicitudPaginacion = [];
-              this.arregloDetalleProductoSolicitud = [];
+                if (this._SolicitudConsumo.detsolicitudconsumo != null) {
+                  this.arregloDetalleProductoSolicitud = this._SolicitudConsumo.detsolicitudconsumo;
+                  this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
 
-
-              if (this._SolicitudConsumo.detsolicitudconsumo != null) {
-                this.arregloDetalleProductoSolicitud = this._SolicitudConsumo.detsolicitudconsumo;
-                this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
+                  this.arregloDetalleProductoSolicitud_aux = this.arregloDetalleProductoSolicitud;
+                  this.arregloDetalleProductoSolicitudPaginacion_aux = this.arregloDetalleProductoSolicitudPaginacion;
+                }
               }
             },
             error => {
@@ -402,8 +520,6 @@ export class SolicitudConsumoComponent implements OnInit {
           );
           this.alertSwal.title = "Eliminacón del producto realizada con éxito";
           this.alertSwal.show();
-
-
         },
         error => {
           console.log("Error :", error)
@@ -431,7 +547,6 @@ export class SolicitudConsumoComponent implements OnInit {
   }
 
   generarSolicitud() {
-
     this._SolicitudConsumo = new SolicitudConsumo();
     this._SolicitudConsumo.fechasolicitud = this.datePipe.transform(this.FormCreaSolicitud.value.fecha, 'yyyy-MM-dd');
     this._SolicitudConsumo.id = 0;
@@ -443,7 +558,7 @@ export class SolicitudConsumoComponent implements OnInit {
     this._SolicitudConsumo.idpresupuesto = 0;
     this._SolicitudConsumo.referenciacontable = 0;
     this._SolicitudConsumo.operacioncontable = 0;
-    this._SolicitudConsumo.estado = this.FormCreaSolicitud.value.esticod;
+    this._SolicitudConsumo.estado = this.FormCreaSolicitud.controls.esticod.value;
     this._SolicitudConsumo.accion = "I";
     this._SolicitudConsumo.prioridad = this.FormCreaSolicitud.value.prioridad;
     this._SolicitudConsumo.usuariosolicita = sessionStorage.getItem('Usuario');
@@ -452,37 +567,50 @@ export class SolicitudConsumoComponent implements OnInit {
     this._SolicitudConsumo.servidor = this.servidor;
 
     this._SolicitudConsumo.detsolicitudconsumo = this.arregloDetalleProductoSolicitud;
-   
+
     this._solicitudConsumoService.grabarsolicitudconsumo(this._SolicitudConsumo).subscribe(
       response => {
-        this.alertSwal.title = "Solicitud creada N°:".concat(response.id);
-        this.alertSwal.show();
+        if (response != null) {
+          this.alertSwal.title = "Solicitud creada N°:".concat(response.id);
+          this.alertSwal.show();
+          this._solicitudConsumoService.buscarsolicitudconsumo(response.id, this.hdgcodigo, this.esacodigo, this.cmecodigo, 0, 0, 0, 0, 0, 0, "", "", this.usuario, this.servidor, "", "", "").subscribe(
+            respuestasolicitud => {
+              if (respuestasolicitud != null) {
+                this.limpiar();
+                this._SolicitudConsumo = respuestasolicitud[0];
+                this.FormCreaSolicitud.get('numsolicitud').setValue(this._SolicitudConsumo.id);
+                this.FormCreaSolicitud.get('centrocosto').setValue(this._SolicitudConsumo.centrocosto);
+                this.FormCreaSolicitud.get('fecha').setValue(this.datePipe.transform(this._SolicitudConsumo.fechasolicitud, 'dd-MM-yyyy'));
+                this.FormCreaSolicitud.get('prioridad').setValue(this._SolicitudConsumo.prioridad);
+                this.FormCreaSolicitud.get('referenciaerp').setValue(this._SolicitudConsumo.referenciacontable);
+                this.FormCreaSolicitud.get('glosa').setValue(this._SolicitudConsumo.glosa);
+                this.FormCreaSolicitud.get('esticod').setValue(this._SolicitudConsumo.estado);
+                this.activabtnmodificar = true;
+                this.activabtncrear = false;
+                this.verificanull = false
+                this.arregloDetalleProductoSolicitudPaginacion = [];
+                this.arregloDetalleProductoSolicitud = [];
+                this.arregloDetalleProductoSolicitud_aux = [];
+                this.arregloDetalleProductoSolicitudPaginacion_aux = [];
 
-        this._solicitudConsumoService.buscarsolicitudconsumo(response.id, this.hdgcodigo, this.esacodigo, this.cmecodigo, 0, 0, 0, 0, 0, 0, "", "", this.usuario, this.servidor, "", "").subscribe(
-          respuestasolicitud => {
-            this._SolicitudConsumo = respuestasolicitud[0];
-            this.FormCreaSolicitud.get('numsolicitud').setValue(this._SolicitudConsumo.id);
-            this.FormCreaSolicitud.get('centrocosto').setValue(this._SolicitudConsumo.centrocosto);
-            this.FormCreaSolicitud.get('fecha').setValue(this.datePipe.transform(this._SolicitudConsumo.fechasolicitud, 'dd-MM-yyyy'));
-            this.FormCreaSolicitud.get('prioridad').setValue(this._SolicitudConsumo.prioridad);
-            this.FormCreaSolicitud.get('referenciaerp').setValue(this._SolicitudConsumo.referenciacontable);
-            this.FormCreaSolicitud.get('glosa').setValue(this._SolicitudConsumo.glosa);
-            this.FormCreaSolicitud.get('esticod').setValue(this._SolicitudConsumo.estado);
-            this.activabtnmodificar = true;
-            this.activabtncrear = false;
-            this.arregloDetalleProductoSolicitudPaginacion = [];
-            this.arregloDetalleProductoSolicitud = [];
+                if (this._SolicitudConsumo.detsolicitudconsumo != null) {
+                  this.arregloDetalleProductoSolicitud = this._SolicitudConsumo.detsolicitudconsumo;
+                  this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
 
-
-            if (this._SolicitudConsumo.detsolicitudconsumo != null) {
-              this.arregloDetalleProductoSolicitud = this._SolicitudConsumo.detsolicitudconsumo;
-              this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
-            }
-          },
-          error => {
-            console.log("Error :", error)
+                  this.arregloDetalleProductoSolicitud_aux = this.arregloDetalleProductoSolicitud;
+                  this.arregloDetalleProductoSolicitudPaginacion_aux = this.arregloDetalleProductoSolicitudPaginacion;
+                }
+                this.arregloDetalleProductoSolicitud.forEach(x=>{
+                  if(this._SolicitudConsumo.referenciacontable ==0){
+                    x.bloqcampogrilla = true;
+                  }else{
+                    x.bloqcampogrilla = false;
+                  }
+                });
+              }
+            },
+            error => { });
           }
-        );
       },
       error => {
         console.log(error);
@@ -490,6 +618,15 @@ export class SolicitudConsumoComponent implements OnInit {
         this.alertSwalError.show();
       }
     );
+    this.sleep(2000);
+  }
+
+  sleep(milliseconds) {
+    const date = Date.now();
+    let currentDate = null;
+    do {
+      currentDate = Date.now();
+    } while (currentDate - date < milliseconds);
   }
 
   ConfirmaModificarSolicitud() {
@@ -516,7 +653,7 @@ export class SolicitudConsumoComponent implements OnInit {
 
     /* Sólo se setean los valores posoble de actualizar de la cabecera */
 
-    this._SolicitudConsumo.estado = this.FormCreaSolicitud.value.esticod;
+    this._SolicitudConsumo.estado = this.FormCreaSolicitud.controls.esticod.value;
     this._SolicitudConsumo.glosa = this.FormCreaSolicitud.value.glosa;
     this._SolicitudConsumo.prioridad = this.FormCreaSolicitud.value.prioridad;
     this._SolicitudConsumo.centrocosto = this.FormCreaSolicitud.value.centrocosto;
@@ -544,7 +681,6 @@ export class SolicitudConsumoComponent implements OnInit {
         this.grabadetallesolicitud.unshift(_detalleSolicitud);
       }
 
-
       if (element.accion == 'I') {
         _detalleSolicitud.glosaproducto = element.glosaproducto;
         _detalleSolicitud.idproducto = element.idproducto;
@@ -561,33 +697,38 @@ export class SolicitudConsumoComponent implements OnInit {
 
     this._solicitudConsumoService.grabarsolicitudconsumo(this._SolicitudConsumo).subscribe(
       response => {
-        this.alertSwal.title = "Solicitud Modificada N°:".concat(response.id);
-        this.alertSwal.show();
+        if (response != null) {
+          this.alertSwal.title = "Solicitud Modificada N°:".concat(response.id);
+          this.alertSwal.show();
 
-        this._solicitudConsumoService.buscarsolicitudconsumo(response.id, this.hdgcodigo, this.esacodigo, this.cmecodigo, 0, 0, 0, 0, 0, 0, "", "", sessionStorage.getItem('Usuario'), this.servidor, "", "").subscribe(
-          respuestasolicitud => {
-            this._SolicitudConsumo = respuestasolicitud[0];
-            this.FormCreaSolicitud.get('numsolicitud').setValue(this._SolicitudConsumo.id);
-            this.FormCreaSolicitud.get('centrocosto').setValue(this._SolicitudConsumo.centrocosto);
-            this.FormCreaSolicitud.get('fecha').setValue(this.datePipe.transform(this._SolicitudConsumo.fechasolicitud, 'dd-MM-yyyy'));
-            this.FormCreaSolicitud.get('prioridad').setValue(this._SolicitudConsumo.prioridad);
-            this.FormCreaSolicitud.get('referenciaerp').setValue(this._SolicitudConsumo.referenciacontable);
-            this.FormCreaSolicitud.get('glosa').setValue(this._SolicitudConsumo.glosa);
-
-
-            this.arregloDetalleProductoSolicitudPaginacion = [];
-            this.arregloDetalleProductoSolicitud = [];
+          this._solicitudConsumoService.buscarsolicitudconsumo(response.id, this.hdgcodigo, this.esacodigo, this.cmecodigo, 0, 0, 0, 0, 0, 0, "", "", sessionStorage.getItem('Usuario'), this.servidor, "", "", "").subscribe(
+            respuestasolicitud => {
+              if (respuestasolicitud != null) {
+                this._SolicitudConsumo = respuestasolicitud[0];
+                this.FormCreaSolicitud.get('numsolicitud').setValue(this._SolicitudConsumo.id);
+                this.FormCreaSolicitud.get('centrocosto').setValue(this._SolicitudConsumo.centrocosto);
+                this.FormCreaSolicitud.get('fecha').setValue(this.datePipe.transform(this._SolicitudConsumo.fechasolicitud, 'dd-MM-yyyy'));
+                this.FormCreaSolicitud.get('prioridad').setValue(this._SolicitudConsumo.prioridad);
+                this.FormCreaSolicitud.get('referenciaerp').setValue(this._SolicitudConsumo.referenciacontable);
+                this.FormCreaSolicitud.get('glosa').setValue(this._SolicitudConsumo.glosa);
 
 
-            if (this._SolicitudConsumo.detsolicitudconsumo != null) {
-              this.arregloDetalleProductoSolicitud = this._SolicitudConsumo.detsolicitudconsumo;
-              this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
-            }
-          },
-          error => {
-            console.log("Error :", error)
+                this.arregloDetalleProductoSolicitudPaginacion = [];
+                this.arregloDetalleProductoSolicitud = [];
+                this.arregloDetalleProductoSolicitud_aux = [];
+                this.arregloDetalleProductoSolicitudPaginacion_aux = [];
+
+                if (this._SolicitudConsumo.detsolicitudconsumo != null) {
+                  this.arregloDetalleProductoSolicitud = this._SolicitudConsumo.detsolicitudconsumo;
+                  this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
+
+                  this.arregloDetalleProductoSolicitud_aux = this.arregloDetalleProductoSolicitud;
+                  this.arregloDetalleProductoSolicitudPaginacion_aux = this.arregloDetalleProductoSolicitudPaginacion;
+                }
+              }
+            },
+            error => { });
           }
-        );
       },
       error => {
         console.log(error);
@@ -599,9 +740,8 @@ export class SolicitudConsumoComponent implements OnInit {
   }
 
 
-
   ConfirmaEliminarSolicitud() {
-    // sE CONFIRMA Eliminar Solicitud    
+    // sE CONFIRMA Eliminar Solicitud
     const Swal = require('sweetalert2');
     Swal.fire({
       title: '¿ Desea Eliminar la Solicitud ?',
@@ -621,17 +761,18 @@ export class SolicitudConsumoComponent implements OnInit {
   EliminarSolicitud() {
     var numsolic = this._SolicitudConsumo.id;
     if (this.FormCreaSolicitud.value.referenciaerp == null || this.FormCreaSolicitud.value.referenciaerp == 0) {
-      
+
       this._SolicitudConsumo = new (SolicitudConsumo);
       this._SolicitudConsumo.usuario = sessionStorage.getItem('Usuario');
       this._SolicitudConsumo.servidor = this.servidor;
       this._SolicitudConsumo.id = numsolic;
       this._solicitudConsumoService.eliminarsolicitudconsumo(this._SolicitudConsumo).subscribe(
         response => {
-          this.alertSwal.title = "Solicitud Eliminada N°:".concat(response.id);
-          this.alertSwal.show();
-          this.limpiar();
-
+          if (response != null) {
+            this.alertSwal.title = "Solicitud Eliminada N°:".concat(response.id);
+            this.alertSwal.show();
+            this.limpiar();
+          }
         },
         error => {
           this.alertSwal.title = "No fue posible eliminar la solicitud N°:".concat(this.FormCreaSolicitud.value.numsolicitud);
@@ -701,8 +842,6 @@ export class SolicitudConsumoComponent implements OnInit {
     })
   }
 
-
-
   setModalMensajeExitoEliminar(numerotransaccion: number, titulo: string, mensaje: string) {
     let dtModal: any = {};
     dtModal = {
@@ -770,76 +909,88 @@ export class SolicitudConsumoComponent implements OnInit {
   BuscarPlantillaSolicitudes() {
     this._BSModalRef = this._BsModalService.show(BusquedaPlantillaConsumoComponent, this.setModalBusquedaPlantilla());
     this._BSModalRef.content.onClose.subscribe((response: PlantillaConsumo) => {
-      if (response == undefined) { }
-      else {
-        this.existesolicitud = false;
-        this.activabtnmodificar = false;
-        this.activabtncrear = true;
-        this._SolicitudConsumo = new (SolicitudConsumo);
-        this._SolicitudConsumo.accion = 'I';
-        //this._SolicitudConsumo.id         =  0; 
-        this._SolicitudConsumo.hdgcodigo = this.hdgcodigo;
-        this._SolicitudConsumo.esacodigo = this.esacodigo;
-        this._SolicitudConsumo.cmecodigo = this.cmecodigo;
-        this._SolicitudConsumo.centrocosto = response.centrocosto;
-        this._SolicitudConsumo.idpresupuesto = response.idpresupuesto;
-        this._SolicitudConsumo.glosa = response.glosa;
-        this._SolicitudConsumo.referenciacontable = response.referenciacontable;
-        this._SolicitudConsumo.operacioncontable = response.operacioncontable;
-        this._SolicitudConsumo.estado = response.estado;
-        this._SolicitudConsumo.usuariosolicita = sessionStorage.getItem('Usuario');
-        this._SolicitudConsumo.detsolicitudconsumo = [];
-        this._SolicitudConsumo.usuario = sessionStorage.getItem('Usuario');
-        this._SolicitudConsumo.servidor = this.servidor;
+      if (response != undefined) {
+        this._PlantillaConsumoService.buscarplantillaconsumo(response.id, this.hdgcodigo, this.esacodigo,
+        this.cmecodigo, 0, 0, 0, 0, sessionStorage.getItem('Usuario'), this.servidor,'').subscribe(
+          response_plantilla => {
+            if (response_plantilla.length != 0) {
+              this.existesolicitud = false;
+              this.activabtnmodificar = false;
+              this.activabtncrear = true;
+              this._SolicitudConsumo = new (SolicitudConsumo);
+              this._SolicitudConsumo.accion = 'I';
+              //this._SolicitudConsumo.id         =  0;
+              this._SolicitudConsumo.hdgcodigo = this.hdgcodigo;
+              this._SolicitudConsumo.esacodigo = this.esacodigo;
+              this._SolicitudConsumo.cmecodigo = this.cmecodigo;
+              this._SolicitudConsumo.centrocosto = response.centrocosto;
+              this._SolicitudConsumo.idpresupuesto = response.idpresupuesto;
+              this._SolicitudConsumo.glosa = response.glosa;
+              this._SolicitudConsumo.referenciacontable = response.referenciacontable;
+              this._SolicitudConsumo.operacioncontable = response.operacioncontable;
+              this._SolicitudConsumo.estado = response.estado;
+              this._SolicitudConsumo.usuariosolicita = sessionStorage.getItem('Usuario');
+              this._SolicitudConsumo.detsolicitudconsumo = [];
+              this._SolicitudConsumo.usuario = sessionStorage.getItem('Usuario');
+              this._SolicitudConsumo.servidor = this.servidor;
+              response_plantilla[0].detplantillaconsumo.forEach(element=>{
+                const indx = this.arregloDetalleProductoSolicitud.findIndex(x => x.codigoproducto === element.codigoproducto, 1);
+                if(indx >=0){
+                }else{
+                  var insertaDetalleSolicitud = new (DetalleSolicitudConsumo)
+                  insertaDetalleSolicitud.accion = "I";
+                  insertaDetalleSolicitud.iddetalle = 0;
+                  insertaDetalleSolicitud.id = 0;
+                  insertaDetalleSolicitud.centrocosto = element.centrocosto;
+                  insertaDetalleSolicitud.idpresupuesto = element.idpresupuesto;
+                  insertaDetalleSolicitud.idproducto = element.idproducto;
+                  insertaDetalleSolicitud.codigoproducto = element.codigoproducto;
+                  insertaDetalleSolicitud.glosaproducto = element.glosaproducto;
+                  insertaDetalleSolicitud.cantidadsolicitada = 0;// element.cantidadsolicitada;
+                  insertaDetalleSolicitud.cantidadrecepcionada = 0;
+                  insertaDetalleSolicitud.referenciacontable = element.referenciacontable;
+                  insertaDetalleSolicitud.operacioncontable = element.operacioncontable;
+                  insertaDetalleSolicitud.estado = 1;
+                  insertaDetalleSolicitud.prioridad = 1;
+                  insertaDetalleSolicitud.usuariosolicita = sessionStorage.getItem('Usuario');
+                  insertaDetalleSolicitud.usuarioautoriza = " ";
+                  insertaDetalleSolicitud.usuario = sessionStorage.getItem('Usuario');
+                  insertaDetalleSolicitud.servidor = this.servidor;
+                  insertaDetalleSolicitud.glosaunidadconsumo = element.glosaunidadconsumo;
+                  insertaDetalleSolicitud.bloqcampogrilla = true;
 
+                  this.arregloDetalleProductoSolicitud.push(insertaDetalleSolicitud);
+                // })
+                }
+              });
 
-        response.detplantillaconsumo.forEach(element => {
-          var insertaDetalleSolicitud = new (DetalleSolicitudConsumo)
-          insertaDetalleSolicitud.accion = "I";
-          insertaDetalleSolicitud.iddetalle = 0;
-          insertaDetalleSolicitud.id = 0;
-          insertaDetalleSolicitud.centrocosto = element.centrocosto;
-          insertaDetalleSolicitud.idpresupuesto = element.idpresupuesto;
-          insertaDetalleSolicitud.idproducto = element.idproducto;
-          insertaDetalleSolicitud.codigoproducto = element.codigoproducto;
-          insertaDetalleSolicitud.glosaproducto = element.glosaproducto;
-          insertaDetalleSolicitud.cantidadsolicitada = element.cantidadsolicitada;
-          insertaDetalleSolicitud.cantidadrecepcionada = 0;
-          insertaDetalleSolicitud.referenciacontable = element.referenciacontable;
-          insertaDetalleSolicitud.operacioncontable = element.operacioncontable;
-          insertaDetalleSolicitud.estado = 1;
-          insertaDetalleSolicitud.prioridad = 1;
-          insertaDetalleSolicitud.usuariosolicita = sessionStorage.getItem('Usuario');
-          insertaDetalleSolicitud.usuarioautoriza = " ";
-          insertaDetalleSolicitud.usuario = sessionStorage.getItem('Usuario');
-          insertaDetalleSolicitud.servidor = this.servidor;
-          insertaDetalleSolicitud.glosaunidadconsumo = element.glosaunidadconsumo;
+              //this.FormCreaSolicitud.get('numsolicitud').setValue(this._SolicitudConsumo.id);
+              this.FormCreaSolicitud.get('centrocosto').setValue(this._SolicitudConsumo.centrocosto);
+              //this.FormCreaSolicitud.get('fecha').setValue(this.datePipe.transform(this._SolicitudConsumo.fechasolicitud, 'dd-MM-yyyy'));
+              // this.FormCreaSolicitud.get('prioridad').setValue(this._SolicitudConsumo.prioridad);
+              this.FormCreaSolicitud.get('referenciaerp').setValue(this._SolicitudConsumo.referenciacontable);
+              this.FormCreaSolicitud.get('glosa').setValue(this._SolicitudConsumo.glosa);
+              this.FormCreaSolicitud.get('fecha').setValue(new Date());
+              // this.FormCreaSolicitud.get('esticod').setValue(this._SolicitudConsumo.estado);
 
-          this._SolicitudConsumo.detsolicitudconsumo.push(insertaDetalleSolicitud);
+              this.activabtnagregaryplantilla = true;
+              this.arregloDetalleProductoSolicitudPaginacion = [];
+              // this.arregloDetalleProductoSolicitud = [];
+              this.arregloDetalleProductoSolicitud_aux = [];
+              this.arregloDetalleProductoSolicitudPaginacion_aux = [];
 
-        });
+              // this.arregloDetalleProductoSolicitud = this._SolicitudConsumo.detsolicitudconsumo;
+              this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
 
-        //this.FormCreaSolicitud.get('numsolicitud').setValue(this._SolicitudConsumo.id);
-        this.FormCreaSolicitud.get('centrocosto').setValue(this._SolicitudConsumo.centrocosto);
-        //this.FormCreaSolicitud.get('fecha').setValue(this.datePipe.transform(this._SolicitudConsumo.fechasolicitud, 'dd-MM-yyyy'));
-        // this.FormCreaSolicitud.get('prioridad').setValue(this._SolicitudConsumo.prioridad);
-        this.FormCreaSolicitud.get('referenciaerp').setValue(this._SolicitudConsumo.referenciacontable);
-        this.FormCreaSolicitud.get('glosa').setValue(this._SolicitudConsumo.glosa);
-        this.FormCreaSolicitud.get('fecha').setValue(new Date());
-        // this.FormCreaSolicitud.get('esticod').setValue(this._SolicitudConsumo.estado);
-
-        this.arregloDetalleProductoSolicitudPaginacion = [];
-        this.arregloDetalleProductoSolicitud = [];
-
-        if (this._SolicitudConsumo.detsolicitudconsumo != null) {
-          this.arregloDetalleProductoSolicitud = this._SolicitudConsumo.detsolicitudconsumo;
-          this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
-        }
-
-      }
+              this.arregloDetalleProductoSolicitud_aux = this.arregloDetalleProductoSolicitud;
+              this.arregloDetalleProductoSolicitudPaginacion_aux = this.arregloDetalleProductoSolicitudPaginacion;
+            }
+            // }
+          });
+      }this.logicaVacios();
     });
-  }
 
+  }
 
   setModalBusquedaPlantilla() {
     let dtModal: any = {};
@@ -858,18 +1009,25 @@ export class SolicitudConsumoComponent implements OnInit {
   }
 
   ImprimirSolicitud() {
+    var solicitud : number = this.FormCreaSolicitud.controls.numsolicitud.value;
+    var usuario : string = this.usuario;
+    this._imprimesolicitudService.RPTImprimeSolicitudConsumo(this.servidor,this.hdgcodigo,this.esacodigo,
+      this.cmecodigo,"pdf",usuario,solicitud).subscribe(
+        response => {
+          if (response != null) {
+            window.open(response[0].url, "", "");
+          }
+        },
+    error => {
+      console.log(error);
+      this.alertSwalError.title = "Error al Imprimir Devolución Solicitud";
+      this.alertSwalError.show();
+      this._BSModalRef.content.onClose.subscribe((RetornoExito: any) => {
+      });
+    });
   }
 
-
-ActivarBotonGuardar(){ 
-  //console.log(this.FormCreaSolicitud.get('numsolicitud').value ,
-  //this.FormCreaSolicitud.get('esticod').value,
-  //this.FormCreaSolicitud.get('prioridad').value,
-  //this.FormCreaSolicitud.get('centrocosto').value,
-  //this.FormCreaSolicitud.get('glosa').value,
-  //this.arregloDetalleProductoSolicitud.length,
-  //this.FormCreaSolicitud.get('referenciaerp').value);
-  
+  ActivarBotonGuardar(){
     if (this.FormCreaSolicitud.get('numsolicitud').value == null
       && this.FormCreaSolicitud.get('esticod').value != null
       && this.FormCreaSolicitud.get('prioridad').value != null
@@ -878,86 +1036,432 @@ ActivarBotonGuardar(){
       && this.arregloDetalleProductoSolicitud.length >0
     ) {
       return true
+    } else {
+      return false
+    }
+  }
+
+
+  ActivarBotonModificar(){
+
+    if (this.FormCreaSolicitud.get('numsolicitud').value != null
+      && this.FormCreaSolicitud.get('esticod').value != null
+      && this.FormCreaSolicitud.get('prioridad').value != null
+      && this.FormCreaSolicitud.get('centrocosto').value != null
+      && this.FormCreaSolicitud.get('glosa').value != null
+      && this.arregloDetalleProductoSolicitud.length >0
+      && this.FormCreaSolicitud.get('referenciaerp').value == 0
+      && this.FormCreaSolicitud.get('esticod').value != 80
+    ) {
+      return true
 
     } else {
       return false
     }
-  
-}
+
+  }
+
+  ActivaBotonAgregar(){
+
+    if(this.FormCreaSolicitud.controls.glosa.value == "" || this.FormCreaSolicitud.controls.glosa.value == null){
+      this.activabtnagregaryplantilla = false;
+
+    }else{
+      this.activabtnagregaryplantilla = true;
+
+    }
+  }
+
+  ActivarBotonEliminar(){
+
+  }
+
+  ActivarEstadoSolicitud(){
+
+  }
+
+  ActivarPrioridad() {
+
+  }
 
 
+  ActivarCentroCosto(){
 
-ActivarBotonModificar(){
-  //console.log(this.FormCreaSolicitud.get('numsolicitud').value ,
-  //this.FormCreaSolicitud.get('esticod').value,
-  //this.FormCreaSolicitud.get('prioridad').value,
-  //this.FormCreaSolicitud.get('centrocosto').value,
-  //this.FormCreaSolicitud.get('glosa').value,
-  //this.arregloDetalleProductoSolicitud.length,
-  //this.FormCreaSolicitud.get('referenciaerp').value);
-  
-      if (this.FormCreaSolicitud.get('numsolicitud').value != null
-        && this.FormCreaSolicitud.get('esticod').value != null
-        && this.FormCreaSolicitud.get('prioridad').value != null
-        && this.FormCreaSolicitud.get('centrocosto').value != null
-        && this.FormCreaSolicitud.get('glosa').value != null
-        && this.arregloDetalleProductoSolicitud.length >0
-        && this.FormCreaSolicitud.get('referenciaerp').value == "0" 
-      ) {
-        return true
-  
-      } else {
-        return false
+  }
+
+  ActivarGlosa(){
+
+  }
+
+  getProducto() {
+    this.codprod = this.FormDatosProducto.value.codigo;
+    if (this.codprod === null || this.codprod === '') {
+      this.addArticuloGrilla();
+    } else {
+      this.loading = true;
+      const tipodeproducto = 'MIM';
+      const controlado = '';
+      const controlminimo = '';
+      const idBodega = 0;
+      const consignacion = '';
+      this._solicitudConsumoService.buscarproductosconsumo(0,  this.hdgcodigo, this.esacodigo,this.cmecodigo,
+        this.codprod,null,0,0, this.usuario, this.servidor
+        ).subscribe(
+          response => {
+            if (response != null) {
+              if (!response.length) {
+                this.loading = false;
+              } else {
+                if (response.length) {
+                  if(response.length>1){
+                    this.addArticuloGrilla();
+                  }else{
+                    if(response.length === 1){
+                      const DetalleMovimiento = new (DetalleSolicitudConsumo);
+                      if (this.FormCreaSolicitud.value.numsolicitud == null) {
+                        DetalleMovimiento.id = 0;
+                      } else {
+                        DetalleMovimiento.id = this.FormCreaSolicitud.value.numsolicitud;
+                      }
+                      this.activabtneliminar = true;
+                      DetalleMovimiento.iddetalle = 0;
+                      DetalleMovimiento.servidor = this.servidor;
+                      DetalleMovimiento.usuario = sessionStorage.getItem('Usuario');
+                      DetalleMovimiento.centrocosto = this.FormCreaSolicitud.value.ccosto;
+                      DetalleMovimiento.codigoproducto = response[0].prodcodigo;
+                      DetalleMovimiento.cantidadsolicitada = 0;
+                      DetalleMovimiento.cantidadrecepcionada = 0;
+                      DetalleMovimiento.referenciacontable = 0;
+                      DetalleMovimiento.operacioncontable = 0;
+                      DetalleMovimiento.estado = 10;
+                      DetalleMovimiento.prioridad = 0;
+                      DetalleMovimiento.usuariosolicita = sessionStorage.getItem('Usuario');
+                      DetalleMovimiento.servidor = this.servidor;
+                      DetalleMovimiento.usuarioautoriza = '';
+                      DetalleMovimiento.accion = "I";
+                      DetalleMovimiento.glosaproducto = response[0].proddescripcion;
+                      DetalleMovimiento.glosaunidadconsumo = response[0].glosaunidadconsumo;
+                      DetalleMovimiento.idproducto = response[0].prodid;
+                      DetalleMovimiento.bloqcampogrilla = true;
+
+                      if (this.activabtnmodificar == true) {
+                        this.activabtncrear = false;
+                        this.activabtnmodificar = true;
+                      }else{
+                        this.activabtnmodificar = false;
+                        this.activabtncrear = true;
+                      }
+                      this.arregloDetalleProductoSolicitud_aux = [];
+                      this.arregloDetalleProductoSolicitudPaginacion_aux = [];
+
+                      const indx = this.arregloDetalleProductoSolicitud.findIndex(x => x.codigoproducto === DetalleMovimiento.codigoproducto, 1);
+                      if (indx >= 0) {
+                        this.alertSwalError.title = "Código ya existe en la grilla";
+                        this.alertSwalError.show();
+
+                      }else{
+                        this.arregloDetalleProductoSolicitud.unshift(DetalleMovimiento);
+                        this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
+
+                        this.arregloDetalleProductoSolicitud_aux = this.arregloDetalleProductoSolicitud;
+                        this.arregloDetalleProductoSolicitudPaginacion_aux = this.arregloDetalleProductoSolicitudPaginacion;
+                      }
+                      // this.arregloDetalleProductoSolicitud.unshift(DetalleMovimiento);
+                      // this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
+                      this.FormDatosProducto.reset();
+                      this.ActivaBotonBuscaGrilla = true;
+                      this.logicaVacios();
+                    }
+                  }
+                }
+              }
+            }
+            this.loading = false;
+          },
+          error => {
+            this.loading = false;
+            this.alertSwalError.title = "Error: ";
+            this.alertSwalError.text = error.message;
+            this.alertSwalError.show();
+          }
+        );
+
+    }
+  }
+
+  async CambioCheck(registro: DetalleSolicitudConsumo,id:number,event:any,marcacheckgrilla: boolean){
+    if(event.target.checked){
+      registro.marcacheckgrilla = true;
+      this.desactivabtnelim = true;
+      await this.isEliminaInsGrilla(registro)
+      await this.arregloDetalleProductoSolicitud.forEach(d=>{
+        if(d.marcacheckgrilla === true){
+          this.desactivabtnelim = true;
+        }
+      });
+    }else{
+      registro.marcacheckgrilla = false;
+      this.desactivabtnelim = false;
+      await this.isEliminaInsGrilla(registro);
+      await this.arregloDetalleProductoSolicitud.forEach(d=>{
+        if(d.marcacheckgrilla === true){
+          this.desactivabtnelim = true;
+        }
+      });
+    }
+  }
+
+  isEliminaInsGrilla(registro: DetalleSolicitudConsumo) {
+
+    let indice = 0;
+    for (const articulo of this.arregloDetalleProductoSolicitud) {
+      if (registro.codigoproducto === articulo.codigoproducto && registro.iddetalle === articulo.iddetalle) {
+        articulo.marcacheckgrilla = registro.marcacheckgrilla;
+        return indice;
       }
+      indice++;
+    }
+    return -1;
+  }
+
+  ConfirmaEliminaProductoDeLaGrilla2() {
+    const Swal = require('sweetalert2');
+    Swal.fire({
+      title: '¿ Confirme eliminación de producto de la solicitud ?',
+      text: "Confirmar la eliminación del producto",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Aceptar'
+    }).then((result) => {
+      if (result.value) {
+        this.EliminaProductoDeLaGrilla2();
+      }
+    })
+  }
+
+  EliminaProductoDeLaGrilla2() {
+    this.arregloDetalleProductoSolicitudPaginacion.forEach(dat=>{
+      if (dat.accion === "I"  && dat.iddetalle === 0) {
+        if(dat.marcacheckgrilla ===true){
+          if(this.isEliminaMed(dat)<0){
+          }else{
+            this.desactivabtnelim = false;
+            this.arregloDetalleProductoSolicitud.splice(this.isEliminaMed(dat), 1);
+            this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
+            this.logicaVacios();
+          }
+        }
+      }else{
+        if(dat.marcacheckgrilla == true){
+          dat.servidor = this.servidor;
+          dat.usuario = sessionStorage.getItem('Usuario');
+          this._solicitudConsumoService.eliminardetallearticulosolicitudconsumo(dat).subscribe(
+            response => {
+              this._solicitudConsumoService.buscarsolicitudconsumo(dat.id, this.hdgcodigo, this.esacodigo, this.cmecodigo, 0, 0, 0, 0, 0, 0, "", "", this.usuario, this.servidor, "", "", "").subscribe(
+                respuestasolicitud => {
+                  if (response != null) {
+                    this._SolicitudConsumo = respuestasolicitud[0];
+                    this.FormCreaSolicitud.get('numsolicitud').setValue(this._SolicitudConsumo.id);
+                    this.FormCreaSolicitud.get('centrocosto').setValue(this._SolicitudConsumo.centrocosto);
+                    this.FormCreaSolicitud.get('fecha').setValue(this.datePipe.transform(this._SolicitudConsumo.fechasolicitud, 'dd-MM-yyyy'));
+                    this.FormCreaSolicitud.get('prioridad').setValue(this._SolicitudConsumo.estado);
+                    this.FormCreaSolicitud.get('referenciaerp').setValue(this._SolicitudConsumo.referenciacontable);
+                    this.FormCreaSolicitud.get('glosa').setValue(this._SolicitudConsumo.glosa);
+                    this.arregloDetalleProductoSolicitudPaginacion = [];
+                    this.arregloDetalleProductoSolicitud = [];
+                    this.arregloDetalleProductoSolicitud_aux = [];
+                    this.arregloDetalleProductoSolicitudPaginacion_aux = [];
+
+                    if (this._SolicitudConsumo.detsolicitudconsumo != null) {
+                      this.arregloDetalleProductoSolicitud = this._SolicitudConsumo.detsolicitudconsumo;
+                      this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
+
+                      this.arregloDetalleProductoSolicitud_aux = this.arregloDetalleProductoSolicitud;
+                      this.arregloDetalleProductoSolicitudPaginacion_aux = this.arregloDetalleProductoSolicitudPaginacion;
+                    }
+                  }
+                },
+                error => {
+                  console.log("Error :", error)
+                }
+              );
+              this.alertSwal.title = "Eliminacón del producto realizada con éxito";
+              this.alertSwal.show();
+            },
+          error => {
+            console.log("Error :", error)
+          });
+        }
+      }
+    });
+  }
+
+  isEliminaMed(registro: DetalleSolicitudConsumo) {
+    let indice = 0;
+    for (const articulo of this.arregloDetalleProductoSolicitud) {
+      if (registro.codigoproducto === articulo.codigoproducto) {
+        return indice;
+      }
+      indice++;
+    }
+    return -1;
+  }
+
+  async logicaVacios() {
+    this.vaciosProductos();
+    if (this.vacios === true) {
+      this.verificanull = false;
+    }
+    else {
+      this.verificanull = true;
+    }
+  }
+
+  vaciosProductos() {
+    if (this.arregloDetalleProductoSolicitudPaginacion.length) {
+      for (var data of this.arregloDetalleProductoSolicitudPaginacion) {
+        if (data.cantidadsolicitada <= 0 || data.cantidadsolicitada === null) {
+          this.vacios = true;
+          return;
+        } else {
+          this.vacios = false;
+        }
+      }
+    }else{
+      this.vacios = true;
+    }
+  }
+
+  async logicaVaciosModif() {
+    this.vaciosProductosModif();
+    if (this.vacios === true) {
+      this.verificanullmodif = false;
+    }
+    else {
+      this.verificanullmodif = true;
+    }
+  }
+
+  vaciosProductosModif() {
+    if (this.arregloDetalleProductoSolicitudPaginacion.length) {
+      for (var data of this.arregloDetalleProductoSolicitudPaginacion) {
+        if (data.cantidadsolicitada <= 0 || data.cantidadsolicitada === null) {
+          this.vacios = true;
+          return;
+        } else {
+          this.vacios = false;
+        }
+      }
+    }else{
+      this.vacios = true;
+    }
+  }
+
+  async findArticuloGrilla() {
+    this.loading = true;
+    if ( this.FormDatosProducto.controls.codigo.touched &&
+        this.FormDatosProducto.controls.codigo.status !== 'INVALID') {
+        var codProdAux = this.FormDatosProducto.controls.codigo.value.toString();
+      if(this.FormCreaSolicitud.controls.numsolicitud.value >0){
+        this._solicitudConsumoService.buscarsolicitudconsumo(this.FormCreaSolicitud.controls.numsolicitud.value,
+          this.hdgcodigo, this.esacodigo, this.cmecodigo, 0, 0, 0, 0, 0, 0, "", "", sessionStorage.getItem('Usuario'),
+          this.servidor, "", "",codProdAux).subscribe(
+          respuestasolicitud => {
+            this._SolicitudConsumo = respuestasolicitud[0];
+            this.FormCreaSolicitud.get('numsolicitud').setValue(this._SolicitudConsumo.id);
+            this.FormCreaSolicitud.get('centrocosto').setValue(this._SolicitudConsumo.centrocosto);
+            this.FormCreaSolicitud.get('fecha').setValue(this.datePipe.transform(this._SolicitudConsumo.fechasolicitud, 'dd-MM-yyyy'));
+            this.FormCreaSolicitud.get('prioridad').setValue(this._SolicitudConsumo.prioridad);
+            this.FormCreaSolicitud.get('referenciaerp').setValue(this._SolicitudConsumo.referenciacontable);
+            this.FormCreaSolicitud.get('glosa').setValue(this._SolicitudConsumo.glosa);
+            this.FormCreaSolicitud.get('esticod').setValue(this._SolicitudConsumo.estado)
+
+            this.arregloDetalleProductoSolicitudPaginacion = [];
+            this.arregloDetalleProductoSolicitud = [];
+
+            if(this._SolicitudConsumo.referenciacontable >0){
+              this.activabtnagregaryplantilla = false;
+              this.ActivaBotonBuscaGrilla = true;
+              this.ActivaBotonLimpiaBusca = true;
+            }else{
+              this.FormDatosProducto.controls.codigo.enable();
+              this.activabtnagregaryplantilla = true;
+              this.ActivaBotonBuscaGrilla = true;
+              this.ActivaBotonLimpiaBusca = true;
+            }
+
+            if (this._SolicitudConsumo.detsolicitudconsumo != null) {
+              this.arregloDetalleProductoSolicitud = this._SolicitudConsumo.detsolicitudconsumo;
+              this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0, 20);
+            }
+            this.arregloDetalleProductoSolicitud.forEach(x=>{
+              if(this._SolicitudConsumo.referenciacontable ==0){
+                x.bloqcampogrilla = true;
+              }else{
+                x.bloqcampogrilla = false;
+              }
+            })
+
+            this.loading = false;
+            return;
+          });
+      }else{ //Cuando la solicitud aún no se crea
+
+        this.arregloDetalleProductoSolicitud_2 = [];
+        if(this.FormCreaSolicitud.controls.numsolicitud.value === null){
+
+          this._solicitudService.BuscarProductoPorLike(this.hdgcodigo, this.esacodigo,
+            this.cmecodigo,codProdAux,4,this.usuario,this.servidor,null,null,
+            null,this.arregloDetalleProductoSolicitud,null).subscribe(response => {
+              if (response != null) {
+                response.forEach(x=>{
+                  this.arregloDetalleProductoSolicitud_2.unshift(x);
+                });
+
+                this.arregloDetalleProductoSolicitud = [];
+                this.arregloDetalleProductoSolicitudPaginacion = [];
+
+                this.arregloDetalleProductoSolicitud = this.arregloDetalleProductoSolicitud_2;
+                this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitud.slice(0,20);
+                this.ActivaBotonLimpiaBusca = true;
+              }
+              this.loading = false;
+            });
+          this.loading = false;
+        }
+      }
+    }else{
+      this.limpiarCodigo();
+      this.loading = false;
+      return;
+    }
+  }
+
+  limpiarCodigo() {
+    this.loading = true;
+    this.FormDatosProducto.controls.codigo.reset();
+    var codProdAux = '';
+
+    this.arregloDetalleProductoSolicitud = [];
+    this.arregloDetalleProductoSolicitudPaginacion = [];
+
+    // Llenar Array Auxiliares
+    this.arregloDetalleProductoSolicitud = this.arregloDetalleProductoSolicitud_aux;
+    this.arregloDetalleProductoSolicitudPaginacion = this.arregloDetalleProductoSolicitudPaginacion_aux;
+    this.ActivaBotonLimpiaBusca = false;
+
+    this.loading = false;
+  }
+
+  ActivaBotonImprimir(){
+    var solicitud : number = this.FormCreaSolicitud.controls.numsolicitud.value;
+    if (solicitud > 0 || solicitud != null || solicitud != undefined) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
 }
-
-ActivaBotonAgregar(){
-//console.log(this.FormCreaSolicitud.get('numsolicitud').value ,
- // this.FormCreaSolicitud.get('esticod').value,
-//  this.FormCreaSolicitud.get('prioridad').value,
-//  this.FormCreaSolicitud.get('centrocosto').value,
-//  this.FormCreaSolicitud.get('glosa').value,
-  //this.arregloDetalleProductoSolicitud.length,
-//  this.FormCreaSolicitud.get('referenciaerp').value);
-  
-  if (this.FormCreaSolicitud.get('esticod').value != null
-  && this.FormCreaSolicitud.get('prioridad').value != null
-  && this.FormCreaSolicitud.get('centrocosto').value != null
-  && this.FormCreaSolicitud.get('glosa').value != null
-  //&& this.arregloDetalleProductoSolicitud.length >0
-  && (this.FormCreaSolicitud.get('referenciaerp').value == "0"  || this.FormCreaSolicitud.get('referenciaerp').value == null) 
-) {
-  return true
-
-} else {
-  return false
-}
-
-
-}
-
-ActivarBotonEliminar(){
-
-}
-
-ActivarEstadoSolicitud(){
-
-}
-
-ActivarPrioridad() {
-
-}
-
-
-ActivarCentroCosto(){
-
-}
-
-ActivarGlosa(){
-
-}
-
-
-}
-

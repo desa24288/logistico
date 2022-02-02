@@ -15,13 +15,13 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class DistribucioncomprasespecialesService {
-    public urlBuscarproducto            :string  = environment.URLServiciosRest.URLConexion.concat('/prodadistribuir');//"http://172.25.108.236:8192/prodadistribuir";
-    public urlBuscarproductounitario    :string  = environment.URLServiciosRest.URLConexion.concat('/productounitario');//"http://172.25.108.236:8192/productounitario";
-    public urlBuscanuevoproductounitario: string = environment.URLServiciosRest.URLConexion.concat('/nuevosproductounitario');//"http://172.25.108.236:8192/nuevosproductounitario";
-    public urlgrabadist                 : string = environment.URLServiciosRest.URLConexion.concat('/grabafraccionados');//"http://172.25.108.236:8192/grabafraccionados";
-    public urleliminaprod               : string = environment.URLServiciosRest.URLConexion.concat('/eliminafraccionados');//"http://172.25.108.236:8192/eliminafraccionados";
-    public urlbuscaempresa              : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
-    public urlbuscasucursal             : string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
+    public urlBuscarproducto            :string  = sessionStorage.getItem('enlace').toString().concat('/prodadistribuir');//"http://172.25.108.236:8192/prodadistribuir";
+    public urlBuscarproductounitario    :string  = sessionStorage.getItem('enlace').toString().concat('/productounitario');//"http://172.25.108.236:8192/productounitario";
+    public urlBuscanuevoproductounitario: string = sessionStorage.getItem('enlace').toString().concat('/nuevosproductounitario');//"http://172.25.108.236:8192/nuevosproductounitario";
+    public urlgrabadist                 : string = sessionStorage.getItem('enlace').toString().concat('/grabafraccionados');//"http://172.25.108.236:8192/grabafraccionados";
+    public urleliminaprod               : string = sessionStorage.getItem('enlace').toString().concat('/eliminafraccionados');//"http://172.25.108.236:8192/eliminafraccionados";
+    public urlbuscaempresa              : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
+    public urlbuscasucursal             : string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
     
     constructor(public _http: HttpClient) {
 

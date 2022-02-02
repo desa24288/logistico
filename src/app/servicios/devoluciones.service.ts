@@ -15,12 +15,12 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class DevolucionesService {
-    public urlbuscasolicadispensar  : string = environment.URLServiciosRest.URLConexion.concat('/buscasolicitud');//"http://172.25.108.236:8191/buscasolicitud"; 
-    public urldetallesolicitud      : string = environment.URLServiciosRest.URLConexion.concat('/buscasolicituddet');//"http://172.25.108.236:8191/buscasolicituddet";
-    public urlgrabadevolucion       : string = environment.URLServiciosRest.URLConexion.concat('/grabadevoluciones');//"http://172.25.108.236:8191/grabadevoluciones";
-    public urlbuscaempresa          : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');///"http://172.25.108.236:8181/buscaempresa";
-    public urlbuscasucursal         : string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal";
-    public urlservcioclinico        : string = environment.URLServiciosRest.URLConexion.concat('/traeclinservicios');//'http://172.25.108.236:8189/traeclinservicios';
+    public urlbuscasolicadispensar  : string = sessionStorage.getItem('enlace').toString().concat('/buscasolicitud');//"http://172.25.108.236:8191/buscasolicitud"; 
+    public urldetallesolicitud      : string = sessionStorage.getItem('enlace').toString().concat('/buscasolicituddet');//"http://172.25.108.236:8191/buscasolicituddet";
+    public urlgrabadevolucion       : string = sessionStorage.getItem('enlace').toString().concat('/grabadevoluciones');//"http://172.25.108.236:8191/grabadevoluciones";
+    public urlbuscaempresa          : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');///"http://172.25.108.236:8181/buscaempresa";
+    public urlbuscasucursal         : string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal";
+    public urlservcioclinico        : string = sessionStorage.getItem('enlace').toString().concat('/traeclinservicios');//'http://172.25.108.236:8189/traeclinservicios';
 
 
     constructor(public _http: HttpClient) {

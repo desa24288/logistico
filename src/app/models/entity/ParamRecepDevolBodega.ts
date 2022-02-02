@@ -9,6 +9,8 @@ export class ParamRecepDevolBodega {
         public servidor            ?: string,
         public usuariodespacha     ?: string,
         public soliid              ?: number,
+        public solibodorigen       ?: number,
+        public soliboddestino      ?: number,
         public paramdetdevolbodega ?: ParamDetRecepDevolBodega[],
     ) { }   
 }

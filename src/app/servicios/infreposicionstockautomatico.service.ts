@@ -11,9 +11,9 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class InfreposicionstockautomaticoService {
-    public urlrepstock      : string = environment.URLServiciosRest.URLConexionInformes.concat('/obtieneurlinfreposicionbodegas');//"http://172.25.108.236:8194/obtieneurlinfreposicionbodegas";
-    public urlbuscaempresa  : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
-    public urlbuscasucursal : string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
+    public urlrepstock      : string = sessionStorage.getItem('enlace').toString().concat('/obtieneurlinfreposicionbodegas');//"http://172.25.108.236:8194/obtieneurlinfreposicionbodegas";
+    public urlbuscaempresa  : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
+    public urlbuscasucursal : string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
      
     constructor(public _http: HttpClient) {
 

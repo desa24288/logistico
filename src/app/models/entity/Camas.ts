@@ -2,6 +2,7 @@ export class Camas {
     hdgcodigo: number;
     esacodigo: number;
     cmecodigo: number;
+    camid: number;
     camaid: number;
     camadescripcion: string;
 

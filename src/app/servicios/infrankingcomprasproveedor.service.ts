@@ -11,9 +11,9 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class InfrankingcomprasproveedorService {
-    public urlordenes      : string = environment.URLServiciosRest.URLConexionInformes.concat('/obtieneurlinfrankingcomprasproveedor');//"http://172.25.108.236:8194/obtieneurlinfajustesprecios";
-    public urlbuscaempresa : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');
-    public urlbuscasucursal: string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');
+    public urlordenes      : string = sessionStorage.getItem('enlace').toString().concat('/obtieneurlinfrankingcomprasproveedor');//"http://172.25.108.236:8194/obtieneurlinfajustesprecios";
+    public urlbuscaempresa : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');
+    public urlbuscasucursal: string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');
        
     constructor(public _http: HttpClient) {
 
@@ -40,7 +40,6 @@ export class InfrankingcomprasproveedorService {
 
     RPTInfRankingProveedores(tiporeport: string,fechaini: string, fechafin:string,hdgcodigo:number,
         esacodigo:number,cmecodigo:number):Observable<UrlReporte[]> {
-        console.log("Buscará Reporte informe valorizado")
         return this._http.post<UrlReporte[]>(this.urlordenes, {
             'tiporeport': tiporeport,
             'fechaini'  : fechaini,

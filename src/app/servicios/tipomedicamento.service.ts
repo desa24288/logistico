@@ -11,7 +11,7 @@ import { environment } from '../../environments/environment';
 })
 export class TipoMedicamentoService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/tipomedicamento');//'http://172.25.108.236:8181/tipomedicamento';
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/tipomedicamento');//'http://172.25.108.236:8181/tipomedicamento';
 
   constructor(private httpClient: HttpClient) {
 

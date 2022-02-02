@@ -11,12 +11,12 @@ import { OrigenSolicitud } from '../models/entity/OrigenSolicitud';
 
 @Injectable()
 export class RecepcionsolicitudesService {
-    public urlGenerarSolicitud: string = environment.URLServiciosRest.URLConexion.concat('/grabarsolicitudes');
-    public urlbuscasolic: string = environment.URLServiciosRest.URLConexion.concat('/buscasolicitudes');
-    public urlDespachosolicitud: string = environment.URLServiciosRest.URLConexion.concat('/grabardispensaciones');
-    public urlDevolucionSolicitud: string = environment.URLServiciosRest.URLConexion.concat('/grabadevoluciones');
-    public urlseleventosolicitud: string = environment.URLServiciosRest.URLConexion.concat('/seleventosolicitud');
-    public urlselOrigensolicitud: string = environment.URLServiciosRest.URLConexion.concat('/selorigensolicitud');
+    public urlGenerarSolicitud: string = sessionStorage.getItem('enlace').toString().concat('/grabarsolicitudes');
+    public urlbuscasolic: string = sessionStorage.getItem('enlace').toString().concat('/buscasolicitudes');
+    public urlDespachosolicitud: string = sessionStorage.getItem('enlace').toString().concat('/grabardispensaciones');
+    public urlDevolucionSolicitud: string = sessionStorage.getItem('enlace').toString().concat('/grabadevoluciones');
+    public urlseleventosolicitud: string = sessionStorage.getItem('enlace').toString().concat('/seleventosolicitud');
+    public urlselOrigensolicitud: string = sessionStorage.getItem('enlace').toString().concat('/selorigensolicitud');
     
     constructor(public _http: HttpClient) {
     }

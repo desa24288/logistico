@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 })
 export class FacturaelectronicaService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/facturaelectronica');//'http://172.25.108.236:8189/facturaelectronica';
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/facturaelectronica');//'http://172.25.108.236:8189/facturaelectronica';
 
   constructor(public httpClient: HttpClient) {
 

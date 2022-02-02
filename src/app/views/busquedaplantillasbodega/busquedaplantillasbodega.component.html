@@ -12,7 +12,8 @@
             <div class="form-row">
                 <div class="form-group col-md-3">
                     <label for="numeromovimiento">Número Plantilla *</label>
-                    <input type="number" class="form-control form-control-sm" formControlName="numplantilla">
+                    <input type="number" class="form-control form-control-sm" formControlName="numplantilla"
+                    (keyup.enter)="getPlantilla()" (keydown.tab)="getPlantilla()">
                 </div>
                 <div class="form-group col-md-3">
                     <label for="numeromovimiento">Descripción Plantilla *</label>
@@ -93,7 +94,8 @@
             <div class="form-row">
                 <div class="form-group col-md-3">
                     <label for="numeromovimiento">Número Plantilla *</label>
-                    <input type="number" class="form-control form-control-sm" formControlName="numplantilla">
+                    <input type="number" class="form-control form-control-sm" formControlName="numplantilla"
+                    (keyup.enter)="getPlantilla()" (keydown.tab)="getPlantilla()">
                 </div>
                 <div class="form-group col-md-3">
                     <label for="numeromovimiento">Descripción Plantilla *</label>

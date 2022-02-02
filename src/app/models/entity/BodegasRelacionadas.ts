@@ -4,6 +4,7 @@
         public esacodigo       ?: number,
         public cmecodigo       ?: number,
         public bodcodigo       ?: number,
+        public codigobodega    ?: number,
         public boddescripcion  ?: string,
         public bodmodificable  ?: string,
         public bodestado       ?: string,

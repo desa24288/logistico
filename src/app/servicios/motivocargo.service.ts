@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 
 export class MotivocargoService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/tipomotivocargo');
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/tipomotivocargo');
 
   constructor(private httpClient: HttpClient) {
 

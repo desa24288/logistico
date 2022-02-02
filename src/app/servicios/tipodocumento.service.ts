@@ -11,7 +11,7 @@ import { environment } from '../../environments/environment';
 })
 export class TipodocumentoService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/tipodoctomercantil');//'http://172.25.108.236:8187/tipodoctomercantil'; //busca tipo documento
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/tipodoctomercantil');//'http://172.25.108.236:8187/tipodoctomercantil'; //busca tipo documento
 
   constructor(private httpClient: HttpClient) {
 

@@ -14,6 +14,7 @@ import { LibrocontroladoService } from 'src/app/servicios/librocontrolado.servic
 import { LibroControlado } from 'src/app/models/entity/LibroControlado';
 import { PageChangedEvent } from 'ngx-bootstrap/pagination';
 import { Permisosusuario } from '../../permisos/permisosusuario';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-librocontrolado',
@@ -26,7 +27,7 @@ export class LibrocontroladoComponent implements OnInit {
   @ViewChild('alertSwalAlert', { static: false }) alertSwalAlert: SwalComponent;
   @ViewChild('alertSwalError', { static: false }) alertSwalError: SwalComponent;
 
-  
+
   public modelopermisos              : Permisosusuario = new Permisosusuario();
   public FormLibroControlado         : FormGroup;
   public bodegascontroladas          : BodegasControladas[] = [];
@@ -47,12 +48,16 @@ export class LibrocontroladoComponent implements OnInit {
   bsModalRef                         : any;
   editField                          : any;
 
+  public msj : boolean = false;
+
   constructor(
     private formBuilder    : FormBuilder,
     private _bodegasService: BodegasService,
     public localeService   : BsLocaleService,
     public _libroService   : LibrocontroladoService,
-    private _imprimelibroService  : InformesService
+    private _imprimelibroService  : InformesService,
+    private route           : ActivatedRoute,
+    private router          : Router,
 
   ) {
 
@@ -81,20 +86,48 @@ export class LibrocontroladoComponent implements OnInit {
   }
 
   limpiar(){
-    this.FormLibroControlado.reset();
-    this.activbusqueda= false;
-    this.prodsbodegascontroladaspaginacion = [];
-    this.prodsbodegascontroladas= [];
-    this.cierralibro = false;
-    this.imprimelibro = false;
+    const Swal = require('sweetalert2');
+    if (this.prodsbodegascontroladas.length > 0 ||
+      this.prodsbodegascontroladaspaginacion.length > 0 ){
+        this.msj = true;
+    }
+
+    if( this.msj ){
+      Swal.fire({
+        title: 'Limpiar',
+        text: "¿Seguro que desea Limpiar sin guardar?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si'
+      }).then((result) => {
+        if (result.value) {
+          this.FormLibroControlado.reset();
+          this.activbusqueda= false;
+          this.prodsbodegascontroladaspaginacion = [];
+          this.prodsbodegascontroladas= [];
+          this.cierralibro = false;
+          this.imprimelibro = false;
+        }
+      });
+    } else {
+      this.FormLibroControlado.reset();
+      this.activbusqueda= false;
+      this.prodsbodegascontroladaspaginacion = [];
+      this.prodsbodegascontroladas= [];
+      this.cierralibro = false;
+      this.imprimelibro = false;
+    }
   }
 
   BuscaBodegaDespachadora(){
-    this._bodegasService.BuscaBodegasControlados(this.hdgcodigo, this.esacodigo, this.cmecodigo, 
+    this._bodegasService.BuscaBodegasControlados(this.hdgcodigo, this.esacodigo, this.cmecodigo,
       this.usuario, this.servidor).subscribe(
       response => {
-        // console.log("BuscaBodegas controlada",response)
-        this.bodegascontroladas = response;
+        if (response != null) {
+          this.bodegascontroladas = response;
+        }
       },
       error => {
         alert("Error al Buscar Bodegas de cargo");
@@ -106,19 +139,19 @@ export class LibrocontroladoComponent implements OnInit {
     this.activbusqueda= true;
   }
 
-  
+
 
   BuscarProductos(){
     // console.log("Busca productos de la bodega",this.servidor, this.hdgcodigo,this.esacodigo,
     // this.cmecodigo,this.FormLibroControlado.value.bodcodigo);
-    this._libroService.BuscaProductoBodegaControl(this.servidor,this.hdgcodigo, this.esacodigo, 
+    this._libroService.BuscaProductoBodegaControl(this.servidor,this.hdgcodigo, this.esacodigo,
     this.cmecodigo,this.FormLibroControlado.value.bodcodigo ).subscribe(
       response => {
-        // console.log("Busca productos en Bodegas controlada",response)
-        this.prodsbodegascontroladas = response;
-        this.prodsbodegascontroladaspaginacion = this.prodsbodegascontroladas.slice(0,20);
-        this.cierralibro = true;
-        // this.imprimelibro = true;
+        if (response != null) {
+          this.prodsbodegascontroladas = response;
+          this.prodsbodegascontroladaspaginacion = this.prodsbodegascontroladas.slice(0,20);
+          this.cierralibro = true;
+        }
       },
       error => {
         alert("Error al Buscar productos en Bodegas");
@@ -135,7 +168,7 @@ export class LibrocontroladoComponent implements OnInit {
   }
 
   ConfirmaGenerarLibroFraccionado(){
-   
+
     const Swal = require('sweetalert2');
     Swal.fire({
       title: '¿ Desea Grabar Libro Controlado?',
@@ -156,16 +189,15 @@ export class LibrocontroladoComponent implements OnInit {
     // console.log("Dato a grabar en el cierre", this.servidor, this.cmecodigo,this.usuario,
     // this.FormLibroControlado.value.bodcodigo, this.FormLibroControlado.value.fecha);
 
-    this._libroService.GrabaCierreLibroControlado(this.hdgcodigo, this.esacodigo, 
+    this._libroService.GrabaCierreLibroControlado(this.hdgcodigo, this.esacodigo,
       this.cmecodigo,this.servidor,this.usuario,this.FormLibroControlado.value.bodcodigo ).subscribe(
         response => {
-          console.log("Resultado Grabacion cierre",response)
-          this.alertSwal.title = "Libro Cerrado Exitosamente";
-          this.alertSwal.show();
-          this.imprimelibro = true;
-          this.cierralibro = false;
-          // this.prodsbodegascontroladas = response;
-          // this.prodsbodegascontroladaspaginacion = this.prodsbodegascontroladas.slice(0,11);
+          if (response != null) {
+            this.alertSwal.title = "Libro Cerrado Exitosamente";
+            this.alertSwal.show();
+            this.imprimelibro = true;
+            this.cierralibro = false;
+          }
         },
         error => {
           this.alertSwalError.title = "Error al Grabar Cierre De Libro Controlado";
@@ -174,7 +206,7 @@ export class LibrocontroladoComponent implements OnInit {
           // alert("Error al Buscar productos en Bodegas");
         }
       );
-  
+
 
   }
 
@@ -192,7 +224,7 @@ export class LibrocontroladoComponent implements OnInit {
       if (result.value) {
         this.ImprimirLibro();
       }
-    })    
+    })
 
   }
 
@@ -204,10 +236,9 @@ export class LibrocontroladoComponent implements OnInit {
     this._imprimelibroService.RPTImprimeCierreLibroControlado(this.servidor,this.usuario,
     this.hdgcodigo,this.esacodigo, this.cmecodigo,"pdf",this.FormLibroControlado.value.bodcodigo).subscribe(
       response => {
-        console.log("Imprime Solicitud", response);
-        window.open(response[0].url, "", "", true);
-        // this.alertSwal.title = "Reporte Impreso Correctamente";
-        // this.alertSwal.show();
+        if (response != null) {
+          window.open(response[0].url, "", "", true);
+        }
       },
       error => {
         console.log(error);
@@ -219,5 +250,29 @@ export class LibrocontroladoComponent implements OnInit {
     );
   }
 
+  salir(){
+    const Swal = require('sweetalert2');
+    if (this.prodsbodegascontroladas.length > 0 ||
+      this.prodsbodegascontroladaspaginacion.length > 0 ){
+        this.msj = true;
+    }
 
+    if (this.msj ) {
+      Swal.fire({
+        title: 'Salir',
+        text: "¿Seguro que desea Salir sin guardar?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si'
+      }).then((result) => {
+        if (result.value) {
+    this.router.navigate(['home']);
+        }
+      });
+    } else {
+      this.router.navigate(['home']);
+    }
+  }
 }

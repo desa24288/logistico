@@ -18,13 +18,13 @@ import { EstructuraCentroCostoUsuario } from '../models/entity/estructura-centro
 })
 export class UsuariosService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/buscausuarios');
-  private url_buscarAccesosUsuarios = environment.URLServiciosRest.URLConexion.concat('/buscarAccesosUsuarios');
-  private url_buscarRoles = environment.URLServiciosRest.URLConexion.concat('/buscarRoles');
-  private url_buscarRolesUsuarios = environment.URLServiciosRest.URLConexion.concat('/buscarRolesUsuarios');
-  private url_guardarRolesUsuarios = environment.URLServiciosRest.URLConexion.concat('/guardarRolesUsuarios');
-  private url_buscarCentroCostoUsuarios = environment.URLServiciosRest.URLConexion.concat('/buscarCentroCostoUsuarios');
-  private url_guardarCentroCostoUsuarios = environment.URLServiciosRest.URLConexion.concat('/guardarCentroCostoUsuarios');
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/buscausuarios');
+  private url_buscarAccesosUsuarios = sessionStorage.getItem('enlace').toString().concat('/buscarAccesosUsuarios');
+  private url_buscarRoles = sessionStorage.getItem('enlace').toString().concat('/buscarRoles');
+  private url_buscarRolesUsuarios = sessionStorage.getItem('enlace').toString().concat('/buscarRolesUsuarios');
+  private url_guardarRolesUsuarios = sessionStorage.getItem('enlace').toString().concat('/guardarRolesUsuarios');
+  private url_buscarCentroCostoUsuarios = sessionStorage.getItem('enlace').toString().concat('/buscarCentroCostoUsuarios');
+  private url_guardarCentroCostoUsuarios = sessionStorage.getItem('enlace').toString().concat('/guardarCentroCostoUsuarios');
   
   
 

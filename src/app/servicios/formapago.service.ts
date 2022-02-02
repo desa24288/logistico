@@ -10,7 +10,7 @@ import { environment } from '../../environments/environment';
 })
 export class FormapagoService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/formadepago');//'http://172.25.108.236:8181/formadepago';
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/formadepago');//'http://172.25.108.236:8181/formadepago';
 
   constructor(private httpClient: HttpClient) {
 

@@ -36,7 +36,7 @@ export class BusquedaUsuariosComponent implements OnInit {
     public bsModalRef: BsModalRef,
     public formBuilder: FormBuilder,
     private _ServiciosUsuarios: UsuariosService,
-  ) { 
+  ) {
 
     this.lForm = this.formBuilder.group({
       login: [{ value: null, disabled: false }, Validators.required],
@@ -46,13 +46,17 @@ export class BusquedaUsuariosComponent implements OnInit {
 
   ngOnInit() {
     this.onClose = new Subject();
-    
+
     this.loading = true;
     this._ServiciosUsuarios.listausuarios(this.hdgcodigo, this.esacodigo, this.cmecodigo,'','','',0, this.usuario, this.servidor).subscribe(
       response => {
-        this.loading = false;
-        this.arregloUsuarios = response;
-        this.arregloUsuariosPaginacion = this.arregloUsuarios.slice(0, 8);
+        if (response != null){
+          this.loading = false;
+          this.arregloUsuarios = response;
+          this.arregloUsuariosPaginacion = this.arregloUsuarios.slice(0, 8);
+        } else {
+          this.loading = false;
+        }
       },
       error => {
         alert("Error al Buscar Servicios");
@@ -60,21 +64,25 @@ export class BusquedaUsuariosComponent implements OnInit {
 
     );
 
-    
+
 
   }
 
-  
+
   buscar_usuarios_filtro(login: string, nombreusuario:string) {
     this.loading = true;
 
     this._ServiciosUsuarios.listausuarios(this.hdgcodigo, this.esacodigo, this.cmecodigo,login,nombreusuario,'',0, this.usuario, this.servidor).subscribe(
-      response => {  
-        this.loading = false;     
-        this.arregloUsuarios = [];
-        this.arregloUsuariosPaginacion=[]  
-        this.arregloUsuarios = response;
-        this.arregloUsuariosPaginacion = this.arregloUsuarios.slice(0, 8);
+      response => {
+        if (response != null){
+          this.loading = false;
+          this.arregloUsuarios = [];
+          this.arregloUsuariosPaginacion=[]
+          this.arregloUsuarios = response;
+          this.arregloUsuariosPaginacion = this.arregloUsuarios.slice(0, 8);
+        } else {
+          this.loading = false;
+        }
       },
       error => {
         alert("Error al Buscar Servicios");
@@ -82,7 +90,7 @@ export class BusquedaUsuariosComponent implements OnInit {
 
     );
 
-   
+
 
 
   }
@@ -93,7 +101,7 @@ export class BusquedaUsuariosComponent implements OnInit {
     this.arregloUsuarios = [];
     this.arregloUsuariosPaginacion =[];
     this.lForm.reset();
-    
+
 
   }
 

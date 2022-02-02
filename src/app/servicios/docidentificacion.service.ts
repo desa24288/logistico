@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 })
 export class DocidentificacionService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/docidentificacion');//'http://172.25.108.236:8189/docidentificacion';
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/docidentificacion');//'http://172.25.108.236:8189/docidentificacion';
 
   constructor(public httpClient: HttpClient) {
 

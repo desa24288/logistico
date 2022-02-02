@@ -12,7 +12,7 @@ import { MovimientosfarmaciaService } from '../../servicios/movimientosfarmacia.
 import { environment } from 'src/environments/environment';
 import { PageChangedEvent } from 'ngx-bootstrap';
 
-// uso de fechas 
+// uso de fechas
 import { DatePipe } from '@angular/common';
 import { defineLocale } from 'ngx-bootstrap/chronos';
 import { esLocale } from 'ngx-bootstrap/locale';
@@ -35,17 +35,17 @@ export class BusquedamovimientosComponent implements OnInit {
    public bsConfig: Partial<BsDatepickerConfig>;
    public colorTheme = 'theme-blue';
 
-  
+
   public onClose: Subject<MovimientosFarmacia>;
-  
+
   public estado: boolean = false;
-  
+
   public Arreglotiposmovimientos: Array<TipoMovimiento> = [];
 
   public listadomovimientos: Array<MovimientosFarmacia> = [];
   public listadomovimientospaginacion: Array<MovimientosFarmacia> = [];
 
-   
+
   public lForm: FormGroup;
 
   public movimfarid: number = 0;
@@ -64,8 +64,8 @@ export class BusquedamovimientosComponent implements OnInit {
     public localeService: BsLocaleService,
 
    )
-    
-  { 
+
+  {
 
     this.lForm = this.formBuilder.group({
       tipoidentificacion: [{ value: null, disabled: false }, Validators.required],
@@ -75,7 +75,7 @@ export class BusquedamovimientosComponent implements OnInit {
       nonbrespaciente: [{ value: null, disabled: false }, Validators.required],
       numeromovimiento: [{ value: null, disabled: false }, Validators.required],
       idtipodespacho: [{ value: null, disabled: false }, Validators.required],
-    
+
       fechadesde:  [new Date(),Validators.required ],
       fechahasta:  [new Date(),Validators.required ],
     });
@@ -83,7 +83,7 @@ export class BusquedamovimientosComponent implements OnInit {
 
   }
 
-  ngOnInit() 
+  ngOnInit()
   {
     this.onClose = new Subject();
     this.setDate();
@@ -91,16 +91,16 @@ export class BusquedamovimientosComponent implements OnInit {
 
     var servidor = environment.URLServiciosRest.ambiente;
     var usuario = environment.privilegios.usuario;
-  
+
     this._TipomovimientoService.list(usuario, servidor).subscribe(
       data => {
         this.Arreglotiposmovimientos = data;
-      
+
       }, err => {
         console.log(err.error);
       }
     );
-    
+
   }
 
 
@@ -111,7 +111,7 @@ export class BusquedamovimientosComponent implements OnInit {
     this.bsModalRef.hide();
   };
 
-  
+
   onCerrarSalir() {
     this.onClose.next();
     this.bsModalRef.hide();
@@ -123,37 +123,40 @@ export class BusquedamovimientosComponent implements OnInit {
                           in_fecha_termino   :string
                           )
   {
-    
+
       var servidor = environment.URLServiciosRest.ambiente;
       var usuario  = environment.privilegios.usuario;
 
-      var x_fecha_inicio = this.datePipe.transform(in_fecha_inicio, 'yyyy-MM-dd'); 
-      var x_fecha_termino = this.datePipe.transform(in_fecha_termino, 'yyyy-MM-dd'); 
+      var x_fecha_inicio = this.datePipe.transform(in_fecha_inicio, 'yyyy-MM-dd');
+      var x_fecha_termino = this.datePipe.transform(in_fecha_termino, 'yyyy-MM-dd');
       this.loading = true;
       this._movimientosfarmaciaService.BuscaListaMovimietos(
           this.hdgcodigo ,
-          this.esacodigo, 
+          this.esacodigo,
           this.cmecodigo,
           in_tipomovimiento,
-          x_fecha_inicio, 
-          x_fecha_termino, 
+          x_fecha_inicio,
+          x_fecha_termino,
           in_numeromovimiento,
-          " ", 
+          " ",
           0,
-          usuario, 
+          usuario,
           servidor).subscribe(
             response => {
-       
-              this.listadomovimientos = response;
-              this.listadomovimientospaginacion = this.listadomovimientos.slice(0, 8);
-              this.loading = false;
+              if (response != null){
+                this.listadomovimientos = response;
+                this.listadomovimientospaginacion = this.listadomovimientos.slice(0, 8);
+                this.loading = false;
+              } else {
+                this.loading = false;
+              }
             },
             error => {
               console.log(error);
               alert("Error al Buscar el detalle del movimiento de farmacia, No  encuentra detalle, puede que no exista");
             }
           )
-      } 
+      }
 
 
 

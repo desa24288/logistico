@@ -26,7 +26,8 @@ import { Permisosusuario } from '../../permisos/permisosusuario';
 
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { BusquedaproductosService } from 'src/app/servicios/busquedaproductos.service';
-
+import { DatePipe } from '@angular/common';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-mantencionarticulos',
@@ -35,13 +36,10 @@ import { BusquedaproductosService } from 'src/app/servicios/busquedaproductos.se
   providers: [MantencionarticulosService]
 })
 
-
-
 export class MantencionarticulosComponent implements OnInit {
   public modelopermisos: Permisosusuario = new Permisosusuario();
   // @ViewChild('dangerSwal', { static: false }) private dangerSwal: SwalComponent;
   // ES6 Modules or TypeScript
-
 
   // CommonJS
 
@@ -68,15 +66,41 @@ export class MantencionarticulosComponent implements OnInit {
   public detalleconsultaproducto: Array<Articulos> = [];
   public detalleconsultaproductopag: Array<Articulos> = [];
 
+  public bloqueabtnbuscar : boolean = false;
   private _BSModalRef: BsModalRef;
 
-  @ViewChild('alertSwal', { static: false }) alertSwal: SwalComponent;// success 
+  @ViewChild('alertSwal', { static: false }) alertSwal: SwalComponent;// success
   @ViewChild('alertSwalAlert', { static: false }) alertSwalAlert: SwalComponent;//warning
   @ViewChild('alertSwalError', { static: false }) alertSwalError: SwalComponent;//error
   descprod: any;
   codprod: any;
   public productoselec : Articulos;
 
+  public meinaux : number;
+  public codigoaux : string;
+  public descripcionaux : string;
+  public tiporegistroaux : string;
+  public tipomedicamentoaux : number;
+  public recetaretenidaaux : string;
+  public controladoaux : string;
+  public solocompraaux : string;
+  public valorcostoaux : number;
+  public margenmedicamentoaux : number;
+  public unidaddespachoaux : number;
+  public unidadcompraaux : number;
+  public familiaaux : number;
+  public subfamiliaaux : number;
+  public incobfonasaaux : string;
+  public tipoincobaux : string;
+  public clasificacionaux : number;
+  public estadoaux : number;
+  public preparadosaux : string;
+  public codpactaux : number;
+  public codpresaux : number;
+  public codffaraux : number;
+  public campoaux : string;
+  public fechainivigenciaaux : string;
+  public fechafinvigenciaaux : string;
 
   constructor(private UnidadcompraService: UnidadcompraService,
     private UnidaddespachoService: UnidaddespachoService,
@@ -90,6 +114,9 @@ export class MantencionarticulosComponent implements OnInit {
     private PrincActService: PrincActService,
     public _BsModalService: BsModalService,
     public _BusquedaproductosService: BusquedaproductosService,
+    public datePipe                 : DatePipe,
+    private router: Router,
+    private route: ActivatedRoute,
   ) {
 
     this.lForm = this.formBuilder.group({
@@ -98,7 +125,7 @@ export class MantencionarticulosComponent implements OnInit {
       descripcion: [null],
       tiporegistro: [{value:null, disabled:true}],
       tipomedicamento: [null],
-      solocompra: [{value:null, disabled:true}],
+      solocompra: [{value:null, disabled:false}],
       recetaretenida: [{value:null, disabled:true}],
       valorcosto: [{value:null, disabled:true}],
       margenmedicamento: [{value:null, disabled:true}],
@@ -117,14 +144,12 @@ export class MantencionarticulosComponent implements OnInit {
       codpres: [null],
       codffar: [null],
       controlado: [null],
-
-
+      fechainivigencia : [{ value: null, disabled : true}],
+      fechafinvigencia : [{ value: null, disabled : true}]
     }
     );
     this.detalleconsultaproducto = [];
-
   }
-
 
   ngOnInit() {
 
@@ -132,6 +157,11 @@ export class MantencionarticulosComponent implements OnInit {
     this.esacodigo = Number(sessionStorage.getItem('esacodigo').toString());
     this.cmecodigo = Number(sessionStorage.getItem('cmecodigo').toString());
     this.usuario = sessionStorage.getItem('Usuario').toString();
+    this.route.paramMap.subscribe(param => {
+      if (param.has("codigo")) {
+        this.getProducto(param.get("codigo"));
+      }
+      })
 
     // var usuario = environment.privilegios.usuario;
 
@@ -139,6 +169,7 @@ export class MantencionarticulosComponent implements OnInit {
     this.TiporegistroService.list(this.usuario, environment.URLServiciosRest.ambiente).subscribe(
       data => {
         this.tiposderegistros = data;
+
       }, err => {
         console.log(err.error);
       }
@@ -147,6 +178,7 @@ export class MantencionarticulosComponent implements OnInit {
     this.UnidadcompraService.list(this.usuario, environment.URLServiciosRest.ambiente).subscribe(
       data => {
         this.unidadescompra = data;
+
       }, err => {
         console.log(err.error);
       }
@@ -155,11 +187,11 @@ export class MantencionarticulosComponent implements OnInit {
     this.UnidaddespachoService.list(this.usuario, environment.URLServiciosRest.ambiente).subscribe(
       data => {
         this.unidadesdespacho = data;
+
       }, err => {
         console.log(err.error);
       }
     );
-
 
     this.FormaFarService.list(this.usuario, environment.URLServiciosRest.ambiente).subscribe(
       data => {
@@ -168,7 +200,6 @@ export class MantencionarticulosComponent implements OnInit {
         console.log(err.error);
       }
     );
-
 
     this.PrincActService.list(this.usuario, environment.URLServiciosRest.ambiente).subscribe(
       data => {
@@ -186,8 +217,6 @@ export class MantencionarticulosComponent implements OnInit {
       }
     );
 
-
-
     this.TiposmedicamentoService.list(this.usuario, environment.URLServiciosRest.ambiente).subscribe(
       data => {
         this.tiposmedicamento = data;
@@ -203,27 +232,22 @@ export class MantencionarticulosComponent implements OnInit {
         console.log(err.error);
       }
     );
-
-
   }
-
 
   BuscaFamilia(tiporegistro: string) {
     var servidor = environment.URLServiciosRest.ambiente;
     var usuario = environment.privilegios.usuario;
     this._mantencionarticulosService.BuscaFamilias(tiporegistro, usuario, servidor).subscribe(
       response => {
-        this.familias = response;
+        if (response != null) {
+          this.familias = response;
+        }
       },
       error => {
         alert("Error al Buscar Familias")
       }
     );
   }
-
-
-
-
 
   setModalMensajeAceptar(mensaje) {
     let dtModal: any = {};
@@ -260,9 +284,7 @@ export class MantencionarticulosComponent implements OnInit {
           this.GuardarArticulos(datos);
         }
       })
-
     } else {  //Modificar
-
       Swal.fire({
         title: '¿ Actualiza el artículo ?',
         text: "Confirmar actualización del artículo",
@@ -275,15 +297,11 @@ export class MantencionarticulosComponent implements OnInit {
         if (result.value) {
 
           this.ActualizaArticulos(datos);
+
         }
       })
-
     }
-
-
   }
-
-
 
   setModalMensajeExitoSinNumero(mensaje: string) {
     let dtModal: any = {};
@@ -299,7 +317,6 @@ export class MantencionarticulosComponent implements OnInit {
     };
     return dtModal;
   }
-
 
   GuardarArticulos(value: any) {
 
@@ -331,7 +348,6 @@ export class MantencionarticulosComponent implements OnInit {
     this.var_Articulo.codpres = value.codpres;
     this.var_Articulo.codpact = value.codpact;
 
-
     if (value.estado == 0) {
       estado = 0;
       this.var_Articulo.estado = 0;
@@ -349,15 +365,12 @@ export class MantencionarticulosComponent implements OnInit {
     this.var_Articulo.familia = value.familia;
     this.var_Articulo.subfamilia = value.subfamilia;
 
-
     this._mantencionarticulosService.AddArticulos(this.var_Articulo).subscribe(
       response => {
-        console.log(response);
-
-
-        this.alertSwal.title = "Artículo Creado Exitosamente"; //mensaje a mostrar
-        this.alertSwal.show();// para que aparezca
-
+        if (response != null) {
+          this.alertSwal.title = "Artículo Creado Exitosamente"; //mensaje a mostrar
+          this.alertSwal.show();// para que aparezca
+        }
       },
       error => {
         console.log(error);
@@ -385,37 +398,90 @@ export class MantencionarticulosComponent implements OnInit {
   }
 
   Limpiar(value: any) {
-    this.lForm.reset(Articulos);
-    this.limpiar_Grilla();
-    this.descprod = null
-    this.codprod = null;
-    this.desactivaCampos(false);
-    this.lForm.controls.codpact.enable();
-    this.lForm.controls.codpres.enable();
-    this.lForm.controls.codffar.enable();
+    const Swal = require('sweetalert2');
+    if( this.meinaux != this.lForm.get('mein').value ||
+        this.codigoaux != this.lForm.get('codigo').value ||
+        this.descripcionaux != this.lForm.get('descripcion').value ||
+        this.tiporegistroaux != this.lForm.get('tiporegistro').value ||
+        this.tipomedicamentoaux != this.lForm.get('tipomedicamento').value ||
+        this.recetaretenidaaux != this.lForm.get('recetaretenida').value ||
+        this.controladoaux != this.lForm.get('controlado').value ||
+        this.solocompraaux != this.lForm.get('solocompra').value ||
+        this.valorcostoaux != this.lForm.get('valorcosto').value ||
+        this.margenmedicamentoaux != this.lForm.get('margenmedicamento').value ||
+        this.unidaddespachoaux != this.lForm.get('unidaddespacho').value ||
+        this.unidadcompraaux != this.lForm.get('unidadcompra').value ||
+        this.familiaaux != this.lForm.get('familia').value ||
+        this.subfamiliaaux != this.lForm.get('subfamilia').value ||
+        this.incobfonasaaux != this.lForm.get('incobfonasa').value ||
+        this.tipoincobaux != this.lForm.get('tipoincob').value ||
+        this.clasificacionaux != this.lForm.get('clasificacion').value ||
+        this.estadoaux != this.lForm.get('estado').value ||
+        this.preparadosaux != this.lForm.get('preparados').value ||
+        this.codpactaux != this.lForm.get('codpact').value ||
+        this.codpresaux != this.lForm.get('codpres').value ||
+        this.codffaraux != this.lForm.get('codffar').value ||
+        this.campoaux != this.lForm.get('campo').value ||
+        this.fechainivigenciaaux != this.lForm.get('fechainivigencia').value ||
+        this.fechafinvigenciaaux != this.lForm.get('fechafinvigencia').value ) {
+          Swal.fire({
+            title: 'Limpiar',
+            text: "¿Seguro que desea Limpiar los campos?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si'
+          }).then((result) => {
+            if (result.dismiss != "cancel") {
+              this.lForm.reset(Articulos);
+              this.limpiar_Grilla();
+              this.descprod = null
+              this.codprod = null;
+              this.desactivaCampos(false);
+              this.lForm.controls.codpact.enable();
+              this.lForm.controls.codpres.enable();
+              this.lForm.controls.codffar.enable();
+              this.lForm.controls.controlado.enable();
+              this.bloqueabtnbuscar = false;
+              this.familias = [];
+            }
+          });
+
+    }else{
+      this.lForm.reset(Articulos);
+      this.limpiar_Grilla();
+      this.descprod = null
+      this.codprod = null;
+      this.desactivaCampos(false);
+      this.lForm.controls.codpact.enable();
+      this.lForm.controls.codpres.enable();
+      this.lForm.controls.codffar.enable();
+      this.lForm.controls.controlado.enable();
+      this.bloqueabtnbuscar = false;
+      this.familias = [];
+    }
   }
 
   limpiar_Grilla() {
     this.detalleconsultaproducto= [];
     this.detalleconsultaproductopag = [];
-  
   }
 
-  
   EliminarProducto(mein: number) {
     var servidor = environment.URLServiciosRest.ambiente;
     var usuario = environment.privilegios.usuario;
     this._mantencionarticulosService.EliminaArticulos(mein, usuario, servidor).subscribe(
       response => {
-
-        this.lForm.reset(response)
+        if (response != null) {
+          this.lForm.reset(response);
+        }
       },
       error => {
         console.log(error);
         alert("Error al Eliminar Producto")
       }
     );
-
   }
 
   ActualizaArticulos(value: any) {
@@ -439,9 +505,9 @@ export class MantencionarticulosComponent implements OnInit {
     this.var_Articulo.incobfonasa = this.productoselec.incobfonasa;
     this.var_Articulo.tipoincob = this.productoselec.tipoincob;
     if (value.estado == '1') {
-      this.var_Articulo.estado = 1;  
+      this.var_Articulo.estado = 1;
     } else {
-      this.var_Articulo.estado = 0;  
+      this.var_Articulo.estado = 0;
 
     }
     this.var_Articulo.clasificacion = this.productoselec.clasificacion;
@@ -456,13 +522,40 @@ export class MantencionarticulosComponent implements OnInit {
     this.var_Articulo.codffar = value.codffar;
     this.var_Articulo.codpres = value.codpres;
     this.var_Articulo.codpact = value.codpact;
+    this.var_Articulo.fechainiciovigencia = value.fechainivigencia;
+    this.var_Articulo.fechafinvigencia = value.fechafinvigencia;
 
-    console.log("prod a modif",this.var_Articulo)
     this._mantencionarticulosService.UpdateArticulos(this.var_Articulo).subscribe(
       response => {
-
-        this.alertSwal.title = "Artículo Modificado Exitosamente"; //mensaje a mostrar
-        this.alertSwal.show();// para que aparezca
+        if (response != null) {
+          this.alertSwal.title = "Artículo Modificado Exitosamente"; //mensaje a mostrar
+          this.alertSwal.show();// para que aparezca
+          this.meinaux = this.lForm.get('mein').value;
+          this.codigoaux = this.lForm.get('codigo').value;
+          this.descripcionaux = this.lForm.get('descripcion').value;
+          this.tiporegistroaux = this.lForm.get('tiporegistro').value;
+          this.tipomedicamentoaux = this.lForm.get('tipomedicamento').value;
+          this.recetaretenidaaux = this.lForm.get('recetaretenida').value;
+          this.controladoaux = this.lForm.get('controlado').value;
+          this.solocompraaux = this.lForm.get('solocompra').value;
+          this.valorcostoaux = this.lForm.get('valorcosto').value;
+          this.margenmedicamentoaux = this.lForm.get('margenmedicamento').value;
+          this.unidaddespachoaux = this.lForm.get('unidaddespacho').value;
+          this.unidadcompraaux = this.lForm.get('unidadcompra').value;
+          this.familiaaux = this.lForm.get('familia').value;
+          this.subfamiliaaux = this.lForm.get('subfamilia').value;
+          this.incobfonasaaux = this.lForm.get('incobfonasa').value;
+          this.tipoincobaux = this.lForm.get('tipoincob').value;
+          this.clasificacionaux = this.lForm.get('clasificacion').value;
+          this.estadoaux = this.lForm.get('estado').value;
+          this.preparadosaux = this.lForm.get('preparados').value;
+          this.codpactaux = this.lForm.get('codpact').value;
+          this.codpresaux = this.lForm.get('codpres').value;
+          this.codffaraux = this.lForm.get('codffar').value;
+          this.campoaux = this.lForm.get('campo').value;
+          this.fechainivigenciaaux = this.lForm.get('fechainivigencia').value;
+          this.fechafinvigenciaaux = this.lForm.get('fechafinvigencia').value;
+        }
       },
       error => {
         console.log(error);
@@ -470,24 +563,28 @@ export class MantencionarticulosComponent implements OnInit {
         this.alertSwalError.show();// para que aparezca
       }
     );
-
   }
 
   BuscarProducto() {
+
     this._BSModalRef = this._BsModalService.show(BusquedaproductosComponent, this.setModalProductos());
     this._BSModalRef.content.onClose.subscribe((producto: any) => {
       if (producto == undefined) { }
       else {
         this.productoselec = producto;
+        console.log("prod buscado con fecha",this.productoselec);
+        this.bloqueabtnbuscar = true;
         this.setProducto(producto);
       }
     });
+
+    this.bloqueabtnbuscar = false;
   }
 
   setModalProductos() {
-    console.log('desde setModalProductos()');
-    console.log(this.codprod);
-    console.log(this.descprod);
+    // console.log('desde setModalProductos()');
+    // console.log(this.codprod);
+    // console.log(this.descprod);
     let dtModal: any = {};
     dtModal = {
       keyboard: true,
@@ -508,7 +605,7 @@ export class MantencionarticulosComponent implements OnInit {
   }
 
   setProducto(producto: any) {
-    
+    console.log("producto", producto)
     this.lForm.get('mein').setValue(producto.mein);
     this.lForm.get('codigo').setValue(producto.codigo);
     this.lForm.get('descripcion').setValue(producto.descripcion);
@@ -533,53 +630,60 @@ export class MantencionarticulosComponent implements OnInit {
     this.lForm.get('codpres').setValue(producto.codpres);
     this.lForm.get('codffar').setValue(producto.codffar);
     this.lForm.get('campo').setValue(producto.campo);
+    this.lForm.get('fechainivigencia').setValue(this.datePipe.transform(producto.fechainiciovigencia, 'dd-MM-yyyy'));
+    this.lForm.get('fechafinvigencia').setValue(this.datePipe.transform(producto.fechafinvigencia, 'dd-MM-yyyy'));
     if(producto.tiporegistro == "I"){
       this.lForm.controls.codpact.disable();
       this.lForm.controls.codpres.disable();
       this.lForm.controls.codffar.disable();
-     
+      this.lForm.controls.controlado.disable();
     }else{
       if(producto.tiporegistro == "M"){
         this.lForm.controls.codpact.enable();
         this.lForm.controls.codpres.enable();
-      this.lForm.controls.codffar.enable();
-     
+        this.lForm.controls.codffar.enable();
       }
     }
+
+    this.codprod = null;
+    this.descprod = null;
+
+    this.meinaux = this.lForm.get('mein').value;
+    this.codigoaux = this.lForm.get('codigo').value;
+    this.descripcionaux = this.lForm.get('descripcion').value;
+    this.tiporegistroaux = this.lForm.get('tiporegistro').value;
+    this.tipomedicamentoaux = this.lForm.get('tipomedicamento').value;
+    this.recetaretenidaaux = this.lForm.get('recetaretenida').value;
+    this.controladoaux = this.lForm.get('controlado').value;
+    this.solocompraaux = this.lForm.get('solocompra').value;
+    this.valorcostoaux = this.lForm.get('valorcosto').value;
+    this.margenmedicamentoaux = this.lForm.get('margenmedicamento').value;
+    this.unidaddespachoaux = this.lForm.get('unidaddespacho').value;
+    this.unidadcompraaux = this.lForm.get('unidadcompra').value;
+    this.familiaaux = this.lForm.get('familia').value;
+    this.subfamiliaaux = this.lForm.get('subfamilia').value;
+    this.incobfonasaaux = this.lForm.get('incobfonasa').value;
+    this.tipoincobaux = this.lForm.get('tipoincob').value;
+    this.clasificacionaux = this.lForm.get('clasificacion').value;
+    this.estadoaux = this.lForm.get('estado').value;
+    this.preparadosaux = this.lForm.get('preparados').value;
+    this.codpactaux = this.lForm.get('codpact').value;
+    this.codpresaux = this.lForm.get('codpres').value;
+    this.codffaraux = this.lForm.get('codffar').value;
+    this.campoaux = this.lForm.get('campo').value;
+    this.fechainivigenciaaux = this.lForm.get('fechainivigencia').value;
+    this.fechafinvigenciaaux = this.lForm.get('fechafinvigencia').value;
 
     /**Desactiva campo codigo y descripcion //@ML */
     this.desactivaCampos(true);
   }
 
-  // getProducto(codigo: any) {
-  //   this.codprod = codigo;
-  //   console.log(this.codprod);
-  //   if (this.codprod.length){
-  //     this._BusquedaproductosService.BuscarArticulosPorCodigo(this.hdgcodigo, this.esacodigo,
-  //       this.cmecodigo, codigo, this.usuario, this.servidor).subscribe(
-  //         response => {
-  //           if (response.length == 0) {
-  //             console.log('no existe el codigo');
-  //             this.BuscarProducto();
-  //           }
-  //           else {
-  //             if (response.length > 0) {
-  //               this.setProducto(response[0]);
-  //             }
-  //           }
-  //         },
-  //         error => {
-  //           console.log('error');
-  //         }
-  //       );
-  //   }
-  // }
-
   getProducto(codigo: any) {
     // var codproducto = this.lForm.controls.codigo.value;
     this.codprod = codigo;
- 
+    this.bloqueabtnbuscar= true;
     if(this.codprod === null || this.codprod === ''){
+      this.bloqueabtnbuscar =false;
       return;
     } else{
       var tipodeproducto = 'MIM';
@@ -588,23 +692,35 @@ export class MantencionarticulosComponent implements OnInit {
       var controlminimo = '';
       var idBodega = 0;
       var consignacion = '';
-      
-      this._BusquedaproductosService.BuscarArituculosFiltros(this.hdgcodigo, this.esacodigo,
-        this.cmecodigo, codigo, this.descprod, null, null, null, tipodeproducto, idBodega, controlminimo, controlado, consignacion
-        , this.usuario, this.servidor).subscribe(
-          response => {
-            if (response.length == 0) {
 
+      this._BusquedaproductosService.BuscarArticulosFiltros(this.hdgcodigo, this.esacodigo,
+        this.cmecodigo, codigo, this.descprod, null, null, null, tipodeproducto, idBodega, controlminimo, controlado, consignacion
+        , this.usuario, null, this.servidor).subscribe(
+          response => {
+            if (response != null) {
+              if (response.length == 0) {
+                this.loading = false;
+                this.BuscarProducto();
+              }
+              else {
+                if (response.length > 0) {
+                  if(response.length > 1){
+                    // console.log("Tiene varios productos levanta modal busqueda productos")
+                    this.BuscarProducto();
+                    this.loading = false;
+                  }else{
+                    if(response.length == 1){
+
+                      this.productoselec = response[0];
+                      this.loading = false;
+                      this.setProducto(response[0]);
+                    }
+                  }
+                }
+              }
+            } else {
               this.loading = false;
               this.BuscarProducto();
-            }
-            else {
-              if (response.length > 0) {
-
-                this.productoselec = response[0];
-                this.loading = false;
-                this.setProducto(response[0]);
-              }
             }
           }, error => {
             this.loading = false;
@@ -625,12 +741,106 @@ export class MantencionarticulosComponent implements OnInit {
   }
 
   setDatabusqueda(value: any, swtch: number) {
-
     if (swtch === 1) {
         this.codprod = value;
     } else if (swtch === 2) {
         this.descprod = value;
     }
   }
-  
+
+  Salir(){
+    const Swal = require('sweetalert2');
+    if( this.meinaux != this.lForm.get('mein').value ||
+        this.codigoaux != this.lForm.get('codigo').value ||
+        this.descripcionaux != this.lForm.get('descripcion').value ||
+        this.tiporegistroaux != this.lForm.get('tiporegistro').value ||
+        this.tipomedicamentoaux != this.lForm.get('tipomedicamento').value ||
+        this.recetaretenidaaux != this.lForm.get('recetaretenida').value ||
+        this.controladoaux != this.lForm.get('controlado').value ||
+        this.solocompraaux != this.lForm.get('solocompra').value ||
+        this.valorcostoaux != this.lForm.get('valorcosto').value ||
+        this.margenmedicamentoaux != this.lForm.get('margenmedicamento').value ||
+        this.unidaddespachoaux != this.lForm.get('unidaddespacho').value ||
+        this.unidadcompraaux != this.lForm.get('unidadcompra').value ||
+        this.familiaaux != this.lForm.get('familia').value ||
+        this.subfamiliaaux != this.lForm.get('subfamilia').value ||
+        this.incobfonasaaux != this.lForm.get('incobfonasa').value ||
+        this.tipoincobaux != this.lForm.get('tipoincob').value ||
+        this.clasificacionaux != this.lForm.get('clasificacion').value ||
+        this.estadoaux != this.lForm.get('estado').value ||
+        this.preparadosaux != this.lForm.get('preparados').value ||
+        this.codpactaux != this.lForm.get('codpact').value ||
+        this.codpresaux != this.lForm.get('codpres').value ||
+        this.codffaraux != this.lForm.get('codffar').value ||
+        this.campoaux != this.lForm.get('campo').value ||
+        this.fechainivigenciaaux != this.lForm.get('fechainivigencia').value ||
+        this.fechafinvigenciaaux != this.lForm.get('fechafinvigencia').value ) {
+
+          Swal.fire({
+            title: 'Salir',
+            text: "¿Seguro que desea Salir sin Guardar?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si'
+          }).then((result) => {
+            if (result.dismiss != "cancel") {
+              this.route.paramMap.subscribe(param => {
+                this.router.navigate(['home']);
+            })
+            }
+          });
+    }else{
+      this.route.paramMap.subscribe(param => {
+        this.router.navigate(['home']);
+    })
+    }
+  }
+
+  // ngOnDestroy(){
+  //   const Swal = require('sweetalert2');
+  //   var codigo = this.codigoaux;
+  //   if( this.meinaux != this.lForm.get('mein').value ||
+  //       this.codigoaux != this.lForm.get('codigo').value ||
+  //       this.descripcionaux != this.lForm.get('descripcion').value ||
+  //       this.tiporegistroaux != this.lForm.get('tiporegistro').value ||
+  //       this.tipomedicamentoaux != this.lForm.get('tipomedicamento').value ||
+  //       this.recetaretenidaaux != this.lForm.get('recetaretenida').value ||
+  //       this.controladoaux != this.lForm.get('controlado').value ||
+  //       this.solocompraaux != this.lForm.get('solocompra').value ||
+  //       this.valorcostoaux != this.lForm.get('valorcosto').value ||
+  //       this.margenmedicamentoaux != this.lForm.get('margenmedicamento').value ||
+  //       this.unidaddespachoaux != this.lForm.get('unidaddespacho').value ||
+  //       this.unidadcompraaux != this.lForm.get('unidadcompra').value ||
+  //       this.familiaaux != this.lForm.get('familia').value ||
+  //       this.subfamiliaaux != this.lForm.get('subfamilia').value ||
+  //       this.incobfonasaaux != this.lForm.get('incobfonasa').value ||
+  //       this.tipoincobaux != this.lForm.get('tipoincob').value ||
+  //       this.clasificacionaux != this.lForm.get('clasificacion').value ||
+  //       this.estadoaux != this.lForm.get('estado').value ||
+  //       this.preparadosaux != this.lForm.get('preparados').value ||
+  //       this.codpactaux != this.lForm.get('codpact').value ||
+  //       this.codpresaux != this.lForm.get('codpres').value ||
+  //       this.codffaraux != this.lForm.get('codffar').value ||
+  //       this.campoaux != this.lForm.get('campo').value ||
+  //       this.fechainivigenciaaux != this.lForm.get('fechainivigencia').value ||
+  //       this.fechafinvigenciaaux != this.lForm.get('fechafinvigencia').value ) {
+  //         Swal.fire({
+  //           title: 'Salir',
+  //           text: "¿Seguro que desea Salir sin Guardar?",
+  //           icon: 'question',
+  //           showCancelButton: true,
+  //           confirmButtonColor: '#3085d6',
+  //           cancelButtonColor: '#d33',
+  //           confirmButtonText: 'Si'
+  //         }).then((result) => {
+  //           if (result.dismiss === "cancel") {
+  //             this.route.paramMap.subscribe(param => {
+  //               this.router.navigate(['mantencionarticulos',codigo]);
+  //           })
+  //           }
+  //         });
+  //   }
+  // }
 }

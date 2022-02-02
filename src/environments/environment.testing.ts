@@ -10,6 +10,7 @@ export const environment = {
       URLConexionSolicitudConsumo: "http://198.41.33.191:8093",
       URLConexion:  "http://198.41.33.191:8091",   
       URLConexionInformes: "http://198.41.33.191:8092",
+      URLValidate : "http://172.25.108.236:8095",//TOKEN
       ambiente:"TESTING",
    },
 

@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 })
 export class FamiliaService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/familia');//'http://172.25.108.236:8181/familia';
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/familia');//'http://172.25.108.236:8181/familia';
 
   constructor(public httpClient: HttpClient) {
 

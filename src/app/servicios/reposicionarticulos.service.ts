@@ -13,13 +13,13 @@ import { StockCritico } from '../models/entity/StockCritico';
 
 @Injectable()
 export class ReposicionArticulosService {
-    public urlBuscarpordescripcion  : string = environment.URLServiciosRest.URLConexion.concat('/buscaprodpordescripcion');
-    public urlBuscarporcodigo       : string = environment.URLServiciosRest.URLConexion.concat('/buscaprodporcodigo');
-    public urlbuscaholding          : string = environment.URLServiciosRest.URLConexion.concat('/buscaholding');
-    public urlbuscaempresa          : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');
-    public urlbuscasucursal         : string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');
-    public urlbuscaregistros        : string = environment.URLServiciosRest.URLConexion.concat('/registrosparareposicion');
-    public urlGenerarSolicitud      : string = environment.URLServiciosRest.URLConexion.concat('/grabarsolicitudes'); 
+    public urlBuscarpordescripcion  : string = sessionStorage.getItem('enlace').toString().concat('/buscaprodpordescripcion');
+    public urlBuscarporcodigo       : string = sessionStorage.getItem('enlace').toString().concat('/buscaprodporcodigo');
+    public urlbuscaholding          : string = sessionStorage.getItem('enlace').toString().concat('/buscaholding');
+    public urlbuscaempresa          : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');
+    public urlbuscasucursal         : string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');
+    public urlbuscaregistros        : string = sessionStorage.getItem('enlace').toString().concat('/registrosparareposicion');
+    public urlGenerarSolicitud      : string = sessionStorage.getItem('enlace').toString().concat('/grabarsolicitudes'); 
 
 
     constructor(public _http: HttpClient) {
@@ -45,7 +45,7 @@ export class ReposicionArticulosService {
     }
 
     BuscaRegistros(hdgcodigo:number, cmecodigo:number, bodegaorigen: number,tiporegmein:string,fechabusqueda:string,fechafin:string,usuario:string,
-        servidor:string,tiporeposicion:number):Observable<ReposicionArticulos[]> {
+        servidor:string,tiporeposicion:number,codmei: string):Observable<ReposicionArticulos[]> {
             return this._http.post<ReposicionArticulos[]>(this.urlbuscaregistros, {
                 'hdgcodigo'     : hdgcodigo,
                 'cmecodigo'     : cmecodigo,
@@ -56,12 +56,13 @@ export class ReposicionArticulosService {
                 'usuario'       : usuario,
                 'servidor'      : servidor,
                 'tiporeposicion':tiporeposicion,
+                'codmei'        : codmei
         });
     }
 
     
-    crearSolicitud(varSolicitud: Solicitud): Observable<Solicitud> {
-        return this._http.post<Solicitud>(this.urlGenerarSolicitud, varSolicitud);
+    crearSolicitud(varSolicitud: Solicitud): Observable<any> {
+        return this._http.post<any>(this.urlGenerarSolicitud, varSolicitud);
     }
     
 }

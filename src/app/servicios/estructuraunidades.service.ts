@@ -13,11 +13,11 @@ import { Servicio } from '../models/entity/Servicio';
 })
 export class EstructuraunidadesService {
 
-  private urlListaUnidades = environment.URLServiciosRest.URLConexion.concat('/listaunidades');//'http://172.25.108.236:8189/bodegasparaasignar';
-  private urlListaPiezas = environment.URLServiciosRest.URLConexion.concat('/listapiezas');
-  private urlListaCamas = environment.URLServiciosRest.URLConexion.concat('/listacamas');
-  private urlListaServicios = environment.URLServiciosRest.URLConexion.concat('/listaservicios');
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/servicios');
+  private urlListaUnidades = sessionStorage.getItem('enlace').toString().concat('/listaunidades');//'http://172.25.108.236:8189/bodegasparaasignar';
+  private urlListaPiezas = sessionStorage.getItem('enlace').toString().concat('/listapiezas');
+  private urlListaCamas = sessionStorage.getItem('enlace').toString().concat('/listacamas');
+  private urlListaServicios = sessionStorage.getItem('enlace').toString().concat('/listaservicios');
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/servicios');
 
 
 

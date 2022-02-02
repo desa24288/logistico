@@ -10,7 +10,7 @@ import { Prioridades } from '../../models/entity/Prioridades';
 import { PrioridadesService } from '../../servicios/prioridades.service';
 import { Solicitud } from 'src/app/models/entity/Solicitud';
 
-//Manejo de fechas 
+//Manejo de fechas
 import { defineLocale } from 'ngx-bootstrap/chronos';
 import { esLocale } from 'ngx-bootstrap/locale';
 import { BsLocaleService, BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
@@ -36,6 +36,7 @@ export class BusquedaSolicitudConsumoComponent implements OnInit {
   @Input() esacodigo: number;
   @Input() cmecodigo: number;
   @Input() titulo: string;
+  @Input() usuario: string;
 
   public onClose: Subject<Solicitud>;
   public estado: boolean = false;
@@ -46,7 +47,6 @@ export class BusquedaSolicitudConsumoComponent implements OnInit {
   public listasolicitudespaginacion: Array<SolicitudConsumo> = [];
   public loading = false;
   public servidor = environment.URLServiciosRest.ambiente;
-  public usuario = environment.privilegios.usuario;
   public ccostosolicitante: Array<UnidadesOrganizacionales> = [];
   //fechas
   public locale = 'es';
@@ -88,7 +88,6 @@ export class BusquedaSolicitudConsumoComponent implements OnInit {
       data => {
         this.prioridades = data;
       }, err => {
-        console.log(err.error);
       }
     );
 
@@ -96,7 +95,6 @@ export class BusquedaSolicitudConsumoComponent implements OnInit {
       data => {
         this.estadossolbods = data;
       }, err => {
-        console.log(err.error);
       }
     );
 
@@ -122,25 +120,29 @@ export class BusquedaSolicitudConsumoComponent implements OnInit {
     } else {
       var fechadesde = this.datePipe.transform(this.lForm.value.fechadesde, 'yyyy-MM-dd');
       var fechahasta = this.datePipe.transform(this.lForm.value.fechahasta, 'yyyy-MM-dd');
-    
+
     }
-   this.loading = true;
-    
-    this._solicitudConsumoService.buscarsolicitudconsumo(this.lForm.value.numerosolicitud, this.hdgcodigo, this.esacodigo, this.cmecodigo, 0, 0, 0, 0, 0, 0, "", "", this.usuario, this.servidor, fechadesde, fechahasta).subscribe(
+    this.loading = true;
+    this._solicitudConsumoService.buscarsolicitudconsumocabecera(this.lForm.value.numerosolicitud, this.hdgcodigo, this.esacodigo, this.cmecodigo,  this.lForm.value.centrocosto, 0, 0, 0, this.lForm.value.estado, this.lForm.value.prioridad, "", "", this.usuario, this.servidor, fechadesde, fechahasta).subscribe(
       respuestasolicitud => {
+        /** if para que no genere error */
+        if(respuestasolicitud === null) {
+          return;
+        }
+
         if (respuestasolicitud.length == 0) {
           this.loading = false;
-          this.alertSwalError.title = "Error al Buscar Solicitudes de Consumo";
-          this.alertSwalError.text = "No encuentra Solicitudes de consumo para este criterio. Favor intentar nuevamente";
-          this.alertSwalError.show();
+          this.alertSwalAlert.title = "Buscar Solicitudes de Consumo";
+          this.alertSwalAlert.text = "No encuentra Solicitudes de consumo para este criterio. Favor intentar nuevamente";
+          this.alertSwalAlert.show();
         }
         else {
+
           this.listasolicitudes = respuestasolicitud;
           this.listasolicitudespaginacion = this.listasolicitudes.slice(0, 8);
         }
       },
       error => {
-        console.log(error);
         this.loading = false;
         this.alertSwalError.title = "Error al Buscar Solicitudes de Consumo";
         this.alertSwalError.text = "No encuentra Solicitudes, puede que no existan. Favor intentar nuevamente";
@@ -166,9 +168,11 @@ export class BusquedaSolicitudConsumoComponent implements OnInit {
 
 
   BuscaCentroCostoSolicitante() {
-    this._unidadesorganizacionaes.buscarCentroCosto("", 0, "CCOS", "", "", 0, this.cmecodigo, 0, 0, "S", this.usuario, this.servidor).subscribe(
+    this._unidadesorganizacionaes.buscarCentroCosto("", 0, "CCOS", "", "", 0, this.cmecodigo, 0, 0, "S", this.usuario, null, this.servidor).subscribe(
       response => {
-        this.ccostosolicitante = response;
+        if (response != null){
+          this.ccostosolicitante = response;
+        }
       },
       error => {
         alert("Error al Buscar Bodegas de cargo");
@@ -199,4 +203,55 @@ export class BusquedaSolicitudConsumoComponent implements OnInit {
     this.cmecodigo = event.cmecodigo;
   }
 
+  getSolicitud(solicitud:any){
+    this.loading = true;
+    if (this.lForm.value.numerosolicitud != null && this.lForm.value.numerosolicitud  >0 ) {
+      var fechadesde = '';
+      var fechahasta = '';
+    } else {
+      var fechadesde = this.datePipe.transform(this.lForm.value.fechadesde, 'yyyy-MM-dd');
+      var fechahasta = this.datePipe.transform(this.lForm.value.fechahasta, 'yyyy-MM-dd');
+
+    }
+    this._solicitudConsumoService.buscarsolicitudconsumocabecera(parseInt(solicitud), this.hdgcodigo, this.esacodigo, this.cmecodigo, 0, 0, 0, 0, 0, 0, "", "", this.usuario, this.servidor, fechadesde, fechahasta).subscribe(
+      respuestasolicitud => {
+        if (respuestasolicitud.length == 0) {
+          this.loading = false;
+          this.alertSwalError.title = "Error al Buscar Solicitudes de Consumo";
+          this.alertSwalError.text = "No encuentra Solicitudes de consumo para este criterio. Favor intentar nuevamente";
+          this.alertSwalError.show();
+        }
+        else {
+
+          this.listasolicitudes = respuestasolicitud;
+          this.listasolicitudespaginacion = this.listasolicitudes.slice(0, 8);
+        }
+      },
+      error => {
+
+        this.loading = false;
+        this.alertSwalError.title = "Error al Buscar Solicitudes de Consumo";
+        this.alertSwalError.text = "No encuentra Solicitudes, puede que no existan. Favor intentar nuevamente";
+        this.alertSwalError.show();
+      }
+
+    )
+    this.loading = false;
+  }
+
+  msgAlert( title: any, error: any) {
+    this.alertSwalAlert.title = title;
+    this.alertSwalAlert.text = error;
+    this.alertSwalAlert.show();
+    return;
+
+  }
+
+  msgError( title: any, error: any) {
+    this.alertSwalError.title = title;
+    this.alertSwalError.text = error;
+    this.alertSwalError.show();
+    return;
+
+  }
 }

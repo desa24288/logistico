@@ -49,7 +49,7 @@ export class ListadopararealizarinventarioComponent implements OnInit {
 
   ) {
 
-    this.FormListadoInventario = this.formBuilder.group({      
+    this.FormListadoInventario = this.formBuilder.group({
       hdgcodigo: [null],
       esacodigo: [null],
       cmecodigo: [null],
@@ -69,7 +69,7 @@ export class ListadopararealizarinventarioComponent implements OnInit {
       }
     );
   }
-  
+
   getHdgcodigo(event: any) {
     this.hdgcodigo = event.hdgcodigo;
 
@@ -80,7 +80,7 @@ export class ListadopararealizarinventarioComponent implements OnInit {
 
   getCmecodigo(event: any) {
     this.cmecodigo = event.cmecodigo;
-  
+
     this.BuscaBodegaDestino();
   }
 
@@ -90,9 +90,9 @@ export class ListadopararealizarinventarioComponent implements OnInit {
 
     this._BodegasService.listaBodegaDestinoSucursal(this.hdgcodigo, this.esacodigo, this.cmecodigo, usuario, servidor).subscribe(
       response => {
-        console.log(response);
-        this.bodegasdestino = response;
-
+        if (response != null) {
+          this.bodegasdestino = response;
+        }
       },
       error => {
         alert("Error al Buscar Bodegas de Destino");
@@ -121,23 +121,20 @@ export class ListadopararealizarinventarioComponent implements OnInit {
 
         this.ImprimeReporte(tiporeporte);
       }
-    })    
+    })
   }
 
   ImprimeReporte(tiporeporte: string){
     console.log("Imprime el reporte de Inventario", this.FormListadoInventario.value.boddestino,
-    this.FormListadoInventario.value.idtiporegistro,environment.URLServiciosRest.ambiente,tiporeporte); 
+    this.FormListadoInventario.value.idtiporegistro,environment.URLServiciosRest.ambiente,tiporeporte);
     if(tiporeporte=="pdf"){
       this._listadoinventarioService.RPTListadoInventario(tiporeporte,this.FormListadoInventario.value.boddestino,
       this.FormListadoInventario.value.idtiporegistro,this.hdgcodigo,
       this.esacodigo,this.cmecodigo).subscribe(
         response => {
-          console.log("Imprime Listado para Inventario", response);
-        
-          window.open(response[0].url,"","",true);
-          // this.alertSwal.title = "Reporte Impreso Correctamente";
-          // this.alertSwal.show();
-      
+          if (response != null) {
+            window.open(response[0].url,"","",true);
+          }
         },
         error => {
           console.log(error);
@@ -153,12 +150,9 @@ export class ListadopararealizarinventarioComponent implements OnInit {
         this._listadoinventarioService.RPTListadoInventario(tiporeporte,this.FormListadoInventario.value.boddestino,
         this.FormListadoInventario.value.idtiporegistro,this.hdgcodigo,this.esacodigo,this.cmecodigo).subscribe(
           response => {
-            console.log("Imprime Listado para Inventario en EXcel", response);
-     
-            window.open(response[0].url,"","",true);
-            // this.alertSwal.title = "Reporte Impreso Correctamente";
-            // this.alertSwal.show();
-      
+            if (response != null) {
+              window.open(response[0].url,"","",true);
+            }
           },
           error => {
             console.log(error);
@@ -169,7 +163,7 @@ export class ListadopararealizarinventarioComponent implements OnInit {
         );
       }
 
-    }  
+    }
   }
 
   setModalMensajeError() {

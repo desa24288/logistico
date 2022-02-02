@@ -14,12 +14,12 @@ import { environment } from '../../environments/environment';
 })
 export class AjustevaloresService {
 
-  public urlBuscarproducto      : string = environment.URLServiciosRest.URLConexion.concat('/buscavaloresmamein');//'http://172.25.108.236:8195/buscavaloresmamein'; //Busca productos x codigo
- //public urlBuscarpordescripcion: string = environment.URLServiciosRest.URLConexion.concat('/buscaprodpordescripcion');// 'http://172.25.108.236:8182/buscaprodpordescripcion'; //Busca productos x descripcion
-  public urlgrabaajustevalor    : string = environment.URLServiciosRest.URLConexion.concat('/grabaajustesstock'); //"http://172.25.108.236:8195/grabaajustesstock";
-  public urlbuscavalores        : string = environment.URLServiciosRest.URLConexion.concat('/buscaajustevalores');//"http://172.25.108.236:8195/buscaajustevalores";
-  public urlbuscaempresa        : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
-  public urlbuscasucursal       : string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal";
+  public urlBuscarproducto      : string = sessionStorage.getItem('enlace').toString().concat('/buscavaloresmamein');//'http://172.25.108.236:8195/buscavaloresmamein'; //Busca productos x codigo
+ //public urlBuscarpordescripcion: string = sessionStorage.getItem('enlace').toString().concat('/buscaprodpordescripcion');// 'http://172.25.108.236:8182/buscaprodpordescripcion'; //Busca productos x descripcion
+  public urlgrabaajustevalor    : string = sessionStorage.getItem('enlace').toString().concat('/grabaajustesstock'); //"http://172.25.108.236:8195/grabaajustesstock";
+  public urlbuscavalores        : string = sessionStorage.getItem('enlace').toString().concat('/buscaajustevalores');//"http://172.25.108.236:8195/buscaajustevalores";
+  public urlbuscaempresa        : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
+  public urlbuscasucursal       : string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal";
 
   constructor(private httpClient: HttpClient,
     public _http: HttpClient) {
@@ -34,7 +34,6 @@ export class AjustevaloresService {
   }*/
 
   BuscaEmpresa(hdgcodigo: number,usuario:string, servidor:String):Observable<Empresas[]> {
-    console.log("Buscará producto por descripcion")
     return this._http.post<Empresas[]>(this.urlbuscaempresa, {
         'hdgcodigo': hdgcodigo,
         'usuario'  : usuario,
@@ -43,7 +42,6 @@ export class AjustevaloresService {
   }
 
   BuscaSucursal(hdgcodigo: number, esacodigo: number,usuario:string, servidor:String):Observable<Sucursal[]> {
-      console.log("Buscará producto por descripcion")
       return this._http.post<Sucursal[]>(this.urlbuscasucursal, {
           'hdgcodigo': hdgcodigo,
           'esacodigo': esacodigo,
@@ -53,7 +51,6 @@ export class AjustevaloresService {
   }
 
   BuscarProducto(hdgcodigo:number,esacodigo:number,cmecodigo:number, productotipo: string,productodesc: string,productocodi: string,usuario:string,servidor:string  ): Observable<AjusteValores[]> {
-    console.log("Se realizará búsqueda por código:",productotipo,productodesc,productocodi,)
     return this._http.post<AjusteValores[]>(this.urlBuscarproducto, {
       'hdgcodigo'   : hdgcodigo,
       'esacodigo'   : esacodigo,
@@ -74,7 +71,6 @@ export class AjustevaloresService {
 
   BuscaValores(fechaajusteini: string,fechaajustefin:string,responsable: string,productotipo:string,
     tipomotivoajus: string,usuario:string,servidor:string): Observable<TraeAjustes[]> {
-      console.log("Busca los ajustes");
     return this._http.post<TraeAjustes[]>(this.urlbuscavalores, {
       'fechaajusteini'  : fechaajusteini,
       'fechaajustefin'  : fechaajustefin,

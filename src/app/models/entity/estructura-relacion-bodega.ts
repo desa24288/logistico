@@ -10,4 +10,6 @@ export class EstructuraRelacionBodega {
 	servidor : string;
 	usuario : string;
 	accion:string;
+	bloqcampogrilla: boolean;
+	marcacheckgrilla: boolean;
 }

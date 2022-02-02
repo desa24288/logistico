@@ -1,6 +1,6 @@
 export class DocIdentificacion {
-    private docidentcodigo     : number;
-    private docidentdescripcion: string;
+    public docidentcodigo     : number;
+    public docidentdescripcion: string;
 
     constructor(docidentcodigo : number,docidentdescripcion: string) {
         this.docidentcodigo  = docidentcodigo ;

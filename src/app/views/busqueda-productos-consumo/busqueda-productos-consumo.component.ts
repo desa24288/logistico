@@ -24,30 +24,29 @@ export class BusquedaProductosConsumoComponent implements OnInit {
   @Input() esacodigo: number;
   @Input() cmecodigo: number;
   @Input() titulo   : string;
-
-
-
+  @Input() codprod  : string; // codigo producto
+  @Input() descprod : string; // descripcion producto
 
   public onClose: Subject<ProductoConsumo>;
-  public estado: boolean = false;
+  public estado : boolean = false;
 
-  public detalleconsultaproducto: Array<ProductoConsumo> = [];
-  public detalleconsultaproductopag: Array<ProductoConsumo> = [];
-  public listaGurpoConsumo:  Array<ClinFarGrupoConsumo> = [];
-  public listaSubGurpoConsumo:  Array<ClinFarSubGrupoConsumo> = [];
+  public detalleconsultaproducto    : Array<ProductoConsumo> = [];
+  public detalleconsultaproductopag : Array<ProductoConsumo> = [];
+  public listaGurpoConsumo          :  Array<ClinFarGrupoConsumo> = [];
+  public listaSubGurpoConsumo       :  Array<ClinFarSubGrupoConsumo> = [];
 
-  public lForm: FormGroup;
-  public loading = false;
-  public usuario = environment.privilegios.usuario;
-  public servidor = environment.URLServiciosRest.ambiente;
- 
-
+  public lForm        : FormGroup;
+  public loading      = false;
+  public usuario      = environment.privilegios.usuario;
+  public servidor     = environment.URLServiciosRest.ambiente;
+  public codproducto  = null;
+  public descproducto = null;
 
   constructor(
-    public bsModalRef: BsModalRef,
+    public bsModalRef : BsModalRef,
     public formBuilder: FormBuilder,
     public _SolicitudConsumoService: SolicitudConsumoService,
-    ) { 
+    ) {
 
       this.lForm = this.formBuilder.group({
         codigo: [{ value: null, disabled: false }, Validators.required],
@@ -58,16 +57,22 @@ export class BusquedaProductosConsumoComponent implements OnInit {
         grupoid:[{ value: null, disabled: false }, Validators.required],
         subgrupoid:[{ value: null, disabled: false }, Validators.required],
       });
-
-
-    }
+  }
 
   ngOnInit() {
 
     this.onClose = new Subject();
+    if(this.codprod !== null) {
+      this.codproducto = (this.codprod===undefined || this.codprod.trim()==='')?null:this.codprod;
+    }
+
+    if(this.descprod !== null) {
+      this.descproducto = (this.descprod===undefined || this.descprod.trim()==='')?null:this.descprod;
+    }
 
     this._SolicitudConsumoService.buscargrupoconsumo('',0,this.hdgcodigo,0,0,'','',this.usuario,this.servidor).subscribe(
       Response => {
+        if (Response != null){
           if (Response.length == 0 ){
             this.loading = false;
             this.alertSwalAlert.title = "Advertencia: ";
@@ -75,59 +80,72 @@ export class BusquedaProductosConsumoComponent implements OnInit {
             this.alertSwalAlert.show();
             Response = [];
           } else {
-               this.listaGurpoConsumo = Response;
-
+            this.listaGurpoConsumo = Response;
           }
-
+        } else {
+          this.loading = false;
+        }
       }
-    )
-    
+    );
+  }
+
+  async ngAfterViewInit() {
+    /** Si var cod y desc vienen sin datos no realiza busqueda //@ML */
+    if (this.codproducto === null && this.descproducto === null){
+      return;
+    } else {
+      this.setBusqueda();
+    }
+  }
+
+  async setBusqueda() {
+    /** setea campos codigo o descripcion de producto y genera busqueda */
+    this.lForm.get('codigo').setValue(this.codproducto);
+    this.lForm.get('descripcion').setValue(this.descproducto);
+    this.Buscarproducto(this.codproducto, this.descproducto,0,0);
   }
 
   listarsubgrupos(id_grupo:number){
-
-
     this._SolicitudConsumoService.buscarsubgrupoconsumo('',0,id_grupo  ,this.hdgcodigo,0,0,'','',this.usuario,this.servidor).subscribe(
       response => {
-          if (response.length == 0 ){
-            this.loading = false;
-            this.alertSwalAlert.title = "Advertencia: ";
-            this.alertSwalAlert.text = "No existe Subgrupos definidos para este criterio";
-            this.alertSwalAlert.show();
-            response = [];
-          } else {
-               this.listaSubGurpoConsumo = response;
-
-
-          }
-
+        if (response.length == 0 ){
+          this.loading = false;
+          this.alertSwalAlert.title = "Advertencia: ";
+          this.alertSwalAlert.text = "No existe Subgrupos definidos para este criterio";
+          this.alertSwalAlert.show();
+          response = [];
+        } else {
+          this.listaSubGurpoConsumo = response;
+        }
       }
     )
-
   }
 
-
-
   Buscarproducto(codigo: string, descripcion: string, idgrupo:number, idsubgrupo:number) {
-
     this.loading = true;
-
-    this._SolicitudConsumoService.buscarproductosconsumo(0,  this.hdgcodigo, 0,0,codigo,descripcion,idgrupo,idsubgrupo, this.usuario, this.servidor
-      ).subscribe(
+    this._SolicitudConsumoService.buscarproductosconsumo(0,  this.hdgcodigo, this.esacodigo,this.cmecodigo,codigo,
+      descripcion,idgrupo,idsubgrupo, this.usuario, this.servidor).subscribe(
         response => {
-          if (response.length == 0) {
+          if(response != null){
+            if (response.length == 0) {
+              this.loading = false;
+              this.alertSwalAlert.title = "Advertencia: ";
+              this.alertSwalAlert.text = "No existe coincidencia por el criterio buscado";
+              this.alertSwalAlert.show();
+              response = [];
+            }
+            else {
+              if (response.length > 0) {
+                this.detalleconsultaproducto = response;
+                this.detalleconsultaproductopag = this.detalleconsultaproducto.slice(0, 8);
+                this.loading = false;
+              }
+            }
+          } else {
             this.loading = false;
             this.alertSwalAlert.title = "Advertencia: ";
             this.alertSwalAlert.text = "No existe coincidencia por el criterio buscado";
             this.alertSwalAlert.show();
-            response = [];
-          }
-          else {
-            if (response.length > 0) {
-              this.detalleconsultaproducto = response;
-              this.detalleconsultaproductopag = this.detalleconsultaproducto.slice(0, 8);
-              this.loading = false;
-            }
           }
         },
         error => {
@@ -137,10 +155,7 @@ export class BusquedaProductosConsumoComponent implements OnInit {
           this.alertSwalError.show();
         }
       );
-
-
     this.loading = false;
-
   }
 
   onCerrar(Articulos: ProductoConsumo) {
@@ -168,7 +183,41 @@ export class BusquedaProductosConsumoComponent implements OnInit {
     this.detalleconsultaproductopag = [];
   }
 
-
-
-
+  getProducto(codigo:string){
+    this.loading = true;
+    this._SolicitudConsumoService.buscarproductosconsumo(0,  this.hdgcodigo, this.esacodigo,this.cmecodigo,
+      codigo,null,0,0, this.usuario, this.servidor
+      ).subscribe(
+        response => {
+          if(response !=null){
+            if (response.length == 0) {
+              this.loading = false;
+              this.alertSwalAlert.title = "Advertencia: ";
+              this.alertSwalAlert.text = "No existe coincidencia por el criterio buscado";
+              this.alertSwalAlert.show();
+              response = [];
+            }
+            else {
+              if (response.length > 0) {
+                this.detalleconsultaproducto = response;
+                this.detalleconsultaproductopag = this.detalleconsultaproducto.slice(0, 8);
+                this.loading = false;
+              }
+            }
+          }else{
+            this.loading = false;
+            this.alertSwalAlert.title = "Advertencia: ";
+            this.alertSwalAlert.text = "No existe coincidencia por el criterio buscado";
+            this.alertSwalAlert.show();
+          }
+        },
+        error => {
+          this.loading = false;
+          this.alertSwalError.title = "Error: ";
+          this.alertSwalError.text = error.message;
+          this.alertSwalError.show();
+        }
+      );
+    this.loading = false;
+  }
 }

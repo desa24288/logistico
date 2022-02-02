@@ -1,11 +1,13 @@
-<app-navbar></app-navbar>
+<!-- <app-navbar></app-navbar>
 <app-sidebar></app-sidebar>
-<div class="content-wrapper pl-2">
+<div class="content-wrapper pl-4"> -->
+<app-main-nav>
+<div>
   <div style="margin: 10px;">
     <form [formGroup]="FormPlantillaSolicitudBodega">
       <div class="my-2 ml-2 titulo text-center">
         <h3>
-          Administrador Plantillas {{titulo}}
+          Administrador Plantillas de Bodegas
         </h3>
       </div>
       <div class="card border-primary" style="padding: 5px;">
@@ -14,30 +16,37 @@
             <label for="numplantilla">Número de Plantilla *</label>
             <input type="number" class="form-control form-control-sm" formControlName="numplantilla">
           </div>
-          <div class="form-group col-md-4">
+          <div class="form-group col-md-3">
             <label for="descripcion">Descripción *</label>
             <input type="text" class="form-control form-control-sm" formControlName="descripcion">
           </div>
           <div class="form-group col-md-2">
-            <label for="esticod">Estado Plantilla *</label>
-            <select name="esticod" class='form-control form-control-sm' formControlName='estado'>
+            <label for="estado">Estado Plantilla *</label>
+            <select name="estado" class='form-control form-control-sm' formControlName='estado' 
+            (change)="logicaVacios()">
               <option value="S">VIGENTE</option>
               <option value="N">NO VIGENTE </option>
             </select>
           </div>
-          <div class="form-group col-md-2 align-self-end text-right" *ngIf="tipoplantilla">
-            <button type="button" id="btnbuscar" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
-              (click)="BuscarPlantillas(true)">Buscar Plantilla <i class="fas fa-search"></i>
-            </button>
+          <div class="form-group col-md-2">
+            <label for="tipopedido">Tipo Plantilla *</label>
+            <select name="tipopedido" class='form-control form-control-sm' 
+              formControlName='tipopedido'
+              (change)="SeleccionaTipoPlantilla(FormPlantillaSolicitudBodega.value.tipopedido)">
+              <option *ngFor='let tipo of tipospedidos'
+                [ngValue]='tipo.codtipopedido'>
+                {{ tipo.destipopedido }}
+              </option>
+            </select>
           </div>
-          <div class="form-group col-md-2 align-self-end text-right" *ngIf="!tipoplantilla">
-            <button type="button" id="btnbuscar" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
-              (click)="BuscarPlantillas(false)">Buscar Plantilla <i class="fas fa-search"></i>
+          <div class="form-group col-md-2 align-self-end text-right" >
+            <button type="button" id="btnbuscar2" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
+              (click)="BuscarPlantillas(true)">Buscar Plantilla <i class="fas fa-search"></i>
             </button>
           </div>
         </div>
         <div class="form-row mt-2">
-          <div class="form-group col-md-4" *ngIf="tipoplantilla">
+          <div class="form-group col-md-4">
             <label for="bodcodigo">Bodega Solicitante *</label>
             <select name="bodcodigo" class='form-control form-control-sm' formControlName='bodcodigo'
               (change)="BuscaBodegasSuministro(FormPlantillaSolicitudBodega.value.bodcodigo)">
@@ -47,42 +56,63 @@
               </option>
             </select>
           </div>
-          <div class="form-group col-md-4" *ngIf="tipoplantilla">
+          <div class="form-group col-md-4" *ngIf="pedido">
             <label for="bodcodigoentrega">Bodega Suministro *</label>
-            <select name="bodcodigoentrega" class='form-control form-control-sm' formControlName='bodcodigoentrega'
-              (change)="SeleccionaBodegaServicio()">
+            <select name="bodcodigoentrega" class='form-control form-control-sm' 
+              formControlName='bodcodigoentrega' (change)="SeleccionaBodegaServicio()">
               <option *ngFor='let listaBodegassuministro of bodegassuministro'
                 [ngValue]='listaBodegassuministro.bodcodigoentrega'>
                 {{ listaBodegassuministro.boddescripcion }}
               </option>
             </select>
           </div>
-          <div class="form-group col-md-4" *ngIf="!tipoplantilla">
-            <label for="serviciocod">Servicio *</label>
-            <select name="serviciocod" class='form-control form-control-sm' (change)="SeleccionaBodegaServicio()"
-              formControlName='serviciocod'>
-              <option *ngFor='let listaservicio of arregloservicios' [ngValue]='listaservicio.serviciocod'>
-                {{ listaservicio.serviciodesc }}
+          <div class="form-group col-md-4" *ngIf="!pedido">
+            <label for="bodcodigoentrega">Bodega Suministro *</label>
+            <select name="bodcodigoentrega" class='form-control form-control-sm' 
+              formControlName='bodcodigoentrega' (change)="SeleccionaBodegaServicio()">
+              <option *ngFor='let listaBod of bodegasSolicitantes1'
+                [selected]='listaBod.row == 0' [ngValue]='listaBod.bodcodigo'>
+                  {{ listaBod.boddescripcion }}
               </option>
             </select>
           </div>
-
         </div>
       </div>
     </form>
-    <div class="card border-primary" style="padding: 5px;margin-top: 10px;height: 1200px;">
-      <div id="table" class="table-editable">
-        <a class="btn-floating btn-lg purple-gradient"></a>
-        <button type="button" class="btn btn-info btn-rounded btn-sm ml-2" [disabled]="!activabtnagregar"
-          (click)="addArticuloGrilla()">Agregar<i class="fas fa-plus ml-2" aria-hidden="true"></i>
-        </button>
-        <div id="table" class="table-editable table-responsive mt-2" style="height: 1100px;">
+    <div class="card border-primary" style="padding: 20px;margin-top: 10px">
+      <div id="table" class="table-editable" >
+        <form [formGroup]="FormDatosProducto" autocomplete="off" spellcheck="false">
+          <div class="row form-group align-self-end ml-1">
+            <div class="form-group col-md-2">
+              <label for="codigo">Código *</label>
+              <input type="text" class="form-control form-control-sm" formControlName="codigo">
+            </div>
+            <div class="row form-group align-self-end ml-1">
+              <a class="btn-floating btn-lg purple-gradient"></a>
+              <button type="button" class="btn btn-info btn-rounded btn-sm ml-2" [disabled]="!activabtnagregar"
+                (click)="getProducto()">Agregar<i class="fas fa-plus ml-2" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="btn btn-info btn-sm ml-2" [disabled]="!ActivaBotonBuscaGrilla"
+                (click)="findArticuloGrilla()">Buscar<i class="fas fa-search ml-1"></i>
+              </button>
+              <button type="button" [disabled]="!ActivaBotonLimpiaBusca" class="btn btn-danger btn-sm ml-2"
+                (click)="limpiarCodigo()">Limpiar Búsqueda<i class="fas fa-brush ml-1"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+        <div id="table" class="table-editable table-responsive mt-2">
           <table class="table table-sm table-condensed table-bordered table-responsive-md table-striped text-center">
             <tr class="table table-sm  table-primary table-bordered ">
-              <th class="text-center">Código</th>
-              <th class="text-center">Descripción</th>
-              <th class="text-center">Cantidad a Solicitar*</th>
-              <th class="text-center">Eliminar</th>
+              <th class="text-center" style="width: 20%;">Código</th>
+              <th class="text-center" style="width: 40%;">Descripción</th>
+              <th class="text-center" style="width: 10%;">Tipo Artículo</th>
+              <th class="text-center" style="width: 20%;">Cantidad a Solicitar</th>
+              <th class="text-center" style="width: 10%;"><button type="button" id="btnElinaRegistro" class="btn btn-info btn-danger btn-sm ml-2 "
+                (click)="ConfirmaEliminaProductoDeLaGrilla2()" [disabled]= "!desactivabtnelim">
+                Eliminar <i class="fas fa-trash-restore-alt  ml-1"></i>
+                </button>
+              </th>
             </tr>
             <tr class="table-secondary" *ngFor="let registro of detalleplantillapaginacion; let id = index">
               <td>
@@ -91,23 +121,33 @@
               <td class="text-nowrap help   " tooltip="{{registro.meindescri }}">
                 <small><span> {{registro.meindescri| slice:0:40 }}</span></small>
               </td>
-              <td class="text-nowrap">
-                <small><input type="number" class="form-control form-control-sm text-right" min="0" max="9999999999"
-                    [(ngModel)]="registro.cantsoli" (input)="cambio_cantidad(id, 'cantsoli', $event)"
-                    (blur)="cambio_cantidad(id, 'cantidadareponer', $event)"></small>
+              <td class="text-nowrap " >
+                <div *ngIf="registro.tiporegmein === 'M'">
+                  <small><span>Medicamento</span></small>
+                </div>
+                <div *ngIf="registro.tiporegmein === 'I'">
+                  <small><span>Insumo</span></small>
+                </div>
               </td>
               <td>
-                <small><span><button type="button" id="btnElinaRegistro" class="btn btn-info btn-rounded btn-sm ml-2"
-                      (click)="ConfirmaEliminaProductoDeLaGrilla(registro,id)">Eliminar
-                      <i class="fas fa-trash-restore-alt  ml-1"></i>
-                    </button></span>
+                <small> 
+                  <input type="number" class="form-control form-control-sm text-right" min="1"
+                    max="10000" [(ngModel)]="registro.cantsoli"
+                    (focusout)="setCantidad(id, 'cantsoli', registro)"
+                    (keyup.enter)="setCantidad(id, 'cantsoli', registro)"> 
+                </small>
+              </td>
+              <td>
+                <small>
+                  <input class="mr-2  " type="checkbox"  [disabled]="!registro.bloqcampogrilla"
+                    (click)="CambioCheck(registro,id,$event,registro.marcacheckgrilla)">
                 </small>
               </td>
             </tr>
           </table>
         </div>
-        <div class="row m-1">
-          <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
+        <div class="row m-1" *ngIf="detalleplantilla.length>20">
+          <pagination style="margin: auto;" [boundaryLinks]="true" [directionLinks]="true" [maxSize]="10"
             [totalItems]="detalleplantilla.length" [itemsPerPage]=20 [previousText]="'Anterior'"
             [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'" (pageChanged)="pageChanged($event)">
           </pagination>
@@ -120,29 +160,36 @@
   <div class="row float-right mr-1 mt-2">
     <div class="form-group  align-self-end">
       <button type="button" id="btnguardar"
-        [disabled]="!ActivarBotonGuardar()"
+        [disabled]="!verificanull"
         class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
-        *ngIf="modelopermisos.btngrabarpb || modelopermisos.btngrabarpp" (click)="ConfirmaGenerarPlantilla()"> GUARDAR
+        *ngIf="modelopermisos.btngrabarpb " 
+        (click)="ConfirmaGenerarPlantilla()"> GUARDAR
         PLANTILLA <i class="fas fa-save ml-1"></i>
       </button>
     </div>
     <div class="form-group  align-self-end">
-      <button type="button" id="btnmodificar" [disabled]="!ActivarBotonModificar()"
+      <button type="button" id="btnmodificar" [disabled]=" !verificamodificanull"
         class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
-        *ngIf="modelopermisos.btnmodificarpb || modelopermisos.btnmodificarpp"
+        *ngIf="modelopermisos.btnmodificarpb"
         (click)="ConfirmaModificarPlantilla()">MODIFICAR PLANTILLA <i class="fas fa-save ml-1"></i>
       </button>
     </div>
+    <div class="form-group  align-self-end" *ngIf="modelopermisos.btnimpplantillabod">
+      <button type="button" id="btnsguardar" [disabled]="!activabtnimprime"
+          class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+          (click)="onImprimir()">IMPRIMIR PLANTILLA  <i class="fas fa-file-pdf ml-1"></i>
+      </button>
+    </div>
     <div class="form-group  align-self-end">
-      <button type="button" id="btneliminar" [disabled]="!ActivarBotonModificar() "
+      <button type="button" id="btneliminar" [disabled]="FormPlantillaSolicitudBodega.controls.numplantilla.value == null "
         class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
-        *ngIf="modelopermisos.btneliminarpb || modelopermisos.btneliminarpp"
+        *ngIf="modelopermisos.btneliminarpb"
         (click)="ConfirmaEliminarPlantilla()">ELIMINAR PLANTILLA <i class="fas fa-trash-restore-alt  ml-1"></i>
       </button>
     </div>
     <div class="form-group  align-self-end">
       <button type="button" id="btnlimpiar" class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
-        (click)="limpiar()">LIMPIAR <i class="fas fa-eraser ml-1"></i>
+        (click)="limpiar()" >LIMPIAR <i class="fas fa-eraser ml-1"></i>
       </button>
     </div>
     <div class="form-group  align-self-end">
@@ -155,3 +202,4 @@
   <swal #alertSwalAlert title="" text="" type="warning" [showCancelButton]="false"> </swal>
   <swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
 </div>
+</app-main-nav>

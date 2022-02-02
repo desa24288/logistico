@@ -6,6 +6,7 @@ export class Permisosusuario {
   public permisos = [];
 
   /** Menu Sidebar */
+  public monitor = false;
   public btnproductos = false;
   public btnmovbodega = false;
   public btnproducto = false;
@@ -13,7 +14,7 @@ export class Permisosusuario {
   public btnadmbodegas = false;
   public btnbodegas = false;
   public btnplantillabod = false;
-  public btnplantillaproced = true;
+  public btnplantillaproced = false;
   public btnfraccionamiento = false;
   public btnlibcontrolado = false;
   public btnajustes = false;
@@ -36,6 +37,8 @@ export class Permisosusuario {
   public btnconsulrecetas = false;
   public btnmovimientosp = false;
   public btnconsumo = false;
+  public btnautopedido = false;
+  public btndevolautopedido = false;
   public btnsolconsumo = false;
   public btnplantconsumo = false;
   public btnusroles = false;
@@ -45,11 +48,31 @@ export class Permisosusuario {
   public btnkardex = false;
   public btnconsultakardex = false;
   public btncierrekardex = false;
+  public btncreadispsolpac = false;
+  public btngeneradevolpac = false;
+  public btncreacionrecetas = false;
+  public btnbusquedacuentas = false;
+  public btnconsumopacbodega = false;
+  public btnconsultafraccionamiento = false;
+  public btndevolfraccionamiento = false;
+  public btnreportes = false;
+  public btnreimpresionsolicitud = false;
+  public btnlistaconteoinventario = false;
+  public btnconsumoporbodega = false;
+  public btncambioenlace = false;
+  public menudevolpac = false;
+  public menuconsultasaldobodega = false;
+  public menuconsultalote = false;
+  public menugastoservicio = false;
   /** pantalla Mantencion Articulos (MA) */
   public btnmodificarma = false;
   /** pantalla Bodegas */
   public btnmodificarbod = false;
   public btngrabarbod = false;
+  public btneliminaprodbod = false;
+  public btneliminaserviciobod = false;
+  public btneliminausuariobod = false;
+  public btneliminabodasociada = false;
   /** pantalla Fraccionamiento */
   public btngrabafrac = false;
   public btnmodificafrac = false;
@@ -68,6 +91,7 @@ export class Permisosusuario {
   public btngrabarpb = false;
   public btnmodificarpb = false;
   public btneliminarpb = false;
+  public btnimpplantillabod = false;
   /** pantalla Admin Solicitudes Bodegas. */
   public btngrabasolicbod = false;
   public btnmodificasolicbod = false;
@@ -106,6 +130,7 @@ export class Permisosusuario {
   /** pantalla Despacho Receta. */
   public btngrabadespachorec = false;
   public btnmodifdespachorec = false;
+  public btnimprimedespachorec = false;
   /** pantalla Consulta Receta. */
   public btnimprimeconsurec = false;
   /** pantalla Devolucion Paciente. */
@@ -123,12 +148,25 @@ export class Permisosusuario {
   public btngrabamovimpac = false;
   public btnimprimemovimpac = false;
   /** pantalla Plantilla Procedimientos */
-  public btngrabarpp = true;
-  public btnmodificarpp = true;
-  public btneliminarpp = true;
-  /** pantalla Despacho Costo Servicio */
+  public btngrabarpp = false;
+  public btnmodificarpp = false;
+  public btneliminarpp = false;
+  public btnimpplantillaproc = false;
+  /** pantalla Despacho Costo Servicio (Autopedido) */
+  public btnsolautopedido = false;
   public btngrabadespachocostoser = false;
   public btnimprdespcostoser = false;
+  public btnconsultasolicautopedido = false;
+
+  /** pantalla devolucion autopedido */
+  public btngrabadevolautopedido = false;
+  public btnimprdevolautopedido = false;
+  // public 
+
+  /** menus autopedido */
+  public btnMenuAutopedido = false;
+  public btnMenuSolicitudAutopedido = false;
+  public btnMenuDevolAutopedido = false;
   /** pantalla Cierre KArdex */
   public btngrabacierrekardex = false;
   public btnimprcierrekardex = false;
@@ -136,10 +174,28 @@ export class Permisosusuario {
    public btnbuscakardex = false;
    public btnimprimeconskardex = false;
 
-     /** pantallas Visor de interfaces  */
-     public btnMenuInterfaz = false;
-     public btnMenuInterfazCargos = false
-     public btnMenuInterfazErp = false
+  /** pantallas Visor de interfaces  */
+  public btnMenuInterfaz = false;
+  public btnMenuInterfazCargos = false
+  public btnMenuInterfazErp = false
+  /** Pantalla Crea Dispensa Solicitud Paciente */
+  public btngrabacreasolicpac = false;
+  public btnmodifcreasolicpac = false;
+  public btneliminacreasolicpac = false;
+  public btnimprimecreasolicpac = false;
+  /** Control Stock Minimo */
+  public btnimprimestockminimo = false;
+  /** Consulta Saldos por bodega */
+
+  /** Consulta Lotes */
+
+  /** Creación recetas ambulatorias*/
+  public btngrabacreareceta = false;
+  public btnmodifreceta = false;
+
+  /** Recepción Devolución Pacientes*/
+  public btnrecepciondevolpac = false;
+  public btnrechazorecepdevolpac = false;
 
   constructor() {
     this.loadpermisos();
@@ -174,33 +230,111 @@ export class Permisosusuario {
       this.validaSolicitudPaciente();
       this.validaMovimientosPac();
       this.validaPlantillaProced();
-      this.validaPantallaDespachoCostoServi();
       this.validaPantallaCierreKardex();
-      this.validaMenuIterfaces();
+      // this.validaMenuIterfaces();
+      this.validaSolicitudAutopedido();
+      this.validaDevolucionAutopedido();
+      this.validaCreaDispensaSolicitudPaciente();
+      this.controlStockMinimo();
+      this.creaRecetaAmbulatoria();
+      this.recepcionDevolucionPaciente();
+      this.validaPantallaConsultaKardex();
     }
   }
 
-
-  validaMenuIterfaces(){
-    this.permisos.forEach(x => {
-      if (x === 626000){
-        this.btnMenuInterfaz = true;
-      }
-      if (x === 626100){
-        this.btnMenuInterfazCargos = true;
-      }
-      if (x === 626200){
-        this.btnMenuInterfazErp = true;
-      }
+  // validaMenuIterfaces(){
+  //   this.permisos.forEach(x => {
+  //     if (x === 626000){
+  //       this.btnMenuInterfaz = true;
+  //     }
+  //     if (x === 626100){
+  //       this.btnMenuInterfazCargos = true;
+  //     }
+  //     if (x === 626200){
+  //       this.btnMenuInterfazErp = true;
+  //     }
       
-    });
+  //   });
+  // }
+  controlStockMinimo(){
+    this.permisos.forEach(x => {
+      if(x === 482000){
+        this.btnimprimestockminimo = true;
+      }
+    })
+  }
+
+  creaRecetaAmbulatoria(){
+    this.permisos.forEach(x => {
+      if(x === 591000){
+        this.btngrabacreareceta = true;
+      }
+      if(x === 592000){
+        this.btnmodifreceta = true;
+      }
+
+    })
+  }
+
+  recepcionDevolucionPaciente(){
+    this.permisos.forEach(x => {
+      if(x === 842000){
+        this.btnrecepciondevolpac = true;
+      }
+      if(x === 843000){
+        this.btnrechazorecepdevolpac = true;
+      }
+
+    })
+  }
+
+  validaSolicitudAutopedido(){
+    this.permisos.forEach(x => {
+      if(x === 494000){
+        this.btngrabadespachocostoser = true;
+      }
+      if(x === 495000){
+        this.btnimprdespcostoser = true;
+      }
+      if(x === 493000){
+        this.btnconsultasolicautopedido = true;
+      }
+    })
+  }
+
+  validaCreaDispensaSolicitudPaciente(){
+    this.permisos.forEach(x => {
+      if(x === 572000){
+        this.btngrabacreasolicpac = true;
+      }
+      if(x === 573000){
+        this.btnmodifcreasolicpac = true;
+      }
+      if(x === 574000){
+        this.btneliminacreasolicpac = true;
+      }
+      if(x === 575000){
+        this.btnimprimecreasolicpac = true;
+      }
+    })
+  }
+
+  validaDevolucionAutopedido(){
+    this.permisos.forEach(x => {
+      if(x === 710000){
+        this.btngrabadevolautopedido = true;
+      }
+      if(x === 711000){
+        this.btnimprdevolautopedido = true;
+      }
+    })
   }
   validaPantallaConsultaKardex(){
     this.permisos.forEach(x => {
-      if (x === 371100){
+      if (x === 372100){
         this.btnbuscakardex = true;
       }
-      if (x === 372100){
+      if (x === 372200){
         this.btnimprimeconskardex = true;
       }
       
@@ -219,17 +353,25 @@ export class Permisosusuario {
     });
   }
 
-  validaPantallaDespachoCostoServi() {
-    this.permisos.forEach(x => {
-      if (x === 492000){
-        this.btngrabadespachocostoser = true;
-      }
-      if (x === 493000){
-        this.btnimprdespcostoser = true;
-      }
+  // validaPantallaDespachoCostoServi() {
+  //   this.permisos.forEach(x => {
+  //     if (x === 492000){
+  //       this.btngrabadespachocostoser = true;
+  //     }
+  //     if (x === 493000){
+  //       this.btnimprdespcostoser = true;
+  //     }
      
-    });
-  }
+  //   });
+  // }
+
+  // validaDevolucionAutopedido(){
+  //   this.permisos.forEach(x => {
+  //     if (x === 710000){
+  //       this.btngrabadevolautopedido = true;
+  //     }
+  //   });
+  // }
 
   validaPlantillaProced() {
     this.permisos.forEach(x => {
@@ -241,6 +383,9 @@ export class Permisosusuario {
       }
       if (x === 363000){
         this.btneliminarpp = true;
+      }
+      if (x === 364000){
+        this.btnimpplantillaproc = true;
       }
     });
   }
@@ -286,10 +431,10 @@ export class Permisosusuario {
 
   validaDevolucionPaciente(){
     this.permisos.forEach(x => {
-      if (x === 532000){
+      if (x === 581000){
         this.btndevolverpac = true;
       }
-      if (x === 532000){
+      if (x === 581000){
         this.btnimprimedevolpac = true;
       }
     });
@@ -310,6 +455,9 @@ export class Permisosusuario {
       }
       if (x === 543000){
         this.btnmodifdespachorec = true;
+      }
+      if (x === 544000){
+        this.btnimprimedespachorec = true;
       }
     });
   }  
@@ -412,10 +560,10 @@ export class Permisosusuario {
 
   validaReposArti(){
     this.permisos.forEach(x => {
-      if (x === 351100){
+      if (x === 421000){
         this.btngrabasolicrepos = true;
       }
-      if (x === 351100){
+      if (x === 422000){
         this.btnimpsolicrepos = true;
       }
       
@@ -486,6 +634,12 @@ export class Permisosusuario {
     });
   }
 
+  validaConsultaFraccionamiento(){
+    this.permisos.forEach(x=>{
+      
+    })
+  }
+
   validaBodegas() {
     this.permisos.forEach(x => {
       if (x === 313000){
@@ -493,6 +647,18 @@ export class Permisosusuario {
       }
       if (x === 312000){
         this.btngrabarbod = true;
+      }
+      if (x === 313000){
+        this.btneliminaprodbod = true;
+      }
+      if (x === 314000){
+        this.btneliminaserviciobod = true;
+      }
+      if (x === 315000){
+        this.btneliminausuariobod = true;
+      }
+      if (x === 316000){
+        this.btneliminabodasociada = true;
       }
     });
   }
@@ -505,8 +671,23 @@ export class Permisosusuario {
     });
   }
 
+  // validaAutopedido() {
+  //   this.permisos.forEach(x => {
+  //     if (x === 492000){
+  //       this.btngrabadespachocostoser = true;
+  //     }
+  //     if (x === 493000){
+  //       this.btnimprdespcostoser = true;
+  //     }
+  //   });
+  // }
+
   validaSidebar() {
     this.permisos.forEach(x => {
+      // Monitor
+      if (x === 100000){
+        this.monitor = true;
+      }
       //-- Producto --
       if (x === 200000){
         this.btnproducto = true;
@@ -528,6 +709,12 @@ export class Permisosusuario {
       if (x === 330000){
         this.btnfraccionamiento = true;
       }
+      if (x === 380000){
+        this.btnconsultafraccionamiento = true;
+      }
+      if (x === 390000){
+        this.btndevolfraccionamiento = true;
+      }
       if (x === 340000){
         this.btnlibcontrolado = true;
       }
@@ -543,18 +730,18 @@ export class Permisosusuario {
       if (x === 342000){
         this.btnconsulta = true;
       }
-      if (x === 351000){
-        this.btnajustestock = true;
-      }
+      // if (x === 351000){
+      //   this.btnajustestock = true;
+      // }
       if (x === 370000 ){
         this.btnkardex = true;
       }
-      // if( x === 371000){
-      //   this.btnconsultakardex = true;
-      // }
-      // if( x === 372000){
-      //   this.btncierrekardex = true;
-      // }
+      if( x === 371000){
+        this.btnconsultakardex = true;
+      }
+      if( x === 372000){
+        this.btncierrekardex = true;
+      }
 
       //-- End Adm Bodega --
 
@@ -589,6 +776,15 @@ export class Permisosusuario {
       if(x === 490000){
         this.btndepachocostoservi = true;
       }
+      if(x === 840000){
+        this.menudevolpac = true;
+      }
+      if(x === 850000){
+        this.menuconsultasaldobodega = true;
+      }
+      if(x === 860000){
+        this.menuconsultalote = true;
+      }
       //-- End MovBodegas --
 
       //-- MovPaciente --
@@ -613,7 +809,52 @@ export class Permisosusuario {
       if (x === 560000){
         this.btnmovimientosp = true;
       }
+      if (x === 570000){
+        this.btncreadispsolpac = true;
+      }
+      if (x === 580000){
+        this.btngeneradevolpac = true;
+      }
+      if (x === 590000){
+        this.btncreacionrecetas = true;
+      }
+      if (x === 720000){
+        this.btnbusquedacuentas = true;
+      }
+      if (x === 730000){
+        this.btnconsumopacbodega = true;
+      }
+
       //-- End MovPaciente --
+
+      // Reportes
+      if (x === 800000){
+        this.btnreportes = true;
+      }
+      if (x === 810000){
+        this.btnreimpresionsolicitud = true;
+      }
+      if (x === 820000){
+        this.btnlistaconteoinventario = true;
+      }
+      if (x === 830000){
+        this.btnconsumoporbodega = true;
+      }
+      if (x === 870000){
+        this.menugastoservicio = true;
+      }
+
+
+      //Autopedido
+      if (x === 490000){
+        this.btnMenuAutopedido = true;
+      }
+      if (x === 491000){
+        this.btnMenuSolicitudAutopedido = true;
+      }
+      if (x === 700000){
+        this.btnMenuDevolAutopedido = true;
+      }
 
       //-- Consumo --
       if (x === 600000){
@@ -631,14 +872,30 @@ export class Permisosusuario {
       if (x === 1000000){
         this.btnusroles = true;
       }
-      //-- End Consumo --
+      //-- End ROLES --
       
+      //integracion
+      if (x === 626000){
+        this.btnMenuInterfaz = true;
+      }
+      if (x === 626100){ 
+        this.btnMenuInterfazCargos = true;
+      }
+      if (x === 626200){
+        this.btnMenuInterfazErp = true;
+      }
+
       //-- Acerca de --
       if (x === 2000000){
         this.btnacercade = true;
       }
       if (x === 2100000){
         this.btnversiones = true;
+      }
+
+      // Cambio Enlace
+      if (x === 860000){
+        this.btncambioenlace = true;
       }
       //-- End Acerca de --
     });
@@ -654,6 +911,9 @@ export class Permisosusuario {
       }
       if (x === 324000){
         this.btneliminarpb = true;
+      }
+      if(x === 325000){
+        this.btnimpplantillabod = true;
       }
     });
   }

@@ -9,10 +9,10 @@ import { DespachoDetalleSolicitud } from '../models/entity/DespachoDetalleSolici
 
 @Injectable()
 export class DispensarsolicitudesService {
-    public urlbuscasolicadispensar: string = environment.URLServiciosRest.URLConexion.concat('/buscasolicitud');//"http://172.25.108.236:8191/buscasolicitud"; 
-    public urlcierrasolicitud     : string = environment.URLServiciosRest.URLConexion.concat('/cerrarsolicitud');//"http://172.25.108.236:8191/cerrarsolicitud";
-    public urlgrabadispensacion   : string = environment.URLServiciosRest.URLConexion.concat('/dispensarpaciente');//"http://172.25.108.236:8191/grabadispensaciones";
-    public urlgrabarecepcion   : string = environment.URLServiciosRest.URLConexion.concat('/recepciondespachobodega');
+    public urlbuscasolicadispensar: string = sessionStorage.getItem('enlace').toString().concat('/buscasolicitud');//"http://172.25.108.236:8191/buscasolicitud"; 
+    public urlcierrasolicitud     : string = sessionStorage.getItem('enlace').toString().concat('/cerrarsolicitud');//"http://172.25.108.236:8191/cerrarsolicitud";
+    public urlgrabadispensacion   : string = sessionStorage.getItem('enlace').toString().concat('/dispensarpaciente');//"http://172.25.108.236:8191/grabadispensaciones";
+    public urlgrabarecepcion   : string = sessionStorage.getItem('enlace').toString().concat('/recepciondespachobodega');
    
 
     constructor(public _http: HttpClient) {

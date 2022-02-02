@@ -7,15 +7,27 @@ import { ListaPacientes } from '../models/entity/ListaPacientes'
 import { Paciente } from '../models/entity/Paciente';
 import { Solicitudespacienteproducto } from '../models/entity/Solicitudespacienteproducto';
 import { Recepciondevolucionpaciente } from '../models/entity/Recepciondevolucionpaciente';
+import { env } from 'process';
+import { SolicitudPacienteDevuelta } from '../models/entity/SolicitudPacienteDevuelta';
+import { DespachoSolicitud } from '../models/entity/DespachoSolicitud';
+import { ParamDevolPacRechazo } from 'src/app/models/entity/ParamDevolPacRechazo';
+import { UsuarioAutorizado } from '../models/entity/UsuarioAutorizado';
+import { ConsultaPacientePorBodegas } from '../models/entity/ConsultaPacientePorBodegas';
+import { SolicitudesPacProd } from '../models/entity/SolicitudesPacProd';
 
 @Injectable()
 
 export class PacientesService {
 
-  public pacientes_url: string = environment.URLServiciosRest.URLConexion.concat('/buscapaciente');//ambulatorio
-  public pacientesambito_url: string = environment.URLServiciosRest.URLConexion.concat('/buscapacienteambito');//hospitalizado urgencia
-  public solicitudesPacienteProducto_url: string = environment.URLServiciosRest.URLConexion.concat('/solicitudespacienteproducto');
-  public devolucionpaciente_url: string = environment.URLServiciosRest.URLConexion.concat('/recepciondevolucionpaciente');
+  public pacientes_url: string = sessionStorage.getItem('enlace').toString().concat('/buscapaciente');//ambulatorio
+  public pacientesambito_url: string = sessionStorage.getItem('enlace').toString().concat('/buscapacienteambito');//hospitalizado urgencia
+  public solicitudesPacienteProducto_url: string = sessionStorage.getItem('enlace').toString().concat('/solicitudespacienteproducto');
+  public devolucionpaciente_url: string = sessionStorage.getItem('enlace').toString().concat('/recepciondevolucionpaciente');
+  public devoldispcuentapaciente: string = sessionStorage.getItem('enlace').toString().concat('/devolverdispensacioncuentapaciente')
+  public buscasolicdevolpac: string = sessionStorage.getItem('enlace').toString().concat('/buscasolicitudesdevolpac');
+  public urldevolpacrechazo: string = sessionStorage.getItem('enlace').toString().concat('/recedevolpacrechazo');
+  public urlusuariorecepcion: string = sessionStorage.getItem('enlace').toString().concat('/validausuariorechazo');
+  public urlconsumopacbod: string = sessionStorage.getItem('enlace').toString().concat('/consultacargopacientebod');
 
   constructor(public _http: HttpClient) { }
 
@@ -23,7 +35,7 @@ export class PacientesService {
     documentoid: string, paterno: string, materno: string, nombres: string,
     usuario: string, servidor: string)
     :Observable<ListaPacientes[]> { return this._http.post<ListaPacientes[]>(this.pacientes_url, {
-  
+
       'hdgcodigo': hdgcodigo,
       'cmecodigo': cmecodigo,
       'tipodocumento': tipodocumento,
@@ -53,13 +65,15 @@ export class PacientesService {
     });
   }
 
-  BuscaPacientesAmbito(hdgcodigo: number, cmecodigo: number, esacodigo: number, paterno: string,
-    materno: string, nombres: string, unidadid: number, piezaid: number, camid: number,
-    servidor: string,serviciocod: string, ambito:number)
+  BuscaPacientesAmbito(hdgcodigo: number, cmecodigo: number, esacodigo: number,codtipoid: number,
+    rutpac: string, paterno: string,materno: string, nombres: string, unidadid: number,
+    piezaid: number, camid: number,servidor: string,serviciocod: string, ambito:number)
     :Observable<Paciente[]> { return this._http.post<Paciente[]>(this.pacientesambito_url, {
       'hdgcodigo': hdgcodigo,
       'cmecodigo': cmecodigo,
       'esacodigo': esacodigo,
+      'codtipoid': codtipoid,
+      'rutpac'   : rutpac,
       'paterno': paterno,
       'materno': materno,
       'nombres': nombres,
@@ -73,14 +87,15 @@ export class PacientesService {
   }
 
   BuscaSolicitudesPacienteProducto(hdgcodigo: number, esacodigo: number, cmecodigo: number,
-    servidor: string, cliid: number, estid: number, codmei: string, soliid: number, lote: string,
-    fechavto: string): Observable<Solicitudespacienteproducto[]> {
-    return this._http.post<Solicitudespacienteproducto[]>(this.solicitudesPacienteProducto_url, {
+    servidor: string, cliid: number, ctaid: number,estid: number, codmei: string, soliid: number, lote: string,
+    fechavto: string): Observable<SolicitudesPacProd[]> {
+    return this._http.post<SolicitudesPacProd[]>(this.solicitudesPacienteProducto_url, {
         'hdgcodigo': hdgcodigo,
         'esacodigo': esacodigo,
         'cmecodigo': cmecodigo,
         'servidor': servidor,
         'cliid': cliid,
+        'ctaid': ctaid,
         'estid': estid,
         'codmei': codmei,
         'soliid': soliid,
@@ -93,10 +108,71 @@ export class PacientesService {
     return this._http.post(this.devolucionpaciente_url, recepciondevolucionpaciente);
   }
 
+  Generardevolucionpaciente(recepciondevolucionpaciente: DespachoSolicitud): Observable<DespachoSolicitud> {
+    return this._http.post(this.devoldispcuentapaciente, recepciondevolucionpaciente);
+  }
 
+  BuscaSolicitudesDevueltasPaciente(servidor: string,hdgcodigo:number,esacodigo:number,cmecodigo: number,
+    codbodega: number,codservicio: number, soliid: number, nompac: string,apepaterpac: string,
+    apematerpac: string,tipodoc: string,idenpac: string,fecdesde: string,
+    fechasta: string): Observable<SolicitudPacienteDevuelta[]> {
+    return this._http.post<SolicitudPacienteDevuelta[]>(this.buscasolicdevolpac, {
+      'servidor'    : servidor,
+      'hdgcodigo'   : hdgcodigo,
+      'esacodigo'   : esacodigo,
+      'cmecodigo'   : cmecodigo,
+      'codbodega'   : codbodega,
+      'codservicio' : codservicio,
+      'soliid'      : soliid,
+      'nompac'      : nompac,
+      'apepaterpac' : apepaterpac,
+      'apematerpac' : apematerpac,
+      'tipodoc'     : tipodoc,
+      'idenpac'     : idenpac,
+      'fecdesde'    : fecdesde,
+      'fechasta'    : fechasta
+    });
+  }
+
+  RecepcioDevolucionPacienteRechazo(paramDevolPacRechazo : ParamDevolPacRechazo): Observable<ParamDevolPacRechazo> {
+    return this._http.post(this.urldevolpacrechazo, paramDevolPacRechazo);
+  }
+
+  ValidaUsuarioParaRecepcionarDevolucion(usuario: string,clave: string,
+    servidor: string,     ): Observable<UsuarioAutorizado> {
+    return this._http.post<UsuarioAutorizado>(this.urlusuariorecepcion, {
+      'usuario'   : usuario,
+      'clave'   : clave,
+      'servidor'    : servidor
+    });
+  }
+
+  ConsumoPacientesPorBodegas(servidor: string,hdgcodigo: number,esacodigo: number,
+    cmecodigo:number,fechadesde: string,fechahasta:string,rut:string,
+     nombre:string, paterno:string,materno:string,folio:string,ficha:string,nrosolicitud:string,
+     nroreceta:string,codproducto:string, producto:string,tipidentificacion:number,
+     codbodega: number): Observable<ConsultaPacientePorBodegas[]> {
+    return this._http.post<ConsultaPacientePorBodegas[]>(this.urlconsumopacbod, {
+      'servidor'          : servidor,
+      'hdgcodigo'         : hdgcodigo,
+      'esacodigo'         : esacodigo,
+      'cmecodigo'         : cmecodigo,
+      'fechadesde'        : fechadesde,
+      'fechahasta'        : fechahasta,
+      'rut'               : rut,
+      'nombre'            : nombre,
+      'paterno'           : paterno,
+      'materno'           : materno,
+      'folio'             : folio,
+      'ficha'             : ficha,
+      'nrosolicitud'      : nrosolicitud,
+      'nroreceta'         : nroreceta,
+      'codproducto'       : codproducto,
+      'producto'          : producto,
+      'tipidentificacion' : tipidentificacion,
+      'codbodega'         : codbodega
+
+    });
+  }
 
 }
-
-
-
-

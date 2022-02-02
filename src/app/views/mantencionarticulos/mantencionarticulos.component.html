@@ -1,6 +1,8 @@
-<app-navbar ></app-navbar>
+<!-- <app-navbar ></app-navbar>
 <app-sidebar></app-sidebar>
-<div class="content-wrapper pl-2">
+<div class="content-wrapper pl-4"> -->
+<app-main-nav>
+  <div style="padding: 10px;">
     <form [formGroup]="lForm">
         <!-- Contenedor general de la página -->
 
@@ -18,7 +20,7 @@
                 <div for="codigo" class="form-group col-md-3">
                     <label class=" mr-2">Código *</label>
                     <input type="text" class="form-control form-control-sm" name="codigo" id="codigo"
-                        formControlName="codigo" (focusout)="getProducto($event.target.value)">
+                        formControlName="codigo" (focusout)="getProducto($event.target.value)" (keyup.enter)="getProducto($event.target.value)">
                 </div>
 
                 <div for="descripcion" class="form-group col-md-6">
@@ -29,7 +31,7 @@
 
                 <div class="form-group col-md-3  align-self-end text-right">
                     <button type="button" id="btnbuscar" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
-                        (click)="BuscarProducto()">Buscar <i class="fas fa-search"></i>
+                        [disabled] ="bloqueabtnbuscar" (click)="BuscarProducto()">Buscar <i class="fas fa-search"></i>
                     </button>
                 </div>
 
@@ -45,13 +47,13 @@
 
 
 
-        <div class="card m-2 border-primary" style="padding: 10px; height: 350px;">
+        <div class="card m-2 border-primary" style="padding: 10px; height: 370px;">
 
             <div class="form-row">
 
                 <div class="form-group col-md-3">
                     <label for="estado">Estado  </label>
-                    <select name="estado" class='form-control form-control-sm' 
+                    <select name="estado" class='form-control form-control-sm'
                         formControlName='estado'>
                         <option value=0>Vigente </option>
                         <option value=1>No vigente </option>
@@ -71,7 +73,7 @@
 
                 <div class="form-group col-md-3">
                     <label for="cmbsolocompra">Solo Compras  </label>
-                    <select name="solocompra" class='form-control form-control-sm' 
+                    <select name="solocompra" class='form-control form-control-sm'
                         formControlName='solocompra'>
                         <option value="S">Si</option>
                         <option value="N">No</option>
@@ -80,7 +82,7 @@
 
                 <div class="form-group col-md-3">
                     <label for="recreten">Receta Retenida </label>
-                    <select name="recetaretenida" class='form-control form-control-sm' 
+                    <select name="recetaretenida" class='form-control form-control-sm'
                         formControlName='recetaretenida'>
                         <option value="S">Si</option>
                         <option value="N">No </option>
@@ -96,7 +98,7 @@
 
                 <div class="form-group col-md-3">
                     <label for="familia">Familia </label>
-                    <select name="familia" class='form-control form-control-sm' 
+                    <select name="familia" class='form-control form-control-sm'
                         formControlName='familia'>
                         <option *ngFor='let familia of familias' [ngValue]='familia.idfamilia'>
                             {{ familia.descripcion }}
@@ -106,7 +108,7 @@
 
                 <div class="form-group col-md-3">
                     <label for="subfamilia">Subfamilia </label>
-                    <select name="subfamilia" class='form-control form-control-sm' 
+                    <select name="subfamilia" class='form-control form-control-sm'
                         formControlName='subfamilia'>
                         <option *ngFor='let subfamilia of subfamilias' [ngValue]='subfamilia.idsubfamilia'>
                             {{ subfamilia.descripcion }}
@@ -117,9 +119,9 @@
 
                 <div class="form-group col-md-3">
                     <label for="unidadcompra">Unidad de Compra </label>
-                    <select name="unidadcompra" class='form-control form-control-sm' 
+                    <select name="unidadcompra" class='form-control form-control-sm'
                         formControlName='unidadcompra'>
-                        <option *ngFor='let unidadcompra of unidadescompra' [ngValue]='unidadcompra.idudecompra'>
+                        <option *ngFor='let unidadcompra of unidadescompra' [ngValue]='unidadcompra.codigoudecompra'>
                             {{ unidadcompra.descripcion }}
                         </option>
                     </select>
@@ -127,9 +129,9 @@
 
                 <div class="form-group col-md-3">
                     <label for="unidaddespacho">Unidad Despacho </label>
-                    <select name="unidaddespacho" class='form-control form-control-sm' 
+                    <select name="unidaddespacho" class='form-control form-control-sm'
                         formControlName='unidaddespacho'>
-                        <option *ngFor='let unidaddespacho of unidadesdespacho' [ngValue]='unidaddespacho.idudespacho'>
+                        <option *ngFor='let unidaddespacho of unidadesdespacho' [ngValue]='unidaddespacho.codigoudespacho'>
                             {{ unidaddespacho.descripcion }}
                         </option>
                     </select>
@@ -154,7 +156,7 @@
 
                 <div class="form-group col-md-3">
                     <label for="presentacion">Presentación  *</label>
-                    <select name="idpresentacion" class='form-control form-control-sm' 
+                    <select name="idpresentacion" class='form-control form-control-sm'
                         formControlName='codpres'>
                         <option *ngFor='let presentacion of Presenta' [ngValue]='presentacion.idprese'>
                             {{ presentacion.descriprese }}
@@ -174,7 +176,7 @@
 
                 <div class="form-group col-md-3">
                     <label for="controlado">Controlado *</label>
-                    <select name="controlado" class='form-control form-control-sm' 
+                    <select name="controlado" class='form-control form-control-sm'
                         formControlName='controlado'>
                         <option value="S">Si</option>
                         <option value="N">No </option>
@@ -183,28 +185,21 @@
 
             </div>
 
-            <!-- ***Datos de costos y valores-->
-
             <div class="form-row">
 
                 <div class="form-group col-md-3">
-                    <label for="costo">Valor Costo </label>
-                    <input type="number" class="input-sm ml-1 mr-1" formControlName="valorcosto">
+                    <label for="fechainivigencia">Fecha Inicio Vigencia </label>
+                    <input type="text" class="input-sm ml-1 mr-1" formControlName="fechainivigencia">
 
                 </div>
 
                 <div class="form-group col-md-3">
-                    <label for="margenmedicamento">Margen ( % ) </label>
-                    <input type="number" class="input-sml mr-2" formControlName="margenmedicamento">
-
-                </div>
-
-                <div class="form-group col-md-3">
-                    <label for="valorventa">Valor Venta </label>
-                    <input type="number" class="input-sm mr-2 " formControlName="valorventa">
+                    <label for="fechafinvigencia">Fecha Fin Vigencia </label>
+                    <input type="text" class="input-sm mr-2 " formControlName="fechafinvigencia">
                 </div>
 
             </div>
+
         </div>
 
 
@@ -214,7 +209,7 @@
     <!--  Botones de página -->
 
 
-    <div class="form-row float-right">
+    <div class="form-row float-right mr-2">
 
         <div class="form-group  align-self-end">
             <button type="button" id="btnmodificar" class="btn btn-primary mr-1 btn-sm button-my-styles-busqueda_01"
@@ -233,7 +228,7 @@
 
         <div class="form-group  align-self-end">
             <button type="button" id="btnsalir" class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_01"
-                routerLink='../home'>SALIR <i class="fas fa-window-close ml-1"></i>
+            (click)="Salir()">SALIR <i class="fas fa-window-close ml-1"></i>
             </button>
         </div>
     </div>
@@ -243,3 +238,4 @@
     <swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
 </div> <!-- Fin contenedor de la página-->
 <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '3px' }"> </ngx-loading>
+</app-main-nav>

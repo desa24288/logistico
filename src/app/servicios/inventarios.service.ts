@@ -20,18 +20,18 @@ import { PeriodoCierreKardex } from '../models/entity/PeriodoCierreKardex';
 @Injectable()
 export class InventariosService {
     
-    public urlgenerainv     : string = environment.URLServiciosRest.URLConexion.concat('/generainventario');
-    public urlperiodoinv         : string = environment.URLServiciosRest.URLConexion.concat('/periodosinventarios');
-    public urlbuscainventario    : string = environment.URLServiciosRest.URLConexion.concat('/ConsultaInventario');
-    public urlgrabainventario    : string = environment.URLServiciosRest.URLConexion.concat('/grabarinvmanual');
-    public urlgrabaajuste    : string = environment.URLServiciosRest.URLConexion.concat('/grabaajustes');
-    public urlkardex             : string = environment.URLServiciosRest.URLConexion.concat('/movimientoskardex');
-    public urlDetalleKardex      : string = environment.URLServiciosRest.URLConexion.concat('/buscadatoskardex');
-    public urlBuscastock          : string = environment.URLServiciosRest.URLConexion.concat('/buscastock');
-    public urlactualizainventario: string = environment.URLServiciosRest.URLConexion.concat('/actualizainv');
-    public urlcierrekardex      : string = environment.URLServiciosRest.URLConexion.concat('/creacierrekardexbodega');
-    public urlperocierrekardex  : string = environment.URLServiciosRest.URLConexion.concat('/selperiodoscierrekardex');
-    public urlconsultakardex    : string = environment.URLServiciosRest.URLConexion.concat('/selcierrekardexprodbod');
+    public urlgenerainv     : string = sessionStorage.getItem('enlace').toString().concat('/generainventario');
+    public urlperiodoinv         : string = sessionStorage.getItem('enlace').toString().concat('/periodosinventarios');
+    public urlbuscainventario    : string = sessionStorage.getItem('enlace').toString().concat('/ConsultaInventario');
+    public urlgrabainventario    : string = sessionStorage.getItem('enlace').toString().concat('/grabarinvmanual');
+    public urlgrabaajuste    : string = sessionStorage.getItem('enlace').toString().concat('/grabaajustes');
+    public urlkardex             : string = sessionStorage.getItem('enlace').toString().concat('/movimientoskardex');
+    public urlDetalleKardex      : string = sessionStorage.getItem('enlace').toString().concat('/buscadatoskardex');
+    public urlBuscastock          : string = sessionStorage.getItem('enlace').toString().concat('/buscastock');
+    public urlactualizainventario: string = sessionStorage.getItem('enlace').toString().concat('/actualizainv');
+    public urlcierrekardex      : string = sessionStorage.getItem('enlace').toString().concat('/creacierrekardexbodega');
+    public urlperocierrekardex  : string = sessionStorage.getItem('enlace').toString().concat('/selperiodoscierrekardex');
+    public urlconsultakardex    : string = sessionStorage.getItem('enlace').toString().concat('/selcierrekardexprodbod');
 
     constructor(public _http: HttpClient) {
 

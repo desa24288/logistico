@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 })
 export class PrincActService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/principioactivo');
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/principioactivo');
 
   constructor(public httpClient: HttpClient) {
 

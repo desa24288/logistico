@@ -15,16 +15,16 @@ import { environment } from '../../environments/environment';
 })
 export class AjustestockService {
 
-  //private target_url            = environment.URLServiciosRest.URLConexion.concat('/formadepago');//'http://172.25.108.236:8181/formadepago';
-  public urlBuscaprodstock      : string = environment.URLServiciosRest.URLConexion.concat('/buscastockenbodegas');//'http://172.25.108.236:8195/buscastockenbodegas';
-  public urlBuscarporcodigo     : string = environment.URLServiciosRest.URLConexion.concat('/buscaprodporcodigo');//'http://172.25.108.236:8182/buscaprodporcodigo'; //Busca productos x codigo
-  public urlBuscarpordescripcion: string = environment.URLServiciosRest.URLConexion.concat('/buscaprodpordescripcion');//'http://172.25.108.236:8182/buscaprodpordescripcion'; //Busca productos x descripcion
-  public urlBuscastock          : string = environment.URLServiciosRest.URLConexion.concat('/buscastock');//"http://172.25.108.236:8193/buscastock";
-  public urlgrabaajustestock    : string = environment.URLServiciosRest.URLConexion.concat('/grabaajustesstock');//"http://172.25.108.236:8195/grabaajustesstock";
-  public urlbuscaajustes        : string = environment.URLServiciosRest.URLConexion.concat('/buscaajustestockegas');//"http://172.25.108.236:8195/buscaajustestockegas";
-  public urlbuscaempresa        : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
-  public urlbuscasucursal       : string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal";
-  public urlasignabodega        : string = environment.URLServiciosRest.URLConexion.concat('/bodegasparaasignar');//'http://172.25.108.236:8189/bodegasparaasignar';
+  //private target_url            = sessionStorage.getItem('enlace').toString().concat('/formadepago');//'http://172.25.108.236:8181/formadepago';
+  public urlBuscaprodstock      : string = sessionStorage.getItem('enlace').toString().concat('/buscastockenbodegas');//'http://172.25.108.236:8195/buscastockenbodegas';
+  public urlBuscarporcodigo     : string = sessionStorage.getItem('enlace').toString().concat('/buscaprodporcodigo');//'http://172.25.108.236:8182/buscaprodporcodigo'; //Busca productos x codigo
+  public urlBuscarpordescripcion: string = sessionStorage.getItem('enlace').toString().concat('/buscaprodpordescripcion');//'http://172.25.108.236:8182/buscaprodpordescripcion'; //Busca productos x descripcion
+  public urlBuscastock          : string = sessionStorage.getItem('enlace').toString().concat('/buscastock');//"http://172.25.108.236:8193/buscastock";
+  public urlgrabaajustestock    : string = sessionStorage.getItem('enlace').toString().concat('/grabaajustesstock');//"http://172.25.108.236:8195/grabaajustesstock";
+  public urlbuscaajustes        : string = sessionStorage.getItem('enlace').toString().concat('/buscaajustestockegas');//"http://172.25.108.236:8195/buscaajustestockegas";
+  public urlbuscaempresa        : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
+  public urlbuscasucursal       : string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal";
+  public urlasignabodega        : string = sessionStorage.getItem('enlace').toString().concat('/bodegasparaasignar');//'http://172.25.108.236:8189/bodegasparaasignar';
 
   constructor(private httpClient: HttpClient,
     public _http: HttpClient) {
@@ -39,7 +39,6 @@ export class AjustestockService {
   }*/
 
   BuscaEmpresa(hdgcodigo: number,usuario:string,servidor:string):Observable<Empresas[]> {
-    console.log("Buscará Empresa por holding")
     return this._http.post<Empresas[]>(this.urlbuscaempresa, {
       'hdgcodigo': hdgcodigo,
       'usuario'  : usuario,
@@ -48,7 +47,6 @@ export class AjustestockService {
   }
 
   BuscaSucursal(hdgcodigo: number, esacodigo: number,usuario:string,servidor:string):Observable<Sucursal[]> {
-    console.log("Buscará Sucursal por empresa")
     return this._http.post<Sucursal[]>(this.urlbuscasucursal, {
       'hdgcodigo': hdgcodigo,
       'esacodigo': esacodigo,
@@ -68,7 +66,6 @@ export class AjustestockService {
   }
 
   BuscarProductoBodega(bodegacodigo: number,productodesc:string, productocodi: string,usuario:string,servidor:string): Observable<AjusteStock[]> {
-    console.log("Se realizará búsqueda por código:",bodegacodigo,productodesc,productocodi)
     return this._http.post<AjusteStock[]>(this.urlBuscaprodstock, {
       'bodegacodigo'  : bodegacodigo,
       'productodesc'  : productodesc,
@@ -78,7 +75,6 @@ export class AjustestockService {
     });
   }
   BuscarProductoporCodigo(codigo: string,usuario:string,servidor:string): Observable<AjusteStock[]> {
-    console.log("Se realizará búsqueda por código:", codigo)
     return this._http.post<AjusteStock[]>(this.urlBuscarporcodigo, {
       'codigo'  : codigo,
       'usuario' : usuario,
@@ -110,7 +106,6 @@ export class AjustestockService {
   }
   BuscadorAjustes(fechaajusteini: string,fechaajustefin:string,bodegacodigo:number,
     responsable: string,productotipo:string,tipomotivoajus: string,usuario:string,servidor:string): Observable<TraeAjustes[]> {
-      console.log("Busca los ajustes");
     return this._http.post<TraeAjustes[]>(this.urlbuscaajustes, {
       'fechaajusteini'  : fechaajusteini,
       'fechaajustefin'  : fechaajustefin,

@@ -1,26 +1,42 @@
 
 export const environment = {
-  production: false, /*el código de firebaseConfig se copia de la página de firebase según 
+  production: false, /*el código de firebaseConfig se copia de la página de firebase según
   los datos que se crean cuando se crea un nuevo proyecto en dicha página */
 
   URLServiciosRest: {
-    // URLConexion: "http://172.27.17.103:8091",//Walter
-    URLConexionSolicitudConsumo: "http://172.27.17.103:8093",//Walter
-     URLConexionInformes: "http://172.27.17.103:8092", //walter
-    // URLInterfaces : "http://172.27.17.103:8094", //walter
-     
-   // URLInterfaces : "http://172.25.108.236:8094", //carlos
-   //URLConexion: "http://172.25.108.85:8091",//Ariel
-   //URLConexionSolicitudConsumo: "http://172.25.108.85:8093",//Ariel
-   //URLConexionInformes: "http://172.25.108.85:8092",//Ariel antes 8194
-    // URLConexion: "http://localhost:8091",
+    fechaVersion: "21.08.29.1",
+    fechaVersionGo: "21.08.20.1",
+    fechaVersionAngular: "21.08.29.1",
+       // ambiente: "DESARROLLO",
+    ambiente: "TESTING",
+    // ambiente: "PRODUCCION",
 
-  URLConexion: "http://172.25.108.236:8091", //Carlos
-   URLInterfaces : "http://172.25.108.236:8094", //Carlos
-   
-   ambiente: "DESARROLLO",
-  },
+    //IP.  logistico ambiente LOCALHOST
+    // URLConexionPublica : "http://localhost:8091",
+    // URLValidatePublica : "http://localhost:8092", //TOKEN
+    // URLConexionPrivada : "http://localhost:8091",
+    // URLValidatePrivada : "http://localhost:8092", //TOKEN
 
+    //IP.  logistico ambiente DESARROLLO
+    //  URLConexionPublica : "http://10.153.106.88:8091",
+    //  URLValidatePublica : "http://10.153.106.88:8092", //TOKEN
+    //  URLConexionPrivada : "http://10.153.106.88:8091",
+    //  URLValidatePrivada : "http://10.153.106.88:8092", //TOKEN
+
+    // // IP. logisticoQA ambiente QA-SONDASALUD
+    URLConexionPublica : "http://198.41.33.200:8091",
+    URLValidatePublica : "http://198.41.33.200:8092", //TOKEN
+    URLConexionPrivada : "http://10.188.182.77:8091",
+    URLValidatePrivada : "http://10.188.182.77:8092", //TOKEN
+
+    // ****************  PRODUCCION **********************
+    //IP.  logistico-publica ambiente PRODUCCIÓN-FUSAT / http://198.41.33.191/
+    // URLConexionPublica : "http://198.41.33.191:8091",
+    // URLValidatePublica : "http://198.41.33.191:8092", //TOKEN
+    // URLConexionPrivada : "http://10.188.185.10:8091",
+    // URLValidatePrivada : "http://10.188.185.10:8092", //TOKEN
+ 
+    },
   privilegios: {
     privilegio: null,
     usuario: null,

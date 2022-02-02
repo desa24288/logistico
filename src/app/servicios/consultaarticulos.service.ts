@@ -10,10 +10,10 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class ConsultaarticulosService {
-    public urlBuscarporcodigo     : string = environment.URLServiciosRest.URLConexion.concat('/buscaprodporcodigo');//"http://172.25.108.236:8182/buscaprodporcodigo"; //Busca productos
-    public urlBuscarpordescripcion: string = environment.URLServiciosRest.URLConexion.concat('/buscaprodpordescripcion');//"http://172.25.108.236:8182/buscaprodpordescripcion"; //Busca productosx descripcion
-    public urlbuscaempresa        : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
-    public urlbuscasucursal       : string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
+    public urlBuscarporcodigo     : string = sessionStorage.getItem('enlace').toString().concat('/buscaprodporcodigo');//"http://172.25.108.236:8182/buscaprodporcodigo"; //Busca productos
+    public urlBuscarpordescripcion: string = sessionStorage.getItem('enlace').toString().concat('/buscaprodpordescripcion');//"http://172.25.108.236:8182/buscaprodpordescripcion"; //Busca productosx descripcion
+    public urlbuscaempresa        : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
+    public urlbuscasucursal       : string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
 
     
     constructor(public _http: HttpClient) {

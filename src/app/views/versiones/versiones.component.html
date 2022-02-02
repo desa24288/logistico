@@ -1,28 +1,29 @@
-<app-navbar ></app-navbar>
+<!-- <app-navbar ></app-navbar>
 <app-sidebar></app-sidebar>
-
-<div class="content-wrapper pl-2">
+<div class="content-wrapper pl-4"> -->
+<app-main-nav>
+  <div style="padding: 10px;">
     <div style="margin: 10px;">
         <!-- <app-usuario-estructura-conexion>
         </app-usuario-estructura-conexion> -->
         <div class="my-2 ml-2 titulo text-center">
             <!--menu -->
-            <h5>
+            <h3>
                 Versiones
-            </h5>
+            </h3>
         </div>
         <form [formGroup]='FormVersiones'>
-            <div class="card border-primary" style="padding: 5px;">
-                <div class="form-row text-center">
-                    <div class="form-group col-md-4">
-                        <label for="numversioninf">Versión Servicios Rest ***</label>
+            <div class="card border-primary" style="padding: 20px;">
+                <div class="form-row text-center" style="margin: auto; width: 50%;" >
+                    <div class="form-group col-md-4" style="margin: auto;">
+                        <label for="numversioninf" >Versión Servicios Rest ***</label>
                         <input type="text" class="form-control form-control" formControlName="numversioninf">
                     </div>
                     <!-- <div class="form-group col-md-4">
                         <label for="numversionserv">Versión Servicios *</label>
                         <input type="text" class="form-control form-control" formControlName="numversionserv">
                     </div> -->
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-4" style="margin: auto;">
                         <label for="numversionapp">Versión Aplicación ***</label>
                         <input type="text" class="form-control form-control" formControlName="numversionapp">
                     </div>
@@ -37,5 +38,5 @@
             </div>
         </div>
     </div>
-
-</div>
+  </div>
+</app-main-nav>

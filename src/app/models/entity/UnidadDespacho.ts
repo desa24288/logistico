@@ -1,10 +1,12 @@
 export class UnidadDespacho {
-    private idudespacho: number;
-    private descripcion: string;
+    public idudespacho: number;
+    public descripcion: string;
+    public codigoudespacho: number
 
-    constructor(idudespacho: number, descripcion: string) {
+    constructor(idudespacho: number, descripcion: string,codigoudespacho:number) {
         this.idudespacho = idudespacho;
         this.descripcion = descripcion;
+        this.codigoudespacho = codigoudespacho
     }
 
     public setIdudespacho(idudespacho: number) {
@@ -19,5 +21,13 @@ export class UnidadDespacho {
     }
     public getDescripcion() {
         return this.descripcion;
+    }
+
+    public setCodigoudespacho(codigoudespacho:number){
+        this.codigoudespacho = codigoudespacho;
+    }
+
+    public getCodigoudespacho(){
+        return this.codigoudespacho;
     }
 }

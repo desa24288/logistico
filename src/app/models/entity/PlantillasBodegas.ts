@@ -22,7 +22,9 @@ export class Plantillas {
         public accion               ?: string,
         public serviciodesc         ?: string,
         public serviciocod          ?: string,
+        public planvigentedesc      ?: string,
         public plantipo             ?: number,
-        public plantillasdet       ?: DetallePlantillaBodega[]
+        public tipopedido           ?: number,
+        public plantillasdet        ?: DetallePlantillaBodega[],      
     ) { }   
 }

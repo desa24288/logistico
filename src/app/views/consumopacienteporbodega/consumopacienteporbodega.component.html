@@ -1,0 +1,184 @@
+<app-main-nav>
+    <div >
+        <div class="my-2 ml-2 titulo text-center">
+            <h3>
+                Consumo De Pacientes por Bodega
+            </h3>
+        </div>
+        <!-- Mensaje de alerta en caso de errores -->
+        <div *ngFor="let alert of alerts">
+            <alert [type]="alert.type" [dismissOnTimeout]="alert.timeout" (onClosed)="onClosed(alert)">
+                {{ alert.msg }}
+            </alert>
+        </div>
+        <!-- lineas de edición y bpusqueda -->
+
+        <div class="card border-primary m-1" style="padding: 10px; margin: 10px; height: auto;">
+            <form [formGroup]="FormConsumoPacienteBodega" autocomplete="off" spellcheck="false">
+                <div class="form-row mt-2">
+                    <div class="form-group col-sm-1">
+                        <label for="tipoDocumento">Tipo Doc. *</label>
+                        <select class="form-control form-control-sm" formControlName="tipodocumento"
+                            (change)="SeleccionTipoDoc()">
+                            <option *ngFor="let tipodoc of docsidentis" [ngValue]='tipodoc.docidentcodigo'>
+                                {{ tipodoc.docidentdescripcion }}
+                            </option>
+                        </select>
+                        <!-- <input type="text" class="form-control form-control-sm"
+                    formControlName="tipodocumento"> -->
+                    </div>
+                    <div class="form-group col-sm-1">
+                        <label for="numidentificacion">N° Doc. *</label>
+                        <input type="text" class="form-control form-control-sm" formControlName="numidentificacion"
+                            (keyup.enter)="getPacienteTipoDoc()" (keydown.tab)="getPacienteTipoDoc()">
+                    </div>
+                    <div class="form-group col-sm-2">
+                        <label for="apepaterno">Apellido Paterno *</label>
+                        <input type="text" class="form-control form-control-sm" formControlName="apepaterno"
+                            (keyup.enter)="getPacienteTipoDoc()" (keydown.tab)="getPacienteTipoDoc()">
+                    </div>
+                    <div class="form-group col-sm-2">
+                        <label for="apematerno">Apellido Materno *</label>
+                        <input type="text" class="form-control form-control-sm" formControlName="apematerno"
+                            (keyup.enter)="getPacienteTipoDoc()" (keydown.tab)="getPacienteTipoDoc()">
+                    </div>
+                    <div class="form-group col-sm-2">
+                        <label for="nombres">Nombres *</label>
+                        <input type="text" class="form-control form-control-sm" formControlName="nombres"
+                            (keyup.enter)="getPacienteTipoDoc()" (keydown.tab)="getPacienteTipoDoc()">
+                    </div>
+
+
+
+                    <div class="form-group col-md-2 align-self-end text-right">
+                        <button type="button" id="btnbuscar"
+                            class="btn btn-primary btn-sm button-my-styles-busqueda_01 " [disabled]="!activabtnbuscar"
+                            (click)="BuscarConsumo()">Buscar <i class="fas fa-search ml-1" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-row mt-2">
+                    <div class="form-group col-sm-2">
+                        <label for="fechadesde">Fecha Desde</label>
+                        <input appSelecttext type="text" placeholder="DD/MM/YYYY" id="fecha"
+                            class='form-control form-control-sm' [bsConfig]="bsConfig" bsDatepicker placement="right"
+                            formControlName="fechadesde">
+                    </div>
+                    <div class="form-group col-sm-2">
+                        <label for="fechahasta">Fecha Hasta</label>
+                        <input appSelecttext type="text" placeholder="DD/MM/YYYY" id="fecha"
+                            class='form-control form-control-sm' [bsConfig]="bsConfig" bsDatepicker placement="right"
+                            formControlName="fechahasta">
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <label for="bodcodigo">Bodega Suministro</label>
+                        <select name="bodcodigo" class='form-control form-control-sm' formControlName='bodcodigo'
+                            (change)="ActivaBotonBuscar()">
+                            <option *ngFor='let listaBodegasSolictante of bodegasSolicitantes'
+                                [ngValue]='listaBodegasSolictante.bodcodigo'>
+                                {{ listaBodegasSolictante.boddescripcion }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="card border-primary" style="padding: 10px;margin-top: 10px ;">
+            <div id="table" class="table-editable">
+                <div class="table-responsive mt-2" style="max-height: auto;min-height: 100px; ">
+                    <table class="table table-sm table-condensed table-bordered  table-striped text-center">
+                        <tr class="table table-sm  table-primary table-bordered ">
+                            <th class="text-center">Fecha Solicitud</th>
+                            <th class="text-center">N° Solicitud</th>
+                            <th class="text-center">Cargo Cuenta</th>
+                            <th class="text-center">Código</th>
+                            <th class="text-center">Descripción</th>
+                            <th class="text-center">Cantidad Solicitada</th>
+                            <th class="text-center">Cantidad Despachada</th>
+                            <th class="text-center">Cantidad Devuelta</th>
+                            <th class="text-center">Servicio Origen</th>
+                            <th class="text-center">Usuario que Generó</th>
+                            <!-- <th class="text-center"></th> -->
+                        </tr>
+                        <tr class="table-secondary"
+                            *ngFor="let registro of detalleConsultaPacienteBodegasPaginacion; let id = index"
+                             style="cursor:pointer;">
+                            <td>
+                                <small><span>{{registro.fechacrea }}</span></small>
+                            </td>
+                            <td>
+                                <small><span>{{registro.soliid }} </span></small>
+                            </td>
+                            <td>
+                                <small><span>{{registro.cgoid }} </span></small>
+                            </td>
+                            <td>
+                                <small><span> {{registro.codmei}}</span></small>
+                            </td>
+                            <td>
+                                <small><span>{{registro.desmei }} </span></small>
+                            </td>
+                            <td>
+                                <small><span>{{registro.cantsoli}} </span></small>
+                            </td>
+                            <td>
+                                <small><span>{{registro.cantidad }} </span></small>
+                            </td>
+                            <td>
+                                <small><span>{{registro.candevuelta }}</span></small>
+                            </td>
+                            <td>
+                                <small><span>{{registro.descserv }} </span></small>
+                            </td>
+                            <td>
+                                <small><span>{{registro.usuacreacion }} </span></small>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="row m-1" *ngIf="detalleConsultaPacienteBodegas.length>20">
+                    <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
+                        [totalItems]="detalleConsultaPacienteBodegas.length" [itemsPerPage]=20
+                        [previousText]="'Anterior'" [nextText]="'Siguiente'" [firstText]="'&laquo;'"
+                        [lastText]="'&raquo;'" (pageChanged)="pageChanged($event)">
+                    </pagination>
+                </div>
+            </div>
+
+        </div>
+
+        <!--  Botones de página -->
+        <div class="row float-right mr-1 mt-2">
+            <!-- <div class="form-group  align-self-end" *ngIf="modelopermisos.btndevolverpac">
+
+
+            </div> -->
+            <!-- *ngIf="modelopermisos.btnimprimedevolpac"Aún NO se desarrolla el reporte -->
+            <!-- <div class="form-group  align-self-end">
+                <button type="button" id="btnguardar" [disabled]="!imprime"
+                    class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+                    (click)="onImprimir()">IMPRIMIR CONSULTA <i class="fas fa-file-pdf ml-1"></i>
+                </button>
+            </div> -->
+            <div class="form-group  align-self-end">
+                <button type="button" id="btnlimpiar" (click)="limpiar()"
+                    class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02">LIMPIAR <i
+                        class="fas fa-eraser ml-1"></i>
+                </button>
+            </div>
+            <div class="form-group  align-self-end">
+                <button type="button" id="btnsalir" class="btn btn-primary btn-sm button-my-styles-busqueda_02"
+                    routerLink='../home'>SALIR <i class="fas fa-window-close ml-1"></i>
+                </button>
+            </div>
+
+            <swal #alertSwal title="" text="" type="success" [showCancelButton]="false"> </swal>
+            <swal #alertSwalAlert title="" text="" type="warning" [showCancelButton]="false"> </swal>
+            <swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
+            <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '3px' }"> </ngx-loading>
+
+        </div>
+    </div>
+</app-main-nav>

@@ -57,17 +57,17 @@ export class GenerainventariosistemaComponent implements OnInit {
     private TiporegistroService: TiporegistroService,
     public _BsModalService              : BsModalService,
     public datePipe            : DatePipe
-  ) { 
+  ) {
 
     this.FormGeneraInventario = this.formBuilder.group({
-     
+
       hdgcodigo     : [null],
       esacodigo     : [null],
       cmecodigo     : [null],
       fechamostrar  : [new Date(), Validators.required],
       boddestino    : [null],
       tiporegistro  : [null]
-      
+
     });
 
   }
@@ -103,11 +103,11 @@ export class GenerainventariosistemaComponent implements OnInit {
 
   getCmecodigo(event: any) {
     this.cmecodigo = event.cmecodigo;
-  
+
     this.BuscaBodegaDestino();
   }
 
- 
+
 
   BuscaBodegaDestino() {
     var servidor = environment.URLServiciosRest.ambiente;
@@ -115,9 +115,9 @@ export class GenerainventariosistemaComponent implements OnInit {
 
     this._BodegasService.listaBodegaDestinoSucursal(this.hdgcodigo, this.esacodigo, this.cmecodigo, usuario, servidor).subscribe(
       response => {
-        console.log(response);
-        this.bodegasdestino = response;
-
+        if (response != null) {
+          this.bodegasdestino = response;
+        }
       },
       error => {
         alert("Error al Buscar Bodegas de Destino");
@@ -146,34 +146,35 @@ export class GenerainventariosistemaComponent implements OnInit {
 
         this.GeneraInventario();
       }
-    }) 
+    })
   }
 
   GeneraInventario(){
-   
-    var fecha = this.datePipe.transform(this.FormGeneraInventario.value.fechamostrar, 'yyyy-MM-dd');  
+
+    var fecha = this.datePipe.transform(this.FormGeneraInventario.value.fechamostrar, 'yyyy-MM-dd');
     console.log("Genera el inventario",fecha,this.FormGeneraInventario.value.boddestino,
     this.FormGeneraInventario.value.tiporegistro,this.servidor);
-    
+
    // this.ModalGeneraInventario.modal('hide');
    // this.modalinventarioexitoso.modal('show');
-   
+
    console.log(fecha);
     this._inventarioService.GeneraInventario(fecha,this.FormGeneraInventario.value.boddestino,
       this.FormGeneraInventario.value.tiporegistro,this.usuario,this.servidor).subscribe(
       response => {
-        console.log(response);
-        this.alertSwal.title = "Inventario de Sistema Generado Correctamente";
-        this.alertSwal.show();
+        if (response != null) {
+          this.alertSwal.title = "Inventario de Sistema Generado Correctamente";
+          this.alertSwal.show();
+        }
       },
       error => {
         console.log(error);
         this.alertSwalError.title="Error al Generar Inventario";
         this.alertSwalError.text="Favor intente nuevamente";
         this.alertSwalError.show();
-        
+
        // alert("Error al Generar Inventario");
       }
-    );    
+    );
   }
 }

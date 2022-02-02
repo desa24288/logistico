@@ -12,10 +12,10 @@ import { environment } from '../../environments/environment';
 @Injectable()
 export class ListadoprecioproductosService {
 
-    public urlrptprecioprod: string = environment.URLServiciosRest.URLConexionInformes.concat('/obtieneurlinfpreciosproductos');//"http://172.25.108.236:8194/obtieneurlinfpreciosproductos"
-    public urlbuscaempresa : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
-    public urlbuscasucursal: string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
-    public urlasignabodega : string = environment.URLServiciosRest.URLConexion.concat('/bodegasparaasignar');//'http://172.25.108.236:8189/bodegasparaasignar';
+    public urlrptprecioprod: string = sessionStorage.getItem('enlace').toString().concat('/obtieneurlinfpreciosproductos');//"http://172.25.108.236:8194/obtieneurlinfpreciosproductos"
+    public urlbuscaempresa : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
+    public urlbuscasucursal: string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
+    public urlasignabodega : string = sessionStorage.getItem('enlace').toString().concat('/bodegasparaasignar');//'http://172.25.108.236:8189/bodegasparaasignar';
     
     constructor(public _http: HttpClient) {
 

@@ -12,7 +12,10 @@ export class ParamDetDevolBodega {
         public cantsoli         ?: number,
         public cantdespachada   ?: number,
         public cantdevolucion   ?: number,
-        public cantrecepcionado ?: number
+        public cantrecepcionado ?: number,
+        public cantpendienterecepcion?: number,
+        public checkgrilla      ?: boolean,
+        public cantpendientedevolver?: number
        
     ) {}
 }

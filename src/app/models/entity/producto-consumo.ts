@@ -14,4 +14,5 @@ export class ProductoConsumo {
 	glosaunidadconsumo : string;
 	glosagrupo  : string;
 	glosasubgrupo : string;
+	stockactual : string;
 }

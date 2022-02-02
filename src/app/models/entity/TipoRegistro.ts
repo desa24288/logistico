@@ -1,6 +1,6 @@
 export class TipoRegistro {
-    private idtiporegistro     : string;
-    private desctiporegistro   : string;
+    public idtiporegistro     : string;
+    public desctiporegistro   : string;
 
     constructor(idtiporegistro: string, desctiporegistro: string) {
         this.idtiporegistro = idtiporegistro;

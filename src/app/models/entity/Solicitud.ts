@@ -23,6 +23,8 @@ export class Solicitud {
         public codserviciodes       ?: number,
         public bodorigen            ?: number,
         public boddestino           ?: number,
+        public tipobodorigen        ?: string,
+        public tipoboddestino       ?: string,
         public tipoproducto         ?: number,
         public tiporeceta           ?: string,
         public numeroreceta         ?: number,
@@ -47,7 +49,7 @@ export class Solicitud {
         public convenio             ?: string,
         public diagnostico          ?: string,
         public nombremedico         ?: string,
-        public cuentanumcuenta      ?: number,
+        public cuentanumcuenta      ?: string,
         public bodorigendesc        ?: string,
         public boddestinodesc       ?: string,
         public usuario              ?: string,
@@ -82,6 +84,16 @@ export class Solicitud {
         public idplantilla          ?: number,
         public solirecetipo         ?: string,
         public receid               ?: number,
-        public FiltroDeNegocio      ?: string
-    ) { }   
+        public FiltroDeNegocio      ?: string,
+        public nropedidofin700erp   ?: number,
+        public receglosaservicio    ?: string,
+        public marcacabecera        ?: boolean,
+        public glosa                ?: string,
+        public errorerp             ?: string,
+        public bandera              ?: number,
+        public tipobodsolicitante   ?: string,
+        public tipobodsuministro    ?: string,
+        public referencia           ?: number,
+        public rececodbodega        ?: number
+    ) { }
 }

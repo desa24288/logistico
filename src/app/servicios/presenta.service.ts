@@ -11,7 +11,7 @@ import { Presenta } from '../models/entity/Presenta'
 })
 export class PresentaService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/presentacion');//'http://172.25.108.236:8181/formadepago';
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/presentacion');//'http://172.25.108.236:8181/formadepago';
 
   constructor(private httpClient: HttpClient) {
 

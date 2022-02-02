@@ -1,6 +1,6 @@
 export class MotivoAjuste {
     public tipomotivoajus: number;
-    private tipomotivoajusdes: string;
+    public tipomotivoajusdes: string;
 
     constructor(tipomotivoajus: number, tipomotivoajusdes: string) {
         this.tipomotivoajus = tipomotivoajus;

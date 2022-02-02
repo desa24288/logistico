@@ -11,15 +11,15 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class MantencionarticulosService {
-    public url                      : string = environment.URLServiciosRest.URLConexion.concat('/grabamedicamento');
-    public urlBuscarpordescripcion  : string = environment.URLServiciosRest.URLConexion.concat('/buscaprodpordescripcion');
-    public urlBuscarporcodigo       : string = environment.URLServiciosRest.URLConexion.concat('/buscaprodporcodigo');
-    public urlActualizar            : string = environment.URLServiciosRest.URLConexion.concat('/actualizamedicamento');
-    public urlEliminar              : string = environment.URLServiciosRest.URLConexion.concat('/eliminamedicamento');
-    public urlbuscafamilia          : string = environment.URLServiciosRest.URLConexion.concat('/familia');
-    public urlbuscaholding          : string = environment.URLServiciosRest.URLConexion.concat('/buscaholding');
-    public urlbuscaempresa          : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');
-    public urlbuscasucursal         : string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');
+    public url                      : string = sessionStorage.getItem('enlace').toString().concat('/grabamedicamento');
+    public urlBuscarpordescripcion  : string = sessionStorage.getItem('enlace').toString().concat('/buscaprodpordescripcion');
+    public urlBuscarporcodigo       : string = sessionStorage.getItem('enlace').toString().concat('/buscaprodporcodigo');
+    public urlActualizar            : string = sessionStorage.getItem('enlace').toString().concat('/actualizamedicamento');
+    public urlEliminar              : string = sessionStorage.getItem('enlace').toString().concat('/eliminamedicamento');
+    public urlbuscafamilia          : string = sessionStorage.getItem('enlace').toString().concat('/familia');
+    public urlbuscaholding          : string = sessionStorage.getItem('enlace').toString().concat('/buscaholding');
+    public urlbuscaempresa          : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');
+    public urlbuscasucursal         : string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');
 
     constructor(public _http: HttpClient) {
 
@@ -86,14 +86,12 @@ export class MantencionarticulosService {
     }
 
     UpdateArticulos(producto: Articulos): Observable<Articulos> {
-        console.log("entra a ACTUALIZAR")
         console.log(producto);
 
         return this._http.post<Articulos>(this.urlActualizar, producto);
     }
 
     BuscaFamilias(tiporegistro: string,usuario:string,servidor:string): Observable<Familia[]> {
-        console.log("Buscará producto por descripcion")
         return this._http.post<Familia[]>(this.urlbuscafamilia, {
             'tiporegistro': tiporegistro,
             'usuario'     : usuario,

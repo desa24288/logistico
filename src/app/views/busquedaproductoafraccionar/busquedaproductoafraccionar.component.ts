@@ -43,12 +43,12 @@ export class BusquedaproductoafraccionarComponent implements OnInit {
     private _bodegasService : BodegasService,
     public bsModalRef       : BsModalRef,
     public formBuilder      : FormBuilder,
-  ) { 
+  ) {
 
     this.FormBuscaProdAFraccionar = this.formBuilder.group({
       codigo: [{ value: null, disabled: false }, Validators.required],
       descripcion: [{ value: null, disabled: false }, Validators.required],
-      
+
     });
   }
 
@@ -63,7 +63,7 @@ export class BusquedaproductoafraccionarComponent implements OnInit {
     }
     /** */
     this.onClose = new Subject();
-    
+
     this.BuscaProducto(this.codproducto,this.descproducto);
   }
 
@@ -87,22 +87,24 @@ export class BusquedaproductoafraccionarComponent implements OnInit {
     this.loading = true;
     this._bodegasService.BuscaProductoenlaBodega(this.hdgcodigo,this.esacodigo,this.cmecodigo,
       this.bodcodigo, codproducto,descripcion,this.usuario,this.servidor).subscribe(
-      response => { 
-        
-        if(response.length >0){
-          this.productosafraccionar =response;
-          this.productosafraccionarpaginacion = this.productosafraccionar.slice(0,7);
-  
-          this.loading = false;
-        }else{
-          if(response.length==0){
-            this.alertSwalError.title=" No existe producto";
-            this.alertSwalError.show(); 
+      response => {
+        if (response != null){
+          if(response.length >0){
+            this.productosafraccionar =response;
+            this.productosafraccionarpaginacion = this.productosafraccionar.slice(0,7);
+
             this.loading = false;
+          }else{
+            if(response.length==0){
+              this.alertSwalError.title=" No existe producto";
+              this.alertSwalError.show();
+              this.loading = false;
+            }
+
           }
-          
+        } else {
+          this.loading = false;
         }
-        
       },
       error => {
         console.log(error);
@@ -110,29 +112,29 @@ export class BusquedaproductoafraccionarComponent implements OnInit {
         this.alertSwalError.show();
       }
     );
-  }  
+  }
 
   BuscaProductos(){
     this.loading = true;
     this._bodegasService.BuscaProductoenlaBodega(this.hdgcodigo,this.esacodigo,this.cmecodigo,
       this.bodcodigo, this.FormBuscaProdAFraccionar.value.codigo,
       this.FormBuscaProdAFraccionar.value.descripcion,this.usuario,this.servidor).subscribe(
-      response => { 
-        
-        if(response.length >0){
-          this.productosafraccionar =response;
-          this.productosafraccionarpaginacion = this.productosafraccionar.slice(0,7);
-  
-          this.loading = false;
-        }else{
-          if(response.length==0){
-            this.alertSwalError.title=" No existe producto";
-            this.alertSwalError.show(); 
+      response => {
+        if (response != null){
+          if(response.length >0){
+            this.productosafraccionar =response;
+            this.productosafraccionarpaginacion = this.productosafraccionar.slice(0,7);
             this.loading = false;
+          }else{
+            if(response.length==0){
+              this.alertSwalError.title=" No existe producto";
+              this.alertSwalError.show();
+              this.loading = false;
+            }
           }
-          
+        } else {
+          this.loading = false;
         }
-        
       },
       error => {
         console.log(error);
@@ -140,7 +142,7 @@ export class BusquedaproductoafraccionarComponent implements OnInit {
         this.alertSwalError.show();
       }
     );
-  }  
+  }
 
   onCerrar(Producto: ProductoAFraccionar) {
     this.estado = true;
@@ -164,5 +166,34 @@ export class BusquedaproductoafraccionarComponent implements OnInit {
     this.productosafraccionarpaginacion = [];
     this.productosafraccionar = [];
 
+  }
+
+  getProducto(codigo: string){
+
+    this._bodegasService.BuscaProductoenlaBodega(this.hdgcodigo,this.esacodigo,this.cmecodigo,
+    this.bodcodigo, codigo,null,this.usuario,this.servidor).subscribe(
+      response => {
+        if (response != null){
+          if(response.length >0){
+            this.productosafraccionar =response;
+            this.productosafraccionarpaginacion = this.productosafraccionar.slice(0,7);
+            this.loading = false;
+          }else{
+            if(response.length==0){
+              this.alertSwalError.title=" No existe producto";
+              this.alertSwalError.show();
+              this.loading = false;
+            }
+          }
+        } else {
+          this.loading = false;
+        }
+      },
+      error => {
+        console.log(error);
+        this.alertSwalError.title = "Error al Buscar Producto";
+        this.alertSwalError.show();
+      }
+    );
   }
 }

@@ -12,6 +12,10 @@
             <form novalidate [formGroup]='FormBusquedaSolPac' autocomplete="off" spellcheck="false">
                 <div class="clas form-row">
                     <div class="form-group col-md-2">
+                        <label for="soliid">Número Solicitud</label>
+                        <input type="text" class="form-control form-control-sm" formControlName="soliid">
+                    </div>
+                    <div class="form-group col-md-2">
                         <label for="fechadesde">Fecha Desde *</label>
                         <input appSelecttext type="text" placeholder="DD/MM/YYYY" id="fechadesde"
                             class='form-control form-control-sm' [bsConfig]="bsConfig" bsDatepicker
@@ -23,31 +27,6 @@
                             class='form-control form-control-sm' [bsConfig]="bsConfig" bsDatepicker
                             formControlName="fechahasta">
                     </div>
-                    <div class="form-group col-md-2">
-                        <label for="esticod">Ambito *</label>
-                        <select name="esticod" class='form-control form-control-sm' formControlName='ambito'>
-                            <option *ngFor="let tipoambito of tiposambitos" [ngValue]="tipoambito.ambitocodigo">
-                                {{ tipoambito.ambitodescripcion }}
-                            </option>
-                        </select>
-                    </div>
-                    <div class="form-group col-md-2">
-                        <label for="prioridad">Prioridad *</label>
-                        <select name="prioridad" class='form-control form-control-sm' formControlName='prioridad'>
-                            <option *ngFor="let prioridad of prioridades" [ngValue]="prioridad.codprioridad">
-                                {{ prioridad.desprioridad }}
-                            </option>
-                        </select>
-                    </div>
-                    <!--div class="form-group col-md-2">
-                    <label for="esticod">Tipo Producto *</label>
-                    <select name="esticod" class='form-control form-control-sm' formControlName='tiporegistro'>
-                        <option *ngFor="let tipoderegistro of tiposderegistros"
-                            [ngValue]="tipoderegistro.idtiporegistro">
-                            {{ tipoderegistro.desctiporegistro }}
-                        </option>
-                    </select>
-                </div-->
                     <div class="form-group col-md-3">
                         <label for="esticod">Estado *</label>
                         <select name="esticod" class='form-control form-control-sm' formControlName='estado'>
@@ -58,54 +37,83 @@
                         </select>
                     </div>
                 </div>
+                <div class="clas form-row">
+
+                  <div class="form-group col-md-2">
+                    <label for="esticod">Ambito *</label>
+                    <select name="esticod" class='form-control form-control-sm' formControlName='ambito'>
+                        <option *ngFor="let tipoambito of tiposambitos" [ngValue]="tipoambito.ambitocodigo">
+                            {{ tipoambito.ambitodescripcion }}
+                        </option>
+                    </select>
+                  </div>
+
+                  <div class="form-group col-md-2">
+                    <label for="prioridad">Prioridad *</label>
+                    <select name="prioridad" class='form-control form-control-sm' formControlName='prioridad'>
+                        <option *ngFor="let prioridad of prioridades" [ngValue]="prioridad.codprioridad">
+                            {{ prioridad.desprioridad }}
+                        </option>
+                    </select>
+                  </div>
+
+                  <div class="form-group col-md-3">
+                    <label for="servicio">Servicio *</label>
+                    <select name="servicio" class='form-control form-control-sm' formControlName='servicio'
+                        (change)="onSelectServicio($event.target.value)">
+                        <option *ngFor='let unidad  of unidades' value='{{ unidad.codservicio }}'>
+                            {{ unidad.servdescripcion }}
+                        </option>
+                    </select>
+                  </div>
+
+                  <div class="form-group col-md-3">
+                    <label for="esticod">Pieza *</label>
+                    <select name="esticod" class='form-control form-control-sm'
+                      formControlName='pieza'
+                      (change)="onSelectPieza($event.target.value)">
+                        <option *ngFor='let pieza of piezas' value='{{ pieza.piezaid }}'>
+                            {{ pieza.piezadescripcion }}
+                        </option>
+                    </select>
+                  </div>
+
+                </div>
+
                 <div class="form-row">
-                    <div class="form-group col-md-2">
-                        <label for="servicio">Unidad *</label>
-                        <select name="servicio" class='form-control form-control-sm' formControlName='servicio'
-                            (change)="onSelectServicio($event.target.value)">
-                            <option *ngFor='let unidad  of unidades' value='{{ unidad.unidadid }}'>
-                                {{ unidad.unidaddescripcion }}
-                            </option>
-                        </select>
-                    </div>
-                    <div class="form-group col-md-2">
-                        <label for="esticod">Pieza *</label>
-                        <select name="esticod" class='form-control form-control-sm' formControlName='pieza'
-                            (change)="onSelectPieza($event.target.value)">
-                            <option *ngFor='let pieza of piezas' value='{{ pieza.piezaid }}'>
-                                {{ pieza.piezadescripcion }}
-                            </option>
-                        </select>
-                    </div>
-                    <div class="form-group col-md-2">
-                        <label for="esticod">Cama *</label>
-                        <select name="esticod" class='form-control form-control-sm' formControlName='cama'>
-                            <option *ngFor='let cama of camas' value='{{ cama.camid }}'>
-                                {{ cama.camadescripcion }}
-                            </option>
-                        </select>
-                    </div>
-                    <div class="form-group col-md-2">
-                        <label for="tipoidentificacion">Tipo Identificación *</label>
-                        <select name="tipoidentificacion" class='form-control form-control-sm'
-                            formControlName='tipoidentificacion'>
-                            <option *ngFor="let docidenti of docsidentis" [ngValue]="docidenti.docidentcodigo">
-                                {{ docidenti.docidentdescripcion }}
-                            </option>
-                        </select>
-                    </div>
-                    <div class="form-group col-md-3">
-                        <label for="numeroidentificacion">Número identificación*</label>
-                        <input type="text" class="form-control form-control-sm" formControlName="numeroidentificacion">
-                    </div>
+
+                  <div class="form-group col-md-3">
+                      <label for="esticod">Cama *</label>
+                      <select name="esticod" class='form-control form-control-sm' formControlName='cama'>
+                          <option *ngFor='let cama of camas' value='{{ cama.camid }}'>
+                              {{ cama.camadescripcion }}
+                          </option>
+                      </select>
+                  </div>
+
+                  <div class="form-group col-md-2">
+                    <label for="tipoidentificacion">Tipo Identificación *</label>
+                    <select name="tipoidentificacion" class='form-control form-control-sm'
+                        formControlName='tipoidentificacion'>
+                        <option *ngFor="let docidenti of docsidentis" [ngValue]="docidenti.docidentcodigo">
+                            {{ docidenti.docidentdescripcion }}
+                        </option>
+                    </select>
+                  </div>
+
+                  <div class="form-group col-md-3">
+                      <label for="numeroidentificacion">Número identificación*</label>
+                      <input type="text" class="form-control form-control-sm" formControlName="numeroidentificacion">
+                  </div>
+
+                  <div class="form-group col-md-3 align-self-end text-left">
+                    <button type="button" id="btnbuscar" class="btn btn-primary btn-sm button-my-styles-busqueda_01 pl-4"
+                        (click)="BuscarSolicitudesPacientes()">Buscar <i class="fas fa-search ml-1"></i>
+                    </button>
+                  </div>
+
                 </div>
-                <div class="row float-right col-md-3">
-                    <div class="form-group col-md-3 align-self-end text-right">
-                        <button type="button" id="btnbuscar" class="btn btn-primary btn-sm button-my-styles-busqueda_01 pl-4"
-                            (click)="BuscarSolicitudesPacientes()">Buscar <i class="fas fa-search ml-1"></i>
-                        </button>
-                    </div>
-                </div>
+
                 <table class="table table-stripped table-condensed table-hovered">
                     <thead>
                         <tr>

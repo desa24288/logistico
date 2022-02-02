@@ -1,12 +1,12 @@
 export class DetalleSolicitudConsumo {
-    accion      : string;
-	iddetalle   : number;
-	id          : number;
-	centrocosto   : number;
-	idpresupuesto : number;
-	idproducto    : number;
-	codigoproducto : string;
-	glosaproducto   : string;
+    accion      			: string;
+	iddetalle   			: number;
+	id          			: number;
+	centrocosto   			: number;
+	idpresupuesto 			: number;
+	idproducto    			: number;
+	codigoproducto 			: string;
+	glosaproducto   		: string;
 	cantidadsolicitada      : number;
 	cantidadrecepcionada    : number;
 	referenciacontable      : number;
@@ -18,4 +18,6 @@ export class DetalleSolicitudConsumo {
 	usuario                 : string;
 	servidor                : string;
 	glosaunidadconsumo      : string;
+	marcacheckgrilla		: boolean;
+	bloqcampogrilla			: boolean;
 }

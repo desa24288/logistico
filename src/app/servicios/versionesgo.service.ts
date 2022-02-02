@@ -11,15 +11,16 @@ import { Versiones } from '../models/entity/Versiones';
 })
 export class VersionesService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/getversionrest');
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/getversion');
 
   constructor(private httpClient: HttpClient) {
 
   }
 
-  public VersionGoInformes(pinroversion: string): Observable<Versiones[]> {
+  public VersionGoInformes(pinroversion: string,servidor: string): Observable<Versiones[]> {
     return this.httpClient.post<Versiones[]>(this.target_url,{
-     'pinroversion' : pinroversion
+     'pinroversion' : pinroversion,
+     'servidor'     : servidor
     });
   }
 

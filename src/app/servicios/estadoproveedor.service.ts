@@ -10,7 +10,7 @@ import { environment } from '../../environments/environment';
 })
 export class EstadoproveedorService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/estadoproveedor');//'http://172.25.108.236:8189/estadoproveedor';
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/estadoproveedor');//'http://172.25.108.236:8189/estadoproveedor';
 
   constructor(public httpClient: HttpClient) {
 

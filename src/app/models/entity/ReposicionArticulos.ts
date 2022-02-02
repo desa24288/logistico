@@ -36,7 +36,8 @@ export class ReposicionArticulos{
         public stockactual      ?: number,
         public fechamov         ?: string,
         public fechacreacion    ?: string,
-        public cantsoli         ?: number
+        public cantsoli         ?: number,
+        public cantidadareponerresp?: number
         
     ) {}
 }

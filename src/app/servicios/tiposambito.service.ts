@@ -10,7 +10,7 @@ import { Observable } from 'rxjs';
 })
 export class TipoambitoService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/tipoambito');//'http://172.25.108.236:8189/tipoambito';
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/tipoambito');//'http://172.25.108.236:8189/tipoambito';
 
   constructor(public httpClient: HttpClient) {
 

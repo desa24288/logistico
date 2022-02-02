@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class InformeexistenciavalorizadoService {
-    public urlrptinforme    : string = environment.URLServiciosRest.URLConexionInformes.concat('/obtieneurlinfexistenciasvalorizadas');//"http://172.25.108.236:8194/obtieneurlinfexistenciasvalorizadas";
+    public urlrptinforme    : string = sessionStorage.getItem('enlace').toString().concat('/obtieneurlinfexistenciasvalorizadas');//"http://172.25.108.236:8194/obtieneurlinfexistenciasvalorizadas";
     
     constructor(public _http: HttpClient) {
 

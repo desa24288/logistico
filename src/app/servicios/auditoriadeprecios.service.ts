@@ -11,16 +11,15 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class AuditoriadepreciosService {
-    public urlauditoria     :string= environment.URLServiciosRest.URLConexionInformes.concat('/obtieneurlinfauditoriaprecios');//"http://172.25.108.236:8194/obtieneurlinfconsumobodegavalo";
-    public urlbuscaempresa  : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
-    public urlbuscasucursal : string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal";
+    public urlauditoria     :string= sessionStorage.getItem('enlace').toString().concat('/obtieneurlinfauditoriaprecios');//"http://172.25.108.236:8194/obtieneurlinfconsumobodegavalo";
+    public urlbuscaempresa  : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
+    public urlbuscasucursal : string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal";
     
     constructor(public _http: HttpClient) {
 
     }
 
     BuscaEmpresa(hdgcodigo: number,usuario:string,servidor: string):Observable<Empresas[]> {
-        console.log("Buscará Empresa de Holding")
         return this._http.post<Empresas[]>(this.urlbuscaempresa, {
             'hdgcodigo': hdgcodigo,
             'usuario'  : usuario,
@@ -29,7 +28,6 @@ export class AuditoriadepreciosService {
     }
 
     BuscaSucursal(hdgcodigo: number, esacodigo: number,usuario:string,servidor: string):Observable<Sucursal[]> {
-        console.log("Buscará Sucursal de Empresa")
         return this._http.post<Sucursal[]>(this.urlbuscasucursal, {
             'hdgcodigo': hdgcodigo,
             'esacodigo': esacodigo,
@@ -41,7 +39,6 @@ export class AuditoriadepreciosService {
 
     RPTAuditoriaPrecios(tiporeport: string,hdgcodigo:number,esacodigo:number,
         cmecodigo:number):Observable<UrlReporte[]> {
-        console.log("Buscará Reporte informe valorizado")
         return this._http.post<UrlReporte[]>(this.urlauditoria, {
             'tiporeport': tiporeport,
             'hdgcodigo' : hdgcodigo,

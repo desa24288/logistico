@@ -9,18 +9,19 @@ import { GrabaSolicitud } from '../models/entity/GrabaSolicitud';
 import { environment } from '../../environments/environment';
 import { Grabadetallesolicitudbod } from '../models/entity/Grabadetallesolicitudbod';
 import { BodegaCargo } from '../models/entity/BodegaCargo';
+import { StockProductoBodSuminWS } from '../models/entity/StockProductoBodSuminWS';
 
 
 @Injectable()
 export class CreasolicitudesService {
     
-    public buscabodega            : string = environment.URLServiciosRest.URLConexion.concat('/bodegas');//'http://172.25.108.236:8189/bodegas';
-    public urlBuscastock          : string = environment.URLServiciosRest.URLConexion.concat('/buscastock');//"http://172.25.108.236:8193/buscastock";
-    public urlgrabasolic          : string = environment.URLServiciosRest.URLConexion.concat('/grabarencabsolicitudbod');
-    public urlgrabadetallesolic   : string = environment.URLServiciosRest.URLConexion.concat('/grabardetasolicitudbod');
-    public urlretornasolic        : string = environment.URLServiciosRest.URLConexion.concat('/retornaencsolicitudbod');
-    public urlbuscabodegaorigen   : string = environment.URLServiciosRest.URLConexion.concat('/bodegascargo');
-    
+    public buscabodega            : string = sessionStorage.getItem('enlace').toString().concat('/bodegas');//'http://172.25.108.236:8189/bodegas';
+    public urlBuscastock          : string = sessionStorage.getItem('enlace').toString().concat('/buscastock');//"http://172.25.108.236:8193/buscastock";
+    public urlgrabasolic          : string = sessionStorage.getItem('enlace').toString().concat('/grabarencabsolicitudbod');
+    public urlgrabadetallesolic   : string = sessionStorage.getItem('enlace').toString().concat('/grabardetasolicitudbod');
+    public urlretornasolic        : string = sessionStorage.getItem('enlace').toString().concat('/retornaencsolicitudbod');
+    public urlbuscabodegaorigen   : string = sessionStorage.getItem('enlace').toString().concat('/bodegascargo');
+    public urlBuscastockws        : string = sessionStorage.getItem('enlace').toString().concat('/wsconsultasaldo');
 
     constructor(public _http: HttpClient) {
     }
@@ -51,7 +52,7 @@ export class CreasolicitudesService {
 
 
 
- BuscaStockProd(meinid: number, bodegaorigen: number,usuario:string,servidor:string): Observable<StockProducto[]> {
+    BuscaStockProd(meinid: number, bodegaorigen: number,usuario:string,servidor:string): Observable<StockProducto[]> {
         return this._http.post<StockProducto[]>(this.urlBuscastock, {
            'meinid'       : meinid,
            'bodegaorigen' : bodegaorigen,
@@ -84,17 +85,26 @@ export class CreasolicitudesService {
     }
 
     GrabaCreacionDetalleSolicitud(grabadetsolicitudbod):Observable<Grabadetallesolicitudbod[]>{
-        console.log("Se enviará a grabar el detalle");
         return this._http.post<Grabadetallesolicitudbod[]>(this.urlgrabadetallesolic, {
             'grabadetsolicitudbod': grabadetsolicitudbod
         });
     }
 
     retornaSolicitud(solbodid: number, servidor: string):Observable<GrabaSolicitud[]>{
-        console.log("Se enviará a grabar el detalle");
         return this._http.post<GrabaSolicitud[]>(this.urlretornasolic, {
             'solbodid': solbodid,
             'servidor': servidor
+        });
+    }
+
+    ConsultaSaldoWS(esacodigo:number,hdgcodigo: number,codbodega: number,codmei:string,
+        servidor:string): Observable<StockProductoBodSuminWS> {
+        return this._http.post<StockProductoBodSuminWS>(this.urlBuscastockws, {
+           'esacodigo' : esacodigo,
+           'hdgcodigo' : hdgcodigo,
+           'codbodega' : codbodega,
+           'codmei'    : codmei,
+           'servidor'  : servidor
         });
     }
 }

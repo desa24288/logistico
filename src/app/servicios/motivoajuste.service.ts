@@ -10,7 +10,7 @@ import { environment } from '../../environments/environment';
 })
 export class MotivoAjusteService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/tiposdeajustesinv');//'http://172.25.108.236:8187/tiposdeajustesinv';
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/tiposdeajustesinv');//'http://172.25.108.236:8187/tiposdeajustesinv';
 
   constructor(private httpClient: HttpClient) {
 

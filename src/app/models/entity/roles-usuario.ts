@@ -10,6 +10,8 @@ export class RolesUsuarios {
         public  descripcionrol ?: string,
         public  idusuario    ?:number,
         public   accion  ?: string,
+        public  bloqcampogrilla?: boolean,
+        public  marcacheckgrilla?: boolean
         ) {
             
         }

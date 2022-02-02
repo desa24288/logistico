@@ -54,8 +54,8 @@ export class ConsultarecetaambulatoriaComponent implements OnInit {
     public _BsModalService  : BsModalService,
     private router          : Router,
     private _imprimelibroService  : InformesService
-    
-  ) { 
+
+  ) {
 
     this.FormConsultaReceta = this.formBuilder.group({
       tipodocumento         : [{ value: null, disabled: true }, Validators.required],
@@ -91,7 +91,7 @@ export class ConsultarecetaambulatoriaComponent implements OnInit {
     this.cmecodigo = Number(sessionStorage.getItem('cmecodigo').toString());
     this.usuario = sessionStorage.getItem('Usuario').toString();
   }
-  
+
 
   limpiar(){
     this.consultasrecetasprogspaginacion = [];
@@ -106,8 +106,8 @@ export class ConsultarecetaambulatoriaComponent implements OnInit {
     this._BSModalRef = this._BsModalService.show(BusquedapacientesComponent, this.setModal("Busqueda de Paciente"));
     this._BSModalRef.content.onClose.subscribe((Retorno: any) => {
       if (Retorno !== undefined) {
-        
-        console.log("Paciente buscado",Retorno);
+
+        // console.log("Paciente buscado",Retorno);
         if(Retorno.codambito ==1){
           this._paciente = Retorno
           this.dataPacienteSolicitud = new Solicitud();
@@ -122,7 +122,7 @@ export class ConsultarecetaambulatoriaComponent implements OnInit {
           this.dataPacienteSolicitud.edad = this._paciente.edad;
           this.dataPacienteSolicitud.codsexo = 1; //this._paciente.codsexo;
           this.dataPacienteSolicitud.ppnpaciente = this._paciente.cliid;
-          this.dataPacienteSolicitud.glsexo = this._paciente.sexo;
+          this.dataPacienteSolicitud.glsexo = this._paciente.glsexo;
           this.dataPacienteSolicitud.glstipidentificacion = this._paciente.descidentificacion;
           this.FormConsultaReceta.get('tipodocumento').setValue(this.dataPacienteSolicitud.descidentificacion);
           this.FormConsultaReceta.get('numidentificacion').setValue(this.dataPacienteSolicitud.numdocpac);
@@ -154,24 +154,16 @@ export class ConsultarecetaambulatoriaComponent implements OnInit {
               .concat(this.dataPacienteSolicitud.apematernopac));
           }
         }
-        
-        // this.FormConsultaReceta.get('sexo').setValue(this.dataPacienteSolicitud.glsexo);
-        // this.FormConsultaReceta.get('edad').setValue(this.dataPacienteSolicitud.edad);
 
         this._solicitudService.ConsultaRecetaProgramada(this.hdgcodigo,this.esacodigo,this.cmecodigo,
         this.servidor,this.usuario,this.dataPacienteSolicitud.cliid).subscribe(
           response => {
-            console.log("Busqueda consultas:",response);
-            this.consultasrecetasprogs = response;
-            this.consultasrecetasprogspaginacion = this.consultasrecetasprogs.slice(0,20);
-            this.imprimeconsulta = true;
-          }
-        )
-        
-        // this.existpaciente = true;
-        // this.existsolicitud = false;
-        // this.agregarproducto = true;
-        // this.nuevasolicitud = false;
+            if (response != null){
+              this.consultasrecetasprogs = response;
+              this.consultasrecetasprogspaginacion = this.consultasrecetasprogs.slice(0,20);
+              this.imprimeconsulta = true;
+            }
+          });
       }
     }
     )
@@ -210,21 +202,24 @@ export class ConsultarecetaambulatoriaComponent implements OnInit {
   }
 
   cambio_check(texto: string, event: any,marca: string){
-    console.log("buscará todos los pacientes",texto, event,marca);
+
     if(event.target.checked){
       this.loading = true;
       this._solicitudService.ConsultaRecetaProgramada(this.hdgcodigo,this.esacodigo,this.cmecodigo,
         this.servidor,this.usuario,0).subscribe(
           response => {
-            console.log("Busqueda consultas:",response,this.FormConsultaReceta);
-            this.consultasrecetasprogs = response;
-            this.consultasrecetasprogspaginacion = this.consultasrecetasprogs.slice(0,20);
-            this.FormConsultaReceta.reset();
-            event.target.checked = true;
-            this.imprimeconsulta = true;
-            this.buscapac = true;
-            this.dataPacienteSolicitud.cliid=0;
-            this.loading = false;
+            if (response != null){
+              this.consultasrecetasprogs = response;
+              this.consultasrecetasprogspaginacion = this.consultasrecetasprogs.slice(0,20);
+              this.FormConsultaReceta.reset();
+              event.target.checked = true;
+              this.imprimeconsulta = true;
+              this.buscapac = true;
+              this.dataPacienteSolicitud.cliid=0;
+              this.loading = false;
+            } else {
+              this.loading = false;
+            }
           }
         )
     }else{
@@ -233,13 +228,12 @@ export class ConsultarecetaambulatoriaComponent implements OnInit {
         //this.dataPacienteSolicitud = null;<-Genera Error
         this.buscapac = false;
         this.imprimeconsulta = false;
-     
+
     }
-    
+
   }
 
   ConfirmaVerSolicitud(detalle: ConsultaRecetaProgramada,id: number){
-    console.log("ver detalle d la consulta",id, detalle);
 
     this.detallesrecetas = detalle.detallerecetaprog;
     this.detallesrecetaspaginacion = this.detallesrecetas.slice(0,20);
@@ -259,7 +253,7 @@ export class ConsultarecetaambulatoriaComponent implements OnInit {
   }
 
   DespacharRecetaAmbulatoria(detalle:ConsultaRecetaProgramada ,id: number){
-    
+
     this.router.navigate(['despachorecetasambulatoria',detalle.soliid,detalle.solicodambito,detalle.solicodambito, 'consultarecetasambulatoria']);
   }
 
@@ -277,25 +271,26 @@ export class ConsultarecetaambulatoriaComponent implements OnInit {
       if (result.value) {
         this.ImprimirLibro(tiporeporte);
       }
-    })    
+    })
 
   }
 
   ImprimirLibro(tiporeporte: string) {
 
-    
+
     if(tiporeporte=="pdf"){
       // console.log("Entra al pdf",this.imprimeconsulta)
       if( this.dataPacienteSolicitud.cliid >0){
-        
+
         this._imprimelibroService.RPTImprimeConsultaRecetaAmbulatoria(this.servidor,this.usuario,
           this.hdgcodigo,this.esacodigo, this.cmecodigo,"pdf",
           this.dataPacienteSolicitud.cliid).subscribe(
             response => {
-        
-              window.open(response[0].url, "", "", true);
-              // this.alertSwal.title = "Reporte Impreso Correctamente";
-              // this.alertSwal.show();
+              if (response != null){
+                window.open(response[0].url, "", "", true);
+                // this.alertSwal.title = "Reporte Impreso Correctamente";
+                // this.alertSwal.show();
+              }
             },
             error => {
               console.log(error);
@@ -306,17 +301,18 @@ export class ConsultarecetaambulatoriaComponent implements OnInit {
             }
           );
       }
-      
+
       else{
         if( this.imprimeconsulta == true || this.dataPacienteSolicitud.cliid ==0){
-         
+
           this._imprimelibroService.RPTImprimeConsultaRecetaAmbulatoria(this.servidor,this.usuario,
             this.hdgcodigo,this.esacodigo, this.cmecodigo,"pdf",0).subscribe(
               response => {
-                console.log("Imprime Solicitud", response);
-                window.open(response[0].url, "", "", true);
-                // this.alertSwal.title = "Reporte Impreso Correctamente";
-                // this.alertSwal.show();
+                if (response != null){
+                  window.open(response[0].url, "", "", true);
+                  // this.alertSwal.title = "Reporte Impreso Correctamente";
+                  // this.alertSwal.show();
+                }
               },
               error => {
                 console.log(error);
@@ -352,7 +348,7 @@ export class ConsultarecetaambulatoriaComponent implements OnInit {
     //     );
     //   }
     // }
-    
+
   }
 
 }

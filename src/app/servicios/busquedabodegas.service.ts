@@ -10,9 +10,9 @@ import { Servicio } from '../../app/models/entity/Servicio';
 @Injectable()
 export class BusquedabodegasService {
     
-    public urlbuscabod    : string = environment.URLServiciosRest.URLConexion.concat('/bodegasperifericas');
-    public urlservicio            : string = environment.URLServiciosRest.URLConexion.concat('/servicios');
-    public urlvalidabodega        : string = environment.URLServiciosRest.URLConexion.concat('/validabodega');
+    public urlbuscabod    : string = sessionStorage.getItem('enlace').toString().concat('/bodegasperifericas');
+    public urlservicio            : string = sessionStorage.getItem('enlace').toString().concat('/servicios');
+    public urlvalidabodega        : string = sessionStorage.getItem('enlace').toString().concat('/validabodega');
     constructor(public _http: HttpClient) {
 
     }

@@ -14,22 +14,24 @@ import { BsModalRef, BsModalService } from 'ngx-bootstrap';
 import { BodegasTodas } from 'src/app/models/entity/BodegasTodas';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { BodegaSolicitante } from 'src/app/models/entity/bodega-solicitante';
+import { Permisosusuario } from '../../permisos/permisosusuario';
 import { BusquedaproductosComponent } from '../busquedaproductos/busquedaproductos.component';
 import { ControlStockMinimo } from 'src/app/models/entity/control-stock-minimo';
 import { Router, ActivatedRoute } from '@angular/router';
+import { InformesService } from '../../servicios/informes.service';
 
 @Component({
   selector: 'app-control-stock-minimo',
   templateUrl: './control-stock-minimo.component.html',
   styleUrls: ['./control-stock-minimo.component.css'],
-  providers: []
+  providers: [InformesService]
 })
 export class ControlStockMinimoComponent implements OnInit {
   @ViewChild('alertSwal', { static: false }) alertSwal: SwalComponent;//Componente para visualizar alertas
   @ViewChild('alertSwalAlert', { static: false }) alertSwalAlert: SwalComponent;
   @ViewChild('alertSwalError', { static: false }) alertSwalError: SwalComponent;
 
-
+  public modelopermisos : Permisosusuario = new Permisosusuario();
   public FormControlMinimo: FormGroup;
 
   public tiposderegistros: Array<TipoRegistro> = [];
@@ -50,12 +52,9 @@ export class ControlStockMinimoComponent implements OnInit {
   public locale = 'es';
   public bsConfig: Partial<BsDatepickerConfig>;
   public colorTheme = 'theme-blue';
-
   public loading = false;
-  public buscaplantilla = false;
-  public existesolicitud: boolean = false;
-
-  editField: string;
+  public btnimprime : boolean = false;
+  public mein = null;
 
   constructor(
     private TiporegistroService: TiporegistroService,
@@ -65,7 +64,9 @@ export class ControlStockMinimoComponent implements OnInit {
     public localeService: BsLocaleService,
     public _BsModalService: BsModalService,
     private router: Router,
-    private route: ActivatedRoute,) {
+    private route: ActivatedRoute,
+    private _imprimesolicitudService: InformesService,)
+   {
     this.FormControlMinimo = this.formBuilder.group({
       mein: [{ value: null, disabled: false }, Validators.required],
       codigo: [{ value: null, disabled: false }, Validators.required],
@@ -79,7 +80,7 @@ export class ControlStockMinimoComponent implements OnInit {
       fechahasta: [new Date(), Validators.required],
       chequeatodo: [{ value: null, disabled: false }, Validators.required],
       tiporeposicion: [{ value: null, disabled: false }, Validators.required],
-      nombrearticulo: [{ value: null, disabled: false }, Validators.required],
+      nombrearticulo: [{ value: null, disabled: true }, Validators.required],
       id_articulo: [{ value: null, disabled: false }, Validators.required]
     }
     );
@@ -93,21 +94,17 @@ export class ControlStockMinimoComponent implements OnInit {
     this.cmecodigo = Number(sessionStorage.getItem('cmecodigo').toString());
     this.usuario = sessionStorage.getItem('Usuario').toString();
 
-   
+
 
     this.TiporegistroService.list(this.usuario, this.servidor).subscribe(
       data => {
         this.tiposderegistros = data;
-      }, err => {
-        console.log(err.error);
       }
+
     );
 
-
     // Cargamos la combobox de Bodegas de suministro
-
     this.BuscaBodegasSuministro();
-
 
     this.route.paramMap.subscribe(param => {
       if (param.has("id_suministro")) {
@@ -144,20 +141,14 @@ export class ControlStockMinimoComponent implements OnInit {
             data => {
               this.arreglomovimientos = data;
               this.arreglomovimientosPaginacion = this.arreglomovimientos.slice(0,20);
-            }, err => {
-              console.log(err.error);
+              this.btnimprime = true;
             }
+
           )
       }
 
     })
-
-
-
-
   }
-
-
 
   setModalProductos() {
     let dtModal: any = {};
@@ -166,7 +157,7 @@ export class ControlStockMinimoComponent implements OnInit {
       backdrop: 'static',
       class: 'modal-dialog-centered modal-xl',
       initialState: {
-        titulo: 'Búsqueda de Productos Controlados Por Bodega', // Parametro para de la otra pantalla
+        titulo: 'Búsqueda de Productos', // Parametro para de la otra pantalla
         hdgcodigo: this.hdgcodigo,
         esacodigo: this.esacodigo,
         cmecodigo: this.cmecodigo,
@@ -180,7 +171,6 @@ export class ControlStockMinimoComponent implements OnInit {
 
   BuscarProducto() {
 
-
     this._BSModalRef = this._BsModalService.show(BusquedaproductosComponent, this.setModalProductos());
     this._BSModalRef.content.onClose.subscribe((RetornoProductos: any) => {
       if (RetornoProductos == undefined) { }
@@ -188,6 +178,7 @@ export class ControlStockMinimoComponent implements OnInit {
 
         this.FormControlMinimo.get("nombrearticulo").setValue(RetornoProductos.descripcion);
         this.FormControlMinimo.get("id_articulo").setValue(RetornoProductos.mein);
+        this.mein = RetornoProductos.mein;
 
 
         this._BodegasService.buscabodegacontrolstockminimo(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.usuario, this.servidor,
@@ -195,45 +186,38 @@ export class ControlStockMinimoComponent implements OnInit {
           , this.FormControlMinimo.value.bodcodigo, this.FormControlMinimo.value.codbodegasuministro, RetornoProductos.mein).subscribe(
             data => {
               this.arreglomovimientos = data;
+
+              this.btnimprime = true;
               this.arreglomovimientosPaginacion = this.arreglomovimientos.slice(0, 20);
-            }, err => {
-              console.log(err.error);
             }
+
           )
-
-
       }
-
-
     }
     );
-
-
   }
 
-
-
-  
   Buscar_General() {
 
-        this._BodegasService.buscabodegacontrolstockminimo(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.usuario, this.servidor,
-          this.datePipe.transform(this.FormControlMinimo.value.fechadesde, 'yyyy-MM-dd'), this.datePipe.transform(this.FormControlMinimo.value.fechahasta, 'yyyy-MM-dd')
-          , this.FormControlMinimo.value.bodcodigo, this.FormControlMinimo.value.codbodegasuministro,0).subscribe(
-            data => {
-              this.arreglomovimientos = data;
-              this.arreglomovimientosPaginacion = this.arreglomovimientos.slice(0, 20);
-            }, err => {
-              console.log(err.error);
-            }
-          );
+    this._BodegasService.buscabodegacontrolstockminimo(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.usuario, this.servidor,
+    this.datePipe.transform(this.FormControlMinimo.value.fechadesde, 'yyyy-MM-dd'), this.datePipe.transform(this.FormControlMinimo.value.fechahasta, 'yyyy-MM-dd')
+    , this.FormControlMinimo.value.bodcodigo, this.FormControlMinimo.value.codbodegasuministro,0).subscribe(
+      data => {
+        this.arreglomovimientos = data===null?[]:data;
+        if( this.arreglomovimientos.length === 0 ){
+          this.alertmsg('No existen registros entre bodegas', '');
+          return;
 
-
+        }
+        this.btnimprime= true;
+        this.arreglomovimientosPaginacion = this.arreglomovimientos.slice(0, 20);
       }
+
+    );
+  }
 
   /* llena combobox de bodegas perioféricas */
   BuscaBodegasSolicitantes(id_bodega_suministro: number) {
-
-
     this.bodegasSolicitantes = [];
 
     this._BodegasService.listaBodegaOrigenAccion(this.hdgcodigo, this.esacodigo, this.cmecodigo,
@@ -241,9 +225,8 @@ export class ControlStockMinimoComponent implements OnInit {
         data => {
           this.bodegasSolicitantes = data;
 
-        }, err => {
-          console.log(err.error);
         }
+
       );
   }
 
@@ -253,9 +236,8 @@ export class ControlStockMinimoComponent implements OnInit {
     this._BodegasService.listaBodegaTodasSucursal(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.usuario, this.servidor).subscribe(
       data => {
         this.bodegassuministro = data;
-      }, err => {
-        console.log(err.error);
       }
+
     );
   }
 
@@ -279,32 +261,98 @@ export class ControlStockMinimoComponent implements OnInit {
     this.FormControlMinimo.get('fechahasta').setValue(new Date());
     this.arreglomovimientosPaginacion=[];
     this.arreglomovimientos= [];
-    this.buscaplantilla = false;
+    this.btnimprime = false;
+    this.mein = null;
   }
 
 
   EditarDespacho(id_solicitud: number) {
-
-
-
-
     var fecha_inicio= new Date();
     var fecha_termino= new Date();
 
     fecha_inicio =  this.FormControlMinimo.value.fechadesde;
     fecha_termino = this.FormControlMinimo.value.fechahasta;
 
-    
     this.router.navigate(['despachosolicitudes', id_solicitud, 'controlstockminimo', this.FormControlMinimo.value.codbodegasuministro,
-      this.FormControlMinimo.value.tiporegistro, this.FormControlMinimo.value.bodcodigo, 
+      this.FormControlMinimo.value.tiporegistro, this.FormControlMinimo.value.bodcodigo,
       fecha_inicio.toString(), fecha_termino.toString(),
       0, '*']);
   }
 
+  salir() {
+    this.router.navigate(['home']);
+  }
 
+  onImprimir() {
 
-salir() {
-  this.router.navigate(['home']);
-}
+    const Swal = require('sweetalert2');
+    Swal.fire({
+      title: '¿Desea Imprimir Solicitud ?',
+      text: "Confirmar Búsqueda",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Aceptar'
+    }).then((result) => {
+      if (result.value) {
+        this.ImprimirSolicitud();
+      }
+    })
+
+  }
+
+  ImprimirSolicitud() {
+    var codigoarticulo = null;
+
+    if(this.FormControlMinimo.controls.nombrearticulo.value == null){
+      codigoarticulo = 0
+
+    }else{
+      if(this.FormControlMinimo.controls.nombrearticulo.value != null){
+        codigoarticulo = this.mein;
+      }
+    }
+
+    this._imprimesolicitudService.RPTImprimeControlStockMinimo(this.servidor,this.usuario,
+    this.hdgcodigo, this.esacodigo, this.cmecodigo, "pdf",
+    this.datePipe.transform(this.FormControlMinimo.value.fechadesde,'yyyy-MM-dd'),
+    this.datePipe.transform(this.FormControlMinimo.value.fechahasta,'yyyy-MM-dd'),this.FormControlMinimo.value.bodcodigo,
+    this.FormControlMinimo.value.codbodegasuministro,codigoarticulo).subscribe(
+        response => {
+          if (response != null){
+            window.open(response[0].url, "", "", true);
+          }
+        },
+        error => {
+          this.alertSwalError.title = "Error al Imprimir Control Stock Mínimo";
+          this.alertSwalError.show();
+          this._BSModalRef.content.onClose.subscribe((RetornoExito: any) => {
+          })
+        }
+      );
+
+  }
+
+  alertmsg( title: string, text: string ){
+    this.alertSwalAlert.title = title;
+    this.alertSwalAlert.text = text;
+    this.alertSwalAlert.show();
+
+  }
+
+  /** activa/desactiva btns buscar */
+  logicabtnbuscar(){
+    if( (this.FormControlMinimo.controls.codbodegasuministro.invalid) ||
+      (this.FormControlMinimo.controls.codbodegasuministro.value===0) ||
+      (this.FormControlMinimo.controls.tiporegistro.invalid) ||
+      (this.FormControlMinimo.controls.bodcodigo.invalid) ||
+      (this.FormControlMinimo.controls.fechadesde.invalid) ||
+      (this.FormControlMinimo.controls.fechahasta.invalid) ) {
+        return false;
+
+      }else { return true; }
+
+  }
 
 }

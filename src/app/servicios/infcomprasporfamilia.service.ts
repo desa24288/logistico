@@ -12,10 +12,10 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class InfcomprasporfamiliaService {
-    public urlcomprasfam   : string = environment.URLServiciosRest.URLConexionInformes.concat('/obtieneurlinfcomprasporfamilia');//"http://172.25.108.236:8194/obtieneurlinfajustesprecios";
-    public urlbuscafamilia : string = environment.URLServiciosRest.URLConexion.concat('/familia');//"http://172.25.108.236:8181/familia"
-    public urlbuscaempresa : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
-    public urlbuscasucursal: string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
+    public urlcomprasfam   : string = sessionStorage.getItem('enlace').toString().concat('/obtieneurlinfcomprasporfamilia');//"http://172.25.108.236:8194/obtieneurlinfajustesprecios";
+    public urlbuscafamilia : string = sessionStorage.getItem('enlace').toString().concat('/familia');//"http://172.25.108.236:8181/familia"
+    public urlbuscaempresa : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
+    public urlbuscasucursal: string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
        
     constructor(public _http: HttpClient) {
 

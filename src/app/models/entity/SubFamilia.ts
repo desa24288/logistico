@@ -1,6 +1,6 @@
 export class SubFamilia {
-    private idsubfamilia: number;
-    private descripcion: string;
+    public idsubfamilia: number;
+    public descripcion: string;
 
     constructor(idsubfamilia: number, descripcion: string) {
         this.idsubfamilia = idsubfamilia;

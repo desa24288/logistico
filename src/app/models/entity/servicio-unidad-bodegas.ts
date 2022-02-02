@@ -10,4 +10,6 @@ export class ServicioUnidadBodegas {
 	codbodega : number;
 	servidor : string;
 	usuario:string;
+	bloqcampogrilla: boolean;
+	marcacheckgrilla:boolean
 }

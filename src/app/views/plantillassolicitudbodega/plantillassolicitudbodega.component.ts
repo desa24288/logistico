@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { BodegasService } from '../../servicios/bodegas.service';
 import { BodegasTodas } from 'src/app/models/entity/BodegasTodas';
@@ -8,148 +8,264 @@ import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
 import { DatePipe } from '@angular/common';
-import { Articulos } from 'src/app/models/entity/mantencionarticulos';
-import { BusquedaproductosComponent } from '../busquedaproductos/busquedaproductos.component';
-
-import { BusquedaplantillasbodegaComponent } from '../busquedaplantillasbodega/busquedaplantillasbodega.component'
-import { Plantillas } from 'src/app/models/entity/PlantillasBodegas';
-import { DetallePlantillaBodega } from 'src/app/models/entity/DetallePlantillaBodega';
 import { PageChangedEvent } from 'ngx-bootstrap/pagination';
 import { Router, ActivatedRoute } from '@angular/router';
-import { EstructuraunidadesService } from 'src/app/servicios/estructuraunidades.service';
+
+import { Articulos } from 'src/app/models/entity/mantencionarticulos';
 import { Servicio } from 'src/app/models/entity/Servicio';
+import { DetallePlantillaBodega } from 'src/app/models/entity/DetallePlantillaBodega';
+import { Plantillas } from 'src/app/models/entity/PlantillasBodegas';
+
+import { BusquedaproductosComponent } from '../busquedaproductos/busquedaproductos.component';
+import { BusquedaplantillasbodegaComponent } from '../busquedaplantillasbodega/busquedaplantillasbodega.component'
 import { Permisosusuario } from '../../permisos/permisosusuario';
+
+import { EstructuraunidadesService } from 'src/app/servicios/estructuraunidades.service';
+import { BusquedaproductosService } from 'src/app/servicios/busquedaproductos.service';
+import { SolicitudService } from '../../servicios/Solicitudes.service';
+import { TipoPedidoPlantillaBodega } from 'src/app/models/entity/TipoPedidoPlantillaBodega';
+import { InformesService } from '../../servicios/informes.service';
 
 @Component({
   selector: 'app-plantillassolicitudbodega',
   templateUrl: './plantillassolicitudbodega.component.html',
-  styleUrls: ['./plantillassolicitudbodega.component.css']
+  styleUrls: ['./plantillassolicitudbodega.component.css'],
+  providers: [InformesService]
 })
 export class PlantillassolicitudbodegaComponent implements OnInit {
   @ViewChild('alertSwal', { static: false }) alertSwal: SwalComponent;//Componente para visualizar alertas
   @ViewChild('alertSwalAlert', { static: false }) alertSwalAlert: SwalComponent;
   @ViewChild('alertSwalError', { static: false }) alertSwalError: SwalComponent;
+  @ViewChild('cantidad', { static: false }) cantidad: ElementRef;
 
-  public modelopermisos: Permisosusuario = new Permisosusuario();
+  public modelopermisos       : Permisosusuario = new Permisosusuario();
   public FormPlantillaSolicitudBodega: FormGroup;
-  public bodegasSolicitantes: Array<BodegasTodas> = [];
-  public bodegassuministro: Array<BodegasrelacionadaAccion> = [];
-  public hdgcodigo: number;
-  public esacodigo: number;
-  public cmecodigo: number;
-  public usuario = environment.privilegios.usuario;
-  public servidor = environment.URLServiciosRest.ambiente;
-  private _BSModalRef: BsModalRef;
-  public detalleplantilla: Array<DetallePlantillaBodega> = [];
+  public FormDatosProducto    : FormGroup;
+  public bodegasSolicitantes  : Array<BodegasTodas> = [];
+  public bodegasSolicitantes1 : Array<BodegasTodas> = [];
+  public bodegasSolicitantes1_aux: Array<BodegasTodas> = [];
+  public bodegasSolicitantes_aux : Array<BodegasTodas> = [];
+  public bodegassuministro    : Array<BodegasrelacionadaAccion> = [];
+  public hdgcodigo            : number;
+  public esacodigo            : number;
+  public cmecodigo            : number;
+  public usuario              = environment.privilegios.usuario;
+  public servidor             = environment.URLServiciosRest.ambiente;
+  private _BSModalRef         : BsModalRef;
+  public detalleplantilla     : Array<DetallePlantillaBodega> = [];
   public detalleplantillapaginacion: Array<DetallePlantillaBodega> = [];
-  public _Plantilla: Plantillas;
-  public bsConfig: Partial<BsDatepickerConfig>
+  public detalleplantillaaux  : Array<DetallePlantillaBodega> = [];
+  public detalleplantilla_2   : Array<DetallePlantillaBodega> = [];
+  public detalleplantillapaginacionaux: Array<DetallePlantillaBodega> = [];
+  public _Plantilla           : Plantillas;
+  public _Plantillaaux        : Plantillas;
+  public bsConfig             : Partial<BsDatepickerConfig>
   public grabadetalleplantilla: DetallePlantillaBodega[] = [];
-  public _PageChangedEvent: PageChangedEvent;
-  onClose: any;
-  bsModalRef: any;
-  editField: any;
-  public productoselec: Articulos;
-  public arregloservicios: Servicio[] = [];
-  public tipoplantilla: boolean = true;
-  public activabtncreaplant: boolean = false;
-  public plantilla: number = 0;
-  public titulo: string;
-  public activabtnagregar: boolean = false;
+  public tipospedidos         : Array<TipoPedidoPlantillaBodega> = [];
+  public _PageChangedEvent    : PageChangedEvent;
+  onClose                     : any;
+  bsModalRef                  : any;
+  editField                   : any;
+  public productoselec        : Articulos;
+  public arregloservicios     : Servicio[] = [];
+  public tipoplantilla        : boolean = true;
+  public activabtncreaplant   : boolean = false;
+  public plantilla            : number = 0;
+  public titulo               : string;
+  public activabtnagregar     : boolean = false;
+  public loading                = false;
+  public codprod                = null;
+  public desactivabtnelim     : boolean  = false;
+  public btnLimpiar           : boolean = false;
+
+  public ActivaBotonBuscaGrilla   : boolean = false;
+  public ActivaBotonLimpiaBusca   : boolean = false;
+  public descripcionaux           : string = null;
+  public estadoaux                : string = null;
+  public bodcodigoaux             : number = null;
+  public bodcodigoentregaaux      : number = null;
+  public numplantillaaux          : number = null;
+  public serviciocodaux           : string = null;
+  public BuscaBodegasSuministroaux: number = null;
+  public fechacreacionaux         : string = null;
+  public valor_tipo_plantilla     : number = 0;
+  public lengthproductos          : number;
+  public tipopedido               : number;
+  public pedido                   : boolean = true;
+  public activabtnimprime         : boolean = false;
+
+  /**Usado para la funcion logicavacios()//@ML */
+  public verificanull = false;
+  public vacios = true;
+  public msj = false;
+  public msjColCant = false;
+  public msjColElim = false;
+  public varColCant = 0;
+  public varColElim = 0;
+  public vacioscabecera = true;
+  public verificamodificanull = false;
 
   constructor(
-    private formBuilder: FormBuilder,
-    public _BodegasService: BodegasService,
-    public _BsModalService: BsModalService,
-    public datePipe: DatePipe,
-    private _bodegasService: BodegasService,
-    private route: ActivatedRoute,
+    private formBuilder     : FormBuilder,
+    public _BodegasService  : BodegasService,
+    public _BsModalService  : BsModalService,
+    public datePipe         : DatePipe,
+    private _bodegasService : BodegasService,
+    private route           : ActivatedRoute,
     private _unidadesService: EstructuraunidadesService,
-    private router: Router,
+    private router          : Router,
+    public _BusquedaproductosService: BusquedaproductosService,
+    public _solicitudService: SolicitudService,
+    private _imprimesolicitudService: InformesService,
   ) {
 
     this.FormPlantillaSolicitudBodega = this.formBuilder.group({
-      numplantilla: [{ value: null, disabled: true }, Validators.required],
-      descripcion: [{ value: null, disabled: false }, Validators.required],
-      fechacreacion: [new Date(), Validators.required],
-      bodcodigo: [{ value: null, disabled: false }, Validators.required],
+      numplantilla    : [{ value: null, disabled: true }, Validators.required],
+      descripcion     : [{ value: null, disabled: false }, Validators.required],
+      fechacreacion   : [new Date(), Validators.required],
+      bodcodigo       : [{ value: null, disabled: false }, Validators.required],
       bodcodigoentrega: [{ value: null, disabled: false }, Validators.required],
-      estado: [{ value: null, disabled: false }, Validators.required],
-      serviciocod: [{ value: null, disabled: false }, Validators.required],
-      numplantilla2: [{ value: null, disabled: false }, Validators.required],
-      descripcion2: [{ value: null, disabled: false }, Validators.required],
+      estado          : [{ value: null, disabled: false }, Validators.required],
+      serviciocod     : [{ value: null, disabled: false }, Validators.required],
+      numplantilla2   : [{ value: null, disabled: false }, Validators.required],
+      descripcion2    : [{ value: null, disabled: false }, Validators.required],
+      tipopedido      : [{ value: null, disabled: false }, Validators.required]
+    });
+
+    this.FormDatosProducto = this.formBuilder.group({
+      codigo  : [{ value: '', disabled: false }, Validators.required],
+      cantidad: [{ value: null, disabled: false }, Validators.required]
     });
   }
 
   ngOnInit() {
+    // window.scrollTo(0, 0);
     this.FormPlantillaSolicitudBodega.get('estado').setValue("S");
+    this.estadoaux = 'S';
     this.hdgcodigo = Number(sessionStorage.getItem('hdgcodigo').toString());
     this.esacodigo = Number(sessionStorage.getItem('esacodigo').toString());
     this.cmecodigo = Number(sessionStorage.getItem('cmecodigo').toString());
     this.usuario = sessionStorage.getItem('Usuario').toString();
+
+    this.FormPlantillaSolicitudBodega.controls.bodcodigo.disable();
+    this.FormPlantillaSolicitudBodega.controls.bodcodigoentrega.disable();
+
     this.BuscaBodegaSolicitante();
-    this.route.paramMap.subscribe(param => {
-      if (param.has("in_tipo")) {
-        this.SeleccionaPantallaPlantilla(parseInt(param.get("in_tipo"), 10));
-      }
-    })
-
-    this._unidadesService.BuscarServicios(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.usuario, this.servidor, 0, '').subscribe(
-      response => {
-        this.arregloservicios = response;
-      }
-    );
+    this.SeleccionaPantallaPlantilla();
+    this.TipoPedido();
   }
 
-  SeleccionaPantallaPlantilla(id_tipo: number) {
-    this.limpiar();
-    if (id_tipo == 1) {
-      this.tipoplantilla = true;
-      this.titulo = "Bodegas"
-      this.plantilla = 1
-      this.activabtnagregar = false;
-    } else {
-      if (id_tipo == 2) {
-        this.tipoplantilla = false;
-        this.titulo = "Procedimientos"
-        this.plantilla = 2;
-        this.activabtnagregar = false;
-      }
-    }
-  }
-
-  pageChanged(event: PageChangedEvent): void {
-    const startItem = (event.page - 1) * event.itemsPerPage;
-    const endItem = event.page * event.itemsPerPage;
-    this.detalleplantillapaginacion = this.detalleplantilla.slice(startItem, endItem);
-  }
-
-  limpiar() {
+  SeleccionaPantallaPlantilla() {
     this.FormPlantillaSolicitudBodega.reset();
     this.detalleplantillapaginacion = [];
     this.detalleplantilla = [];
     this._Plantilla = new Plantillas();
+    this.detalleplantillapaginacionaux = [];
+    this.detalleplantillaaux = [];
+    this._Plantillaaux = new Plantillas();
     this.FormPlantillaSolicitudBodega.get('fechacreacion').setValue(new Date());
     this.activabtncreaplant = false;
     this.FormPlantillaSolicitudBodega.get('estado').setValue("S");
     this.activabtnagregar = false;
+    this.codprod = null;
+    this.ActivarBotonModificar();
+    this.FormDatosProducto.controls.codigo.setValue('');
+    this.btnLimpiar = false;
+  }
+
+  TipoPedido(){
+
+    this._BodegasService.BuscaTipoPedido(this.servidor).subscribe(
+      response => {
+        if (response != null) {
+          this.tipospedidos = response;
+        }
+      },
+      error => {
+        alert("Error al Cargar los tipos de pedidos");
+      }
+    );
+  }
+
+  SeleccionaTipoPlantilla(tipo: number){
+    this.tipopedido = tipo;
+    this.FormPlantillaSolicitudBodega.controls.bodcodigo.enable();
+    this.FormPlantillaSolicitudBodega.controls.bodcodigoentrega.enable();
+
+    if(this.FormPlantillaSolicitudBodega.controls.numplantilla.value === null){
+      if(this.tipopedido === 1){
+        if(this.FormPlantillaSolicitudBodega.controls.bodcodigo != null)
+          this.BuscaBodegasSuministro(this.FormPlantillaSolicitudBodega.controls.bodcodigo.value)
+        this.pedido = true;
+      }else{
+        this.pedido = false;
+        this.bodegassuministro = [];
+        this.bodegasSolicitantes = [];
+        this.bodegasSolicitantes = this.bodegasSolicitantes_aux;
+        this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').setValue(0);
+      }
+    }else{
+      this.logicaVacios();
+    }
   }
 
   BuscaBodegaSolicitante() {
 
     this._BodegasService.listaBodegaTodasSucursal(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.usuario, this.servidor).subscribe(
       response => {
-        this.bodegasSolicitantes = response;
-
+        if (response != null) {
+          this.bodegasSolicitantes = response;
+          this.bodegasSolicitantes_aux = response;
+        }
       },
       error => {
-        console.log(error)
         alert("Error al Buscar Bodegas de cargo");
       }
     );
   }
 
+  SeleccionaBodegaServicio() {
+    this.activabtnagregar = true;
+  }
+
   BuscaBodegasSuministro(codigobodegasolicitante: number) {
+    if(this.tipopedido === 2){
+      console.log("seleccionó tipopedido autopedido")
+
+      this._BodegasService.listaBodegaTodasSucursal(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.usuario, this.servidor).subscribe(
+        response => {
+          if (response != null) {
+            var index = 0;
+            response.forEach(x => {
+              if(x.bodcodigo === codigobodegasolicitante){
+                x.row = index;
+                this.bodegasSolicitantes1.push(x);
+                index++;
+              }
+            });
+            this.bodegasSolicitantes1_aux = this.bodegasSolicitantes1;
+            this.activabtnagregar = true;
+          }
+        },
+        error => {
+          alert("Error al Buscar Bodegas de cargo");
+        }
+      );
+      // this.bodegassuministro =
+    }else{
+      this.bodegassuministro = [];
+
+      this._BodegasService.listaBodegaRelacionadaAccion(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.usuario, this.servidor, codigobodegasolicitante, 1).subscribe(
+        data => {
+          this.bodegassuministro = data;
+
+          this.SeleccionaBodegaServicio();
+          // this.bodegassuministro_aux = data;
+
+        }, err => {
+        }
+      );
+    }
 
     this.bodegassuministro = [];
 
@@ -158,73 +274,107 @@ export class PlantillassolicitudbodegaComponent implements OnInit {
         this.bodegassuministro = data;
 
       }, err => {
-        console.log(err.error);
       }
     );
+    // this.logicaVacios();
   }
 
   BuscarPlantillas(tipoplantilla: boolean) {
-    var valor_tipo_plantilla = 0;
-
+    this.valor_tipo_plantilla = 0;
+    this.loading = true;
 
     this._BSModalRef = this._BsModalService.show(BusquedaplantillasbodegaComponent, this.setModalBusquedaPlantilla());
     this._BSModalRef.content.onClose.subscribe((response: any) => {
       if (response == undefined) { }
       else {
-        if (tipoplantilla == false) {
-          valor_tipo_plantilla = 2;
-        } else {
-          valor_tipo_plantilla = 1;
-        }
 
+        this._BodegasService.BuscaPlantillas(this.servidor, sessionStorage.getItem('Usuario'),
+        this.hdgcodigo, this.esacodigo,this.cmecodigo, response.planid, '', '', '', 0, 0, '',
+        '',1,"").subscribe(response_plantilla => {
+          if (response_plantilla.length == 0) {
+            this.loading = false;
+          } else {
 
-        this._BodegasService.BuscaPlantillas(this.servidor, sessionStorage.getItem('Usuario'), this.hdgcodigo, this.esacodigo,
-          this.cmecodigo, response.planid, '', '', '', 0, 0, '', '', valor_tipo_plantilla).subscribe(
-            response_plantilla => {
-              if (response_plantilla.length == 0) {
+            this.FormDatosProducto.reset();
+            this._Plantilla = response_plantilla[0];
+            this.activabtncreaplant = false;
+            this.activabtnagregar = true;
+            this.activabtnimprime = true;
+            if(this._Plantilla.planvigente== "N"){
+              this.activabtnagregar = false;
+            }
 
-              } else {
+            this.FormPlantillaSolicitudBodega.get('descripcion').setValue(this._Plantilla.plandescrip);
+            this.FormPlantillaSolicitudBodega.get('numplantilla').setValue(this._Plantilla.planid);
+            this.FormPlantillaSolicitudBodega.get('serviciocod').setValue(this._Plantilla.serviciocod);
+            this.FormPlantillaSolicitudBodega.get('estado').setValue(this._Plantilla.planvigente);
+            this.FormPlantillaSolicitudBodega.get('bodcodigo').setValue(this._Plantilla.bodorigen);
 
-
-                this._Plantilla = response_plantilla[0];
-                console.log("Plantilla seleccionada",this._Plantilla)
-                this.activabtncreaplant = false;
-                if (valor_tipo_plantilla == 2) {
-
-                  this.tipoplantilla = false;
-                  this.activabtnagregar = true;
-                  this.activabtncreaplant = false;
-                } else {
-                  if (valor_tipo_plantilla == 1) {
-                    this.tipoplantilla = true;
-                    this.activabtnagregar = true;
-                    this.activabtncreaplant = false;
-                  }
-
-                }
-                if(this._Plantilla.planvigente== "N"){
-                  this.activabtnagregar = false;
-                }
-                
-
-                this.FormPlantillaSolicitudBodega.get('descripcion').setValue(this._Plantilla.plandescrip);
-                this.FormPlantillaSolicitudBodega.get('numplantilla').setValue(this._Plantilla.planid);
-                this.FormPlantillaSolicitudBodega.get('serviciocod').setValue(this._Plantilla.serviciocod);
-                this.FormPlantillaSolicitudBodega.get('estado').setValue(this._Plantilla.planvigente);
-                this.FormPlantillaSolicitudBodega.get('bodcodigo').setValue(this._Plantilla.bodorigen);
+            if(this._Plantilla.tipopedido === 2){
+              this.pedido = false;
+              this.tipopedido = 2;
+              this.BuscaBodegasSuministro(this._Plantilla.bodorigen);
+              this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').setValue(this._Plantilla.bodorigen);
+              console.log("bodega", this.FormPlantillaSolicitudBodega.controls.bodcodigoentrega.value)
+            }else{
+              if(this._Plantilla.tipopedido === 1 || this._Plantilla.tipopedido === 0){
+                this.pedido = true;
+                this.tipopedido = 1
                 this.BuscaBodegasSuministro(this._Plantilla.bodorigen);
                 this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').setValue(this._Plantilla.boddestino);
-                this.FormPlantillaSolicitudBodega.get('fechacreacion').setValue(this.datePipe.transform(this._Plantilla.fechacreacion, 'dd-MM-yyyy'));
-
-                this.detalleplantillapaginacion = [];
-                this.detalleplantilla = [];
-
-                this.detalleplantilla = this._Plantilla.plantillasdet;
-                this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
-
-                console.log("Plantilla seleccionada",this._Plantilla)
               }
-            });
+            }
+            this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').setValue(this._Plantilla.boddestino);
+            this.FormPlantillaSolicitudBodega.get('fechacreacion').setValue(this.datePipe.transform(this._Plantilla.fechacreacion, 'dd-MM-yyyy'));
+            this.FormPlantillaSolicitudBodega.get('tipopedido').setValue(this._Plantilla.tipopedido);
+
+            // this.FormPlantillaSolicitudBodega.controls.descripcion.disable();
+            // this.FormPlantillaSolicitudBodega.controls.bodcodigo.disable();
+            // this.FormPlantillaSolicitudBodega.controls.bodcodigoentrega.disable();
+            this.detalleplantillapaginacion = [];
+            this.detalleplantilla = [];
+
+            // this._Plantilla.plantillasdet.forEach(ele=>{
+            //   this.detalleplantilla.unshift(ele)
+            // })
+            this.detalleplantilla = this._Plantilla.plantillasdet;
+            this.lengthproductos = this.detalleplantilla.length;
+            // console.log("lengthproducto;:::",this.lengthproductos)
+            this.detalleplantilla.forEach(x=>{
+              x.bloqcampogrilla = true;
+              x.cantsoliresp = x.cantsoli;
+            })
+            this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
+
+            this._Plantillaaux = new Plantillas;
+            this.detalleplantillapaginacionaux = [];
+            this.detalleplantillaaux = [];
+            // Set variables Auxiliares, para validación al limpiar y salir sin guardar.
+            this.descripcionaux = this._Plantilla.plandescrip;
+            this.numplantillaaux = this._Plantilla.planid;
+            this.serviciocodaux = this._Plantilla.serviciocod;
+            this.estadoaux = this._Plantilla.planvigente;
+            this.bodcodigoaux = this._Plantilla.bodorigen;
+            this.BuscaBodegasSuministroaux = this._Plantilla.bodorigen;
+            this.bodcodigoentregaaux = this._Plantilla.boddestino;
+            this.fechacreacionaux = this.datePipe.transform(this._Plantilla.fechacreacion, 'dd-MM-yyyy');
+
+            this._Plantillaaux.plandescrip = this._Plantilla.plandescrip;
+            this._Plantillaaux.planid = this._Plantilla.planid;
+            this._Plantillaaux.serviciocod = this._Plantilla.serviciocod;
+            this._Plantillaaux.planvigente = this._Plantilla.planvigente;
+            this._Plantillaaux.bodorigen = this._Plantilla.bodorigen;
+            this._Plantillaaux.boddestino = this._Plantilla.boddestino;
+            this._Plantillaaux.fechacreacion = this._Plantilla.fechacreacion;
+
+            this.detalleplantillapaginacionaux = this.detalleplantillapaginacion;
+            this.detalleplantillaaux = this.detalleplantilla ;
+            this.btnLimpiar = true;
+            this.ActivaBotonBuscaGrilla = true;
+            // this.logicaVacios();
+            this.loading = false;
+          }
+        });
 
       }
     });
@@ -237,52 +387,140 @@ export class PlantillassolicitudbodegaComponent implements OnInit {
       backdrop: 'static',
       class: 'modal-dialog-centered modal-xl',
       initialState: {
-        titulo: 'Búsqueda de Plantillas', // Parametro para de la otra pantalla
-        hdgcodigo: this.hdgcodigo,
-        esacodigo: this.esacodigo,
-        cmecodigo: this.cmecodigo,
-        tipoplantilla:   this.tipoplantilla,
-        descripcion:     this.FormPlantillaSolicitudBodega.get('descripcion').value,
-        codservicio:     this.FormPlantillaSolicitudBodega.get('serviciocod').value,
-        codsolicitante:  this.FormPlantillaSolicitudBodega.get('bodcodigo').value,
-        codsuministro:   this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').value,
-        vigencia:   this.FormPlantillaSolicitudBodega.get('estado').value
-      } 
+        titulo        : 'Búsqueda de Plantillas', // Parametro para de la otra pantalla
+        hdgcodigo     : this.hdgcodigo,
+        esacodigo     : this.esacodigo,
+        cmecodigo     : this.cmecodigo,
+        tipoplantilla : this.tipoplantilla,
+        descripcion   : this.FormPlantillaSolicitudBodega.get('descripcion').value,
+        codservicio   : this.FormPlantillaSolicitudBodega.get('serviciocod').value,
+        codsolicitante: this.FormPlantillaSolicitudBodega.get('bodcodigo').value,
+        codsuministro : this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').value,
+        vigencia      : this.FormPlantillaSolicitudBodega.get('estado').value
+      }
     };
     return dtModal;
   }
 
+  getProducto() {
+    this.codprod = this.FormDatosProducto.controls.codigo.value === null ? '' :
+    this.FormDatosProducto.controls.codigo.value;
+    this.codprod = this.codprod.trim();
+    this.loading = true;
+    if (this.codprod === null || this.codprod === '') {
+      this.loading = false;
+      this.addArticuloGrilla();
+    } else {
+      const tipodeproducto = 'MIM';
+      const controlado = '';
+      const controlminimo = '';
+      const idBodega = 0;
+      const consignacion = '';
+      this._BusquedaproductosService.BuscarArticulosFiltros(this.hdgcodigo, this.esacodigo,
+        this.cmecodigo, this.codprod, null, null, null, null, tipodeproducto, idBodega, controlminimo, controlado, consignacion
+        , this.usuario, null, this.servidor).subscribe(
+          response => {
+          if (response != null) {
+            if (response.length > 1) {
+                this.loading = false;
+                this.addArticuloGrilla();
+              } else if (response.length === 1) {
+                this.loading = false;
+
+                const indx = this.detalleplantilla.findIndex(x => x.codmei === response[0].codigo, 1);
+                if (indx >= 0) {
+                  this.alertSwalError.title = "Código ya existe en la grilla";
+                  this.alertSwalError.show();
+                  this.FormDatosProducto.reset();
+                  // this.codexiste = true;
+                }else{
+                  this.productoselec = response[0];
+                  if (this._Plantilla.planid > 0) {
+                    this.activabtncreaplant = false;
+                  } else {
+                    if (this._Plantilla.planid === 0 || this._Plantilla.planid === null) {
+                      this.activabtncreaplant = true;
+                    }
+                  }
+                  const DetallePantilla = new DetallePlantillaBodega;
+                  DetallePantilla.codmei = this.productoselec.codigo;
+                  DetallePantilla.meindescri = this.productoselec.descripcion;
+                  DetallePantilla.meinid = this.productoselec.mein;
+                  DetallePantilla.tiporegmein = this.productoselec.tiporegistro;
+                  DetallePantilla.pldeid = 0;
+                  DetallePantilla.acciond = "I";
+                  DetallePantilla.cantsoli = 0;
+                  DetallePantilla.usuariocreacion = this.usuario;
+                  DetallePantilla.bloqcampogrilla = true;
+                  if (this._Plantilla.planid > 0) {
+                    DetallePantilla.planid = this._Plantilla.planid;
+                  }
+                  this.detalleplantilla.unshift(DetallePantilla);
+                  this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
+                  this.detalleplantillaaux = this.detalleplantilla;
+                  this.detalleplantillapaginacionaux = this.detalleplantillapaginacion;
+                  this.ActivaBotonBuscaGrilla= true;
+                  this.FormDatosProducto.reset();
+                  // this.logicaVacios();
+                }
+              } else { return; }
+            }
+            this.loading = false;
+          }, error => {
+            this.loading = false;
+          }
+        );
+    }
+  }
+
   addArticuloGrilla() {
+    this.alertSwalError.title = null;
     this._BSModalRef = this._BsModalService.show(BusquedaproductosComponent, this.setModalBusquedaProductos());
     this._BSModalRef.content.onClose.subscribe((response: any) => {
       if (response == undefined) { }
       else {
-        this.productoselec = response;
-        if (this._Plantilla.planid > 0) {
-          this.activabtncreaplant = false;
-        } else {
-          if (this._Plantilla.planid == 0 || this._Plantilla.planid == null) {
-            this.activabtncreaplant = true
-          }
-        }
-        const DetallePantilla = new DetallePlantillaBodega;
-        DetallePantilla.codmei = this.productoselec.codigo;
-        DetallePantilla.meindescri = this.productoselec.descripcion;
-        DetallePantilla.meinid = this.productoselec.mein;
-        DetallePantilla.pldeid = 0;
-        DetallePantilla.acciond = "I";
-        DetallePantilla.usuariocreacion = this.usuario;
-        if (this._Plantilla.planid > 0) {
-          DetallePantilla.planid = this._Plantilla.planid;
-        }
-        this.detalleplantilla.unshift(DetallePantilla);
-        this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
+        const indx = this.detalleplantilla.findIndex(x => x.codmei === response.codigo, 1);
+        if (indx >= 0) {
+          this.alertSwalError.title = "Código ya existe en la grilla";
+          this.alertSwalError.show();
+          // this.codexiste = true;
+        }else{
 
+          this.productoselec = response;
+          if (this._Plantilla.planid > 0) {
+            this.activabtncreaplant = false;
+          } else {
+            if (this._Plantilla.planid == 0 || this._Plantilla.planid == null) {
+              this.activabtncreaplant = true
+            }
+          }
+          const DetallePantilla = new DetallePlantillaBodega;
+          DetallePantilla.codmei = this.productoselec.codigo;
+          DetallePantilla.meindescri = this.productoselec.descripcion;
+          DetallePantilla.meinid = this.productoselec.mein;
+          DetallePantilla.tiporegmein = this.productoselec.tiporegistro;
+          DetallePantilla.pldeid = 0;
+          DetallePantilla.acciond = "I";
+          DetallePantilla.cantsoli = 0;
+          DetallePantilla.usuariocreacion = this.usuario;
+          DetallePantilla.bloqcampogrilla = true;
+          if (this._Plantilla.planid > 0) {
+            DetallePantilla.planid = this._Plantilla.planid;
+          }
+          this.detalleplantilla.unshift(DetallePantilla);
+          this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
+
+          this.detalleplantillaaux = this.detalleplantilla;
+          this.detalleplantillapaginacionaux = this.detalleplantillapaginacion;
+          this.ActivaBotonBuscaGrilla = true;
+        }
+        this.logicaVacios();
       }
     });
   }
 
   setModalBusquedaProductos() {
+    this.codprod = this.FormDatosProducto.controls.codigo.value;
     let dtModal: any = {};
     dtModal = {
       keyboard: true,
@@ -294,39 +532,262 @@ export class PlantillassolicitudbodegaComponent implements OnInit {
         esacodigo: this.esacodigo,
         cmecodigo: this.cmecodigo,
         tipo_busqueda: 'Todo-Medico',
-        id_Bodega: this.FormPlantillaSolicitudBodega.value.bodcodigoentrega
+        id_Bodega: this.FormPlantillaSolicitudBodega.value.bodcodigoentrega,
+        codprod: this.codprod
+
       }
     };
     return dtModal;
   }
 
-  // setModalBusquedaProductos() {
-  //   let dtModal: any = {};
-  //   dtModal = {
-  //     keyboard: true,
-  //     backdrop: 'static',
-  //     class: 'modal-dialog-centered modal-xl',
-  //     initialState: {
-  //       titulo: 'Búsqueda de Productos', // Parametro para de la otra pantalla
-  //       hdgcodigo: this.hdgcodigo,
-  //       esacodigo: this.esacodigo,
-  //       cmecodigo: this.cmecodigo,
-  //     }
-  //   };
-  //   return dtModal;
-  // }
+  async findArticuloGrilla() {
+    this.loading = true;
 
-  cambio_cantidad(id: number, property: string, event: any) {
-    if (this.detalleplantillapaginacion[id]["pldeid"] == 0) {
-      this.detalleplantillapaginacion[id]["acciond"] = "I";
-    }
+    // console.log('this.FormDatosProducto.controls.codigo.value : ' , this.FormDatosProducto.controls.codigo);
+    if ( this.FormDatosProducto.controls.codigo.touched &&
+        this.FormDatosProducto.controls.codigo.status !== 'INVALID') {
+        var codProdAux = this.FormDatosProducto.controls.codigo.value.toString();
+      if(this.FormPlantillaSolicitudBodega.controls.numplantilla.value >0){
 
-    if (this.detalleplantillapaginacion[id]["pldeid"] > 0) {
-      this.detalleplantillapaginacion[id]["acciond"] = "M";
+        this.detalleplantilla = [];
+        this.detalleplantillapaginacion = [];
+
+        // console.log(this.FormPlantillaSolicitudBodega.controls.numplantilla.value,
+        //   this.hdgcodigo,this.esacodigo, this.cmecodigo, 0, "", "", 0, 0, 0, this.servidor, 0, 0,
+        //   0, 0, 0, 0, "",0,codProdAux)
+        // console.log("prod a buscar en la grilla",codProdAux,this.FormPlantillaSolicitudBodega.controls.numplantilla.value)
+
+        this._BodegasService.BuscaPlantillas(this.servidor, sessionStorage.getItem('Usuario'), this.hdgcodigo, this.esacodigo,
+        this.cmecodigo, this._Plantilla.planid, '', '', '', 0, 0, '', '', 1,codProdAux).subscribe(
+          response_plantilla => {
+            if (response_plantilla.length == 0) {
+              this.loading = false;
+            } else {
+
+              this._Plantilla = response_plantilla[0];
+              this.activabtncreaplant = false;
+              if (this.valor_tipo_plantilla == 2) {
+
+                this.tipoplantilla = false;
+                this.activabtnagregar = true;
+                this.activabtncreaplant = false;
+              } else {
+                if (this.valor_tipo_plantilla == 1) {
+                  this.tipoplantilla = true;
+                  this.activabtnagregar = true;
+                  this.activabtncreaplant = false;
+                }
+
+              }
+              if(this._Plantilla.planvigente== "N"){
+                this.activabtnagregar = false;
+              }
+              this.FormPlantillaSolicitudBodega.get('descripcion').setValue(this._Plantilla.plandescrip);
+              this.FormPlantillaSolicitudBodega.get('numplantilla').setValue(this._Plantilla.planid);
+              this.FormPlantillaSolicitudBodega.get('serviciocod').setValue(this._Plantilla.serviciocod);
+              this.FormPlantillaSolicitudBodega.get('estado').setValue(this._Plantilla.planvigente);
+              this.FormPlantillaSolicitudBodega.get('bodcodigo').setValue(this._Plantilla.bodorigen);
+              this.BuscaBodegasSuministro(this._Plantilla.bodorigen);
+              this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').setValue(this._Plantilla.boddestino);
+              this.FormPlantillaSolicitudBodega.get('fechacreacion').setValue(this.datePipe.transform(this._Plantilla.fechacreacion, 'dd-MM-yyyy'));
+
+              this.detalleplantillapaginacion = [];
+              this.detalleplantilla = [];
+
+
+              this.detalleplantilla = this._Plantilla.plantillasdet;
+              this.detalleplantilla.forEach(x=>{
+                x.bloqcampogrilla = true;
+                x.cantsoliresp = x.cantsoli;
+              })
+              this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
+
+              this._Plantillaaux = new Plantillas;
+              // this.detalleplantillapaginacionaux = [];
+              // this.detalleplantillaaux = [];
+              // Set variables Auxiliares, para validación al limpiar y salir sin guardar.
+              this.descripcionaux = this._Plantilla.plandescrip;
+              this.numplantillaaux = this._Plantilla.planid;
+              this.serviciocodaux = this._Plantilla.serviciocod;
+              this.estadoaux = this._Plantilla.planvigente;
+              this.bodcodigoaux = this._Plantilla.bodorigen;
+              this.BuscaBodegasSuministroaux = this._Plantilla.bodorigen;
+              this.bodcodigoentregaaux = this._Plantilla.boddestino;
+              this.fechacreacionaux = this.datePipe.transform(this._Plantilla.fechacreacion, 'dd-MM-yyyy');
+
+              this._Plantillaaux.plandescrip = this._Plantilla.plandescrip;
+              this._Plantillaaux.planid = this._Plantilla.planid;
+              this._Plantillaaux.serviciocod = this._Plantilla.serviciocod;
+              this._Plantillaaux.planvigente = this._Plantilla.planvigente;
+              this._Plantillaaux.bodorigen = this._Plantilla.bodorigen;
+              this._Plantillaaux.boddestino = this._Plantilla.boddestino;
+              this._Plantillaaux.fechacreacion = this._Plantilla.fechacreacion;
+
+
+              this.btnLimpiar = true;
+              this.ActivaBotonBuscaGrilla = true;
+              this.loading = false;
+            }
+          }
+        );
+
+        this.ActivaBotonBuscaGrilla = true;
+        this.ActivaBotonLimpiaBusca = true;
+        this.loading = false;
+        return;
+      }else{ //Cuando la plantilla aún no se crea
+        this.detalleplantilla_2 = [];
+        if(this.FormPlantillaSolicitudBodega.controls.numplantilla.value === null){
+          this._solicitudService.BuscarProductoPorLike(this.hdgcodigo, this.esacodigo,
+          this.cmecodigo,codProdAux,3,this.usuario,this.servidor,
+          null,null, this.detalleplantilla,null,null).subscribe(response => {
+            if (response != null) {
+              this.detalleplantilla_2=response;
+              this.detalleplantilla = [];
+              this.detalleplantillapaginacion = [];
+              this.detalleplantilla = this.detalleplantilla_2;
+              this.detalleplantillapaginacion = this.detalleplantilla.slice(0,20);
+              this.ActivaBotonLimpiaBusca = true;
+              this.loading = false;
+            }
+          });
+        }
+        this.loading = false;
+      }
+    }else{
+      this.limpiarCodigo();
+      this.loading = false;
+      return;
     }
-    this.detalleplantilla[id][property] = this.detalleplantillapaginacion[id][property]
   }
-  a
+
+  limpiarCodigo() {
+    this.loading = true;
+    // console.log("auxs",this.detalleplantillapaginacionaux,this.detalleplantillaaux)
+    this.FormDatosProducto.controls.codigo.reset();
+    var codProdAux = '';
+
+    this.detalleplantilla = [];
+    this.detalleplantillapaginacion = [];
+
+    // Llenar Array Auxiliares
+    this.detalleplantilla = this.detalleplantillaaux;
+    this.detalleplantillapaginacion = this.detalleplantillapaginacionaux;
+    this.ActivaBotonLimpiaBusca = false;
+
+    this.loading = false;
+  }
+
+  pageChanged(event: PageChangedEvent): void {
+    const startItem = (event.page - 1) * event.itemsPerPage;
+    const endItem = event.page * event.itemsPerPage;
+    this.detalleplantillapaginacion = this.detalleplantilla.slice(startItem, endItem);
+  }
+
+  async CambioCheck(registro: DetallePlantillaBodega,id:number,event:any,marcacheckgrilla: boolean){
+    // console.log("Selecciona el check",id,event,marcacheckgrilla,registro)
+    if(event.target.checked){
+      this.varColElim = this.varColElim +1;
+      registro.marcacheckgrilla = true;
+      this.desactivabtnelim = true;
+      await this.isEliminaGrilla(registro)
+      await this.detalleplantilla.forEach(d=>{
+        if(d.marcacheckgrilla === true){
+          this.desactivabtnelim = true;
+          // console.log("recorre la grilla para ver si hay check",d.marcacheckgrilla,this.desactivabtnelim)
+        }
+      })
+    }else{
+      this.varColElim = this.varColElim -1;
+      registro.marcacheckgrilla = false;
+      this.desactivabtnelim = false;
+      await this.isEliminaGrilla(registro);
+      await this.detalleplantilla.forEach(d=>{
+        if(d.marcacheckgrilla === true){
+          this.desactivabtnelim = true;
+          // console.log("recorre la grilla para ver si NO hay check",d.marcacheckgrilla,this.desactivabtnelim)
+        }
+      })
+    }
+    if(this.varColElim > 0){
+      this.msjColElim = true;
+    } else {
+      this.msjColElim = false;
+    }
+    // console.log("chec modificado",registro)
+  }
+
+  isEliminaGrilla(registro: DetallePlantillaBodega) {
+    // console.log("entra a iseeliminagrilla",registro)
+    let indice = 0;
+    for (const articulo of this.detalleplantilla) {
+      if (registro.codmei === articulo.codmei && registro.pldeid === articulo.pldeid) {
+        articulo.marcacheckgrilla = registro.marcacheckgrilla;
+
+        return indice;
+      }
+      indice++;
+    }
+    return -1;
+  }
+
+  ConfirmaEliminaProductoDeLaGrilla2() {
+
+    const Swal = require('sweetalert2');
+    Swal.fire({
+      title: '¿ Confirme eliminación de producto de la Plantilla ?',
+      text: "Confirmar la eliminación del producto",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Aceptar'
+    }).then((result) => {
+      if (result.value) {
+        this.EliminaProductoDeLaGrilla2();
+      }
+    })
+  }
+
+  EliminaProductoDeLaGrilla2() {
+
+    this.detalleplantillapaginacion.forEach(registro=>{
+      if (registro.acciond == "I" && registro.pldeid == 0) {
+        if(registro.marcacheckgrilla ===true){
+          // Eliminar registro nuevo la grilla
+          this.desactivabtnelim = false;
+          this.detalleplantilla.splice(this.isEliminaMed(registro), 1);
+          this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
+
+          this.alertSwal.title = "Producto Eliminado de la Plantilla";//.concat(response['solbodid']);
+          this.alertSwal.show();
+        }
+      } else {
+        if(registro.marcacheckgrilla == true){
+          // elimina uno que ya existe
+
+          this.detalleplantilla[this.isEliminaMed(registro)].acciond = 'E';
+          this.ModificarPlantilla("M");
+        }
+      }
+
+    })
+
+    // this.logicaVacios();
+  }
+
+  isEliminaMed(registro: DetallePlantillaBodega) {
+
+    let indice = 0;
+    for (const articulo of this.detalleplantilla) {
+      if (registro.codmei === articulo.codmei) {
+        // console.log("registro,codmei",articulo,indice)
+        return indice;
+      }
+      indice++;
+    }
+    return -1;
+  }
 
   ConfirmaGenerarPlantilla() {
     const Swal = require('sweetalert2');
@@ -347,6 +808,9 @@ export class PlantillassolicitudbodegaComponent implements OnInit {
 
   generarPlantilla() {
     this.grabadetalleplantilla = [];
+    this.alertSwalAlert.text = null;
+    this.alertSwalAlert.title = null;
+
     var fechaactual = this.datePipe.transform(this.FormPlantillaSolicitudBodega.value.fechacreacion, 'yyyy-MM-dd');
     this.detalleplantilla.forEach(element => {
 
@@ -399,122 +863,106 @@ export class PlantillassolicitudbodegaComponent implements OnInit {
     this._Plantilla.usuarioelimina = null;
     this._Plantilla.servidor = this.servidor;
     this._Plantilla.accion = 'I';
+    this._Plantilla.tipopedido = this.FormPlantillaSolicitudBodega.controls.tipopedido.value;
 
     this._Plantilla.plantillasdet = this.grabadetalleplantilla;
-
     var numplant
     this._bodegasService.crearPlantilla(this._Plantilla).subscribe(
       response => {
-        numplant = response.plantillaid;
-        this.FormPlantillaSolicitudBodega.get('numplantilla').setValue(response['plantillaid']);
-        this.alertSwal.title = "Plantilla creada N°:".concat(response['plantillaid']);
-        this.alertSwal.show();
-        this._bodegasService.BuscaPlantillas(this.servidor, this.usuario, this.hdgcodigo, this.esacodigo,
-          this.cmecodigo, numplant, null, null, null, null, null, null, null, this.plantilla).subscribe(
-            response => {
-              this._Plantilla = response[0];
-              if (this._Plantilla.plantipo == 2) {
-                this.tipoplantilla = false;
-                this.activabtncreaplant = false;
-              } else {
-                if (this._Plantilla.plantipo == 1) {
-                  this.tipoplantilla = true;
-                  this.activabtncreaplant = false;
-                }
-              }
-              this.FormPlantillaSolicitudBodega.get('numplantilla').setValue(this._Plantilla.planid);
-              this.FormPlantillaSolicitudBodega.get('estado').setValue(this._Plantilla.planvigente);
-              this.FormPlantillaSolicitudBodega.get('bodcodigo').setValue(this._Plantilla.bodorigen);
-              this.FormPlantillaSolicitudBodega.get('descripcion').setValue(this._Plantilla.plandescrip);
-              this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').setValue(this._Plantilla.boddestino);
-              this.FormPlantillaSolicitudBodega.get('fechacreacion').setValue(this.datePipe.transform(this._Plantilla.fechacreacion, 'dd-MM-yyyy'));
-              this.FormPlantillaSolicitudBodega.get('serviciocod').setValue(this._Plantilla.serviciocod);
+        if (response != null) {
+          numplant = response.plantillaid;
+          this.FormPlantillaSolicitudBodega.get('numplantilla').setValue(response['plantillaid']);
+          this.alertSwal.title = "Plantilla creada N°:".concat(response['plantillaid']);
+          this.alertSwal.show();
+          this._bodegasService.BuscaPlantillas(this.servidor, this.usuario, this.hdgcodigo, this.esacodigo,
+            this.cmecodigo, numplant, null, null, null, null, null, null, null, this._Plantilla.plantipo,"").subscribe(
+              response => {
+                if (response != null) {
+                  this._Plantilla = response[0];
+                  if (this._Plantilla.plantipo == 2) {
+                    this.tipoplantilla = false;
+                    this.activabtncreaplant = false;
+                  } else {
+                    if (this._Plantilla.plantipo == 1) {
+                      this.tipoplantilla = true;
+                      this.activabtncreaplant = false;
+                    }
+                  }
+                  this.FormPlantillaSolicitudBodega.get('numplantilla').setValue(this._Plantilla.planid);
+                  this.FormPlantillaSolicitudBodega.get('estado').setValue(this._Plantilla.planvigente);
+                  this.FormPlantillaSolicitudBodega.get('bodcodigo').setValue(this._Plantilla.bodorigen);
+                  this.FormPlantillaSolicitudBodega.get('descripcion').setValue(this._Plantilla.plandescrip);
+                  this.activabtnimprime = true;
+                  if(this._Plantilla.tipopedido === 2){
+                    this.pedido = false;
+                    this.tipopedido = 2;
+                    this.BuscaBodegasSuministro(this._Plantilla.bodorigen);
+                    this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').setValue(this._Plantilla.bodorigen);
+                  }else{
+                    if(this._Plantilla.tipopedido === 1 || this._Plantilla.tipopedido === 0){
+                      this.pedido = true;
+                      this.tipopedido = 1
+                      this.BuscaBodegasSuministro(this._Plantilla.bodorigen);
+                      this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').setValue(this._Plantilla.boddestino);
+                    }
+                  }
 
-              this.detalleplantillapaginacion = [];
-              this.detalleplantilla = [];
+                  this.FormPlantillaSolicitudBodega.get('fechacreacion').setValue(this.datePipe.transform(this._Plantilla.fechacreacion, 'dd-MM-yyyy'));
+                  this.FormPlantillaSolicitudBodega.get('serviciocod').setValue(this._Plantilla.serviciocod);
+                  this.FormPlantillaSolicitudBodega.get('tipopedido').setValue(this._Plantilla.tipopedido);
 
-              this.detalleplantilla = this._Plantilla.plantillasdet;
-              this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
-            }),
-          error => {
-            console.log("Error :", error)
+                  this.detalleplantillapaginacion = [];
+                  this.detalleplantilla = [];
+                  this.detalleplantillapaginacionaux = [];
+                  this.detalleplantillaaux = [];
+
+                  this.detalleplantilla = this._Plantilla.plantillasdet;
+                  this.lengthproductos = this.detalleplantilla.length;
+                  this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
+                  this.detalleplantillapaginacionaux = this.detalleplantillapaginacion;
+                  this.detalleplantillaaux = this.detalleplantilla ;
+                  this.verificanull = false;
+                  this.verificamodificanull = false;
+                  } else {
+                    this.loading = false;
+                  }
+              }),
+            error => {
+            }
           }
-        this.FormPlantillaSolicitudBodega.get('numplantilla').setValue(this._Plantilla.planid);
-        this.FormPlantillaSolicitudBodega.get('estado').setValue(this._Plantilla.planvigente);
-        this.FormPlantillaSolicitudBodega.get('bodcodigo').setValue(this._Plantilla.bodorigen);
-        this.FormPlantillaSolicitudBodega.get('descripcion').setValue(this._Plantilla.plandescrip);
-        this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').setValue(this._Plantilla.boddestino);
-        this.FormPlantillaSolicitudBodega.get('fechacreacion').setValue(this.datePipe.transform(this._Plantilla.fechacreacion, 'dd-MM-yyyy'));
-        this.FormPlantillaSolicitudBodega.get('serviciocod').setValue(this._Plantilla.serviciocod);
-
-        this.detalleplantillapaginacion = [];
-        this.detalleplantilla = [];
-
-        this.detalleplantilla = this._Plantilla.plantillasdet;
-        this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
       },
-      error => {
-        console.log("Error :", error)
-      }
-    );
-    // },
     error => {
-      console.log(error);
       this.alertSwalError.title = "Error al generar plantilla";
       this.alertSwalError.show();
     }
-    // );
+    );
   }
 
-  ConfirmaEliminarPlantilla() {
-    // sE CONFIRMA Eliminar Solicitud    
-    const Swal = require('sweetalert2');
-    Swal.fire({
-      title: '¿ Desea Eliminar la Plantilla ?',
-      text: "Confirmar eliminación de plantilla",
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Aceptar'
-    }).then((result) => {
-      if (result.value) {
-        this.ModificarPlantilla("E");
+  ActivarBotonGuardar() {
+      if (this.FormPlantillaSolicitudBodega.get('numplantilla').value == null
+        && this.FormPlantillaSolicitudBodega.get('descripcion').value != null
+        && this.FormPlantillaSolicitudBodega.get('bodcodigo').value != null
+        && this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').value != null
+        && this.detalleplantilla.length > 0
+      ) {
+        return true;
+
+      } else {
+        return false;
       }
-    })
   }
 
-  ConfirmaEliminaProductoDeLaGrilla(registro, id) {
-    const Swal = require('sweetalert2');
-    Swal.fire({
-      title: '¿ Desea Eliminar Producto de la Plantilla ?',
-      text: "Confirmar la eliminación del producto la plantilla",
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Aceptar'
-    }).then((result) => {
-      if (result.value) {
-        this.EliminaProductoDeLaGrilla(registro, id);
-      }
-    })
-  }
-
-  EliminaProductoDeLaGrilla(registro: DetallePlantillaBodega, id: number) {
-    if (registro.acciond == "I" && id >= 0 && registro.pldeid == 0) {
-      // Eliminar registro nuevo la grilla
-      this.detalleplantilla.splice(id, 1);
-      this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
-      // nthis.activabtncreaplant = false; //DESACTIVA BTN CREAR?? //@MLobos
-      this.alertSwal.title = "Producto Eliminado de la Plantilla";//.concat(response['solbodid']);
-      this.alertSwal.show();
+  ActivarBotonModificar() {
+    if (this._Plantilla.planvigente != this.FormPlantillaSolicitudBodega.value.estado ||
+      this._Plantilla.bodorigen != this.FormPlantillaSolicitudBodega.controls.bodcodigo.value ||
+      this._Plantilla.boddestino != this.FormPlantillaSolicitudBodega.controls.bodcodigoentrega.value ||
+      this._Plantilla.serviciocod != this.FormPlantillaSolicitudBodega.controls.serviciocod.value ){
+      return true;
     } else {
-      // elimina uno que ya existe
+      return false;
 
-      this.detalleplantilla[id].acciond = 'E';
-      this.ModificarPlantilla("M");
     }
+
   }
 
   ConfirmaModificarPlantilla() {
@@ -534,19 +982,7 @@ export class PlantillassolicitudbodegaComponent implements OnInit {
     })
   }
 
-  /** Verifica si existe valor negativo y devuelve bool */
-  checkNegativo() {
-    let exist: boolean = false;
-    for (let item of this.detalleplantilla) {
-      if (item.cantsoli < 0) {
-        return exist = true;
-      }
-    }
-    return exist;
-  }
-
   ModificarPlantilla(Accion: string) {
-    console.log("detalley accion", Accion, this.detalleplantilla)
     if (this.checkNegativo()) {
       this.alertSwalAlert.title = 'No debe ingresar cantidad(es) negativas';
       this.alertSwalAlert.show();
@@ -561,17 +997,20 @@ export class PlantillassolicitudbodegaComponent implements OnInit {
         this._Plantilla.boddestino = this.FormPlantillaSolicitudBodega.value.bodcodigoentrega;
         this._Plantilla.plantipo = 1;
       } else {
-        if (this.tipoplantilla == false)
+        if (this.tipoplantilla == false){
 
           this._Plantilla.serviciocod = this.FormPlantillaSolicitudBodega.value.serviciocod;
-        this._Plantilla.bodorigen = 0;
-        this._Plantilla.boddestino = 0;
-        this._Plantilla.plantipo = 2;
+          this._Plantilla.bodorigen = 0;
+          this._Plantilla.boddestino = 0;
+          this._Plantilla.plantipo = 2;
+        }
       }
       this._Plantilla.plandescrip = this.FormPlantillaSolicitudBodega.value.descripcion;
       this._Plantilla.planvigente = this.FormPlantillaSolicitudBodega.value.estado;
       this._Plantilla.fechamodifica = fechaactual;
       this._Plantilla.usuariomodifica = this.usuario;
+      this._Plantilla.tipopedido = this.FormPlantillaSolicitudBodega.controls.tipopedido.value;
+
       if (Accion == "E") {
         this._Plantilla.fechaelimina = fechaactual;
         this._Plantilla.usuarioelimina = this.usuario;
@@ -621,189 +1060,552 @@ export class PlantillassolicitudbodegaComponent implements OnInit {
       });
 
       this._Plantilla.plantillasdet = this.grabadetalleplantilla;
-      console.log("plantilla  a elimiiinjsdkfnd", this._Plantilla)
 
       var numplant;
       this._bodegasService.ModificaPlantilla(this._Plantilla).subscribe(
         response => {
-          numplant = response.plantillaid;
-          if (Accion == "M") {
-            this.alertSwal.title = "Plantilla modificada";
-            this.alertSwal.show();
+          if (response != null) {
+            numplant = response.plantillaid;
+            if (Accion == "M") {
+              this.alertSwal.title = "Plantilla modificada";
+              this.alertSwal.show();
 
-            /* Recarga  */
-            this._bodegasService.BuscaPlantillas(this.servidor, this.usuario, this.hdgcodigo, this.esacodigo,
-              this.cmecodigo, numplant, null, null, null, null, null, null, null, this.plantilla).subscribe(
-                response => {
-                  this._Plantilla = response[0];
+              /* Recarga  */
+              this._bodegasService.BuscaPlantillas(this.servidor, this.usuario, this.hdgcodigo, this.esacodigo,
+                this.cmecodigo, numplant, null, null, null, null, null, null, null, this._Plantilla.plantipo,"").subscribe(
+                  response => {
+                    if (response != null) {
+                      this._Plantilla = response[0];
 
-                  if (this._Plantilla.plantipo == 2) {
-                    this.tipoplantilla = false;
-                    this.activabtncreaplant = false;
-                  } else {
-                    if (this._Plantilla.plantipo == 1) {
-                      this.tipoplantilla = true;
-                      this.activabtncreaplant = false;
+                      if (this._Plantilla.plantipo == 2) {
+                        this.tipoplantilla = false;
+                        this.activabtncreaplant = false;
+                      } else {
+                        if (this._Plantilla.plantipo == 1) {
+                          this.tipoplantilla = true;
+                          this.activabtncreaplant = false;
+                        }
+                      }
+                      if(this._Plantilla.planvigente== "S"){
+                        this.activabtnagregar = true;
+                      }
+                      this.FormPlantillaSolicitudBodega.get('numplantilla').setValue(this._Plantilla.planid);
+                      this.FormPlantillaSolicitudBodega.get('bodcodigo').setValue(this._Plantilla.bodorigen);
+                      this.FormPlantillaSolicitudBodega.get('descripcion').setValue(this._Plantilla.plandescrip);
+                      this.FormPlantillaSolicitudBodega.get('estado').setValue(this._Plantilla.planvigente);
+                      this.activabtnimprime = true;
+                      if(this._Plantilla.tipopedido === 2){
+                        console.log("es de tippoautopedido")
+                        this.pedido = false;
+                        this.tipopedido = 2;
+                        this.BuscaBodegasSuministro(this._Plantilla.bodorigen);
+                        this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').setValue(this._Plantilla.bodorigen);
+                        console.log("bodega", this.FormPlantillaSolicitudBodega.controls.bodcodigoentrega.value)
+                      }else{
+                        if(this._Plantilla.tipopedido === 1 || this._Plantilla.tipopedido === 0){
+                          this.pedido = true;
+                          this.tipopedido = 1
+                          this.BuscaBodegasSuministro(this._Plantilla.bodorigen);
+                          this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').setValue(this._Plantilla.boddestino);
+                        }
+                      }
+                      this.FormPlantillaSolicitudBodega.get('fechacreacion').setValue(this.datePipe.transform(this._Plantilla.fechacreacion, 'dd-MM-yyyy'));
+                      this.FormPlantillaSolicitudBodega.get('tipopedido').setValue(this._Plantilla.tipopedido);
+
+                      this.detalleplantillapaginacion = [];
+                      this.detalleplantilla = [];
+                      this.detalleplantillapaginacionaux = [];
+                      this.detalleplantillaaux = [];
+
+                      this.detalleplantilla = this._Plantilla.plantillasdet;
+                      this.detalleplantilla.forEach(element => {
+                        element.bloqcampogrilla = true;
+                      });
+                      this.lengthproductos = this.detalleplantilla.length;
+                      this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
+                      this.detalleplantillapaginacionaux = this.detalleplantillapaginacion;
+                      this.detalleplantillaaux = this.detalleplantilla ;
+
+                      this.verificanull = false;
+                      this.verificamodificanull = false;
                     }
-                  }
-                  if(this._Plantilla.planvigente== "S"){
-                    this.activabtnagregar = true;
-                    console.log("no vigente",this.activabtnagregar)
-                  }
-                  this.FormPlantillaSolicitudBodega.get('numplantilla').setValue(this._Plantilla.planid);
-                  this.FormPlantillaSolicitudBodega.get('bodcodigo').setValue(this._Plantilla.bodorigen);
-                  this.FormPlantillaSolicitudBodega.get('descripcion').setValue(this._Plantilla.plandescrip);
-                  this.FormPlantillaSolicitudBodega.get('estado').setValue(this._Plantilla.planvigente);
-                  this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').setValue(this._Plantilla.boddestino);
-                  this.FormPlantillaSolicitudBodega.get('fechacreacion').setValue(this.datePipe.transform(this._Plantilla.fechacreacion, 'dd-MM-yyyy'));
-
-                  this.detalleplantillapaginacion = [];
-                  this.detalleplantilla = [];
-
-                  this.detalleplantilla = this._Plantilla.plantillasdet;
-                  this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
-                },
-                error => {
-                  console.log("Error :", error)
-                });
-            this.FormPlantillaSolicitudBodega.get('numplantilla').setValue(this._Plantilla.planid);
-            this.FormPlantillaSolicitudBodega.get('bodcodigo').setValue(this._Plantilla.bodorigen);
-            this.FormPlantillaSolicitudBodega.get('descripcion').setValue(this._Plantilla.plandescrip);
-            this.FormPlantillaSolicitudBodega.get('estado').setValue(this._Plantilla.planvigente);
-            this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').setValue(this._Plantilla.boddestino);
-            this.FormPlantillaSolicitudBodega.get('fechacreacion').setValue(this.datePipe.transform(this._Plantilla.fechacreacion, 'dd-MM-yyyy'));
-
-            this.detalleplantillapaginacion = [];
-            this.detalleplantilla = [];
-
-            this.detalleplantilla = this._Plantilla.plantillasdet;
-            this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
-            // },
-            error => {
-              console.log("Error :", error)
+                  },
+                  error => {
+                    console.log("ERROR (BuscaPlantillas/Accion == 'M') : ", error);
+                  });
+              error => {
+                console.log("ERROR (ModificaPlantilla/Accion == 'M') : ", error);
+              }
+              // );
             }
-            // );
-          }
-          if (Accion == "E") {
-            this.alertSwal.title = "Plantilla Eliminada";
-            this.alertSwal.show();
-            this._bodegasService.BuscaPlantillas(this.servidor, this.usuario, this.hdgcodigo, this.esacodigo,
-              this.cmecodigo, numplant, null, null, null, null, null, null, null, this.plantilla).subscribe(
-                data => {
-                  console.log("plantillabusca desp de elim", data);
-                  this._Plantilla = data[0];
-                  console.log("plantillabusca desp de elim", this._Plantilla)
-                  if (this._Plantilla.plantipo == 2) {
-                    this.tipoplantilla = false;
-                    this.activabtncreaplant = false;
-                  } else {
-                    if (this._Plantilla.plantipo == 1) {
-                      this.tipoplantilla = true;
+            if (Accion == "E") {
+              this.alertSwal.title = "Plantilla Eliminada";
+              this.alertSwal.show();
+              this._bodegasService.BuscaPlantillas(this.servidor, this.usuario, this.hdgcodigo, this.esacodigo,
+                this.cmecodigo, numplant, null, null, null, null, null, null, null, this.plantilla,"").subscribe(
+                  data => {
+                    this._Plantilla = data[0];
+                    if (this._Plantilla.plantipo == 2) {
+                      this.tipoplantilla = false;
                       this.activabtncreaplant = false;
+                    } else {
+                      if (this._Plantilla.plantipo == 1) {
+                        this.tipoplantilla = true;
+                        this.activabtncreaplant = false;
+                      }
                     }
-                  }
-                  if(this._Plantilla.planvigente== "N"){
-                    this.activabtnagregar = false;
-                    console.log("no vigente",this.activabtnagregar)
-                  }
-                  this.FormPlantillaSolicitudBodega.get('numplantilla').setValue(this._Plantilla.planid);
-                  this.FormPlantillaSolicitudBodega.get('bodcodigo').setValue(this._Plantilla.bodorigen);
-                  this.FormPlantillaSolicitudBodega.get('descripcion').setValue(this._Plantilla.plandescrip);
-                  this.FormPlantillaSolicitudBodega.get('estado').setValue(this._Plantilla.planvigente);
-                  this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').setValue(this._Plantilla.boddestino);
-                  this.FormPlantillaSolicitudBodega.get('fechacreacion').setValue(this.datePipe.transform(this._Plantilla.fechacreacion, 'dd-MM-yyyy'));
-                  
-                  this.detalleplantillapaginacion = [];
-                  this.detalleplantilla = [];
+                    if(this._Plantilla.planvigente== "N"){
+                      this.activabtnagregar = false;
+                    }
+                    this.FormPlantillaSolicitudBodega.get('numplantilla').setValue(this._Plantilla.planid);
+                    this.FormPlantillaSolicitudBodega.get('bodcodigo').setValue(this._Plantilla.bodorigen);
+                    this.FormPlantillaSolicitudBodega.get('descripcion').setValue(this._Plantilla.plandescrip);
+                    this.FormPlantillaSolicitudBodega.get('estado').setValue(this._Plantilla.planvigente);
+                    this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').setValue(this._Plantilla.boddestino);
+                    this.FormPlantillaSolicitudBodega.get('fechacreacion').setValue(this.datePipe.transform(this._Plantilla.fechacreacion, 'dd-MM-yyyy'));
 
-                  this.detalleplantilla = this._Plantilla.plantillasdet;
-                  this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
-                },
-                error => {
-                  console.log("Error :", error)
-                });
-            this.FormPlantillaSolicitudBodega.get('numplantilla').setValue(this._Plantilla.planid);
-            this.FormPlantillaSolicitudBodega.get('bodcodigo').setValue(this._Plantilla.bodorigen);
-            this.FormPlantillaSolicitudBodega.get('descripcion').setValue(this._Plantilla.plandescrip);
-            this.FormPlantillaSolicitudBodega.get('estado').setValue(this._Plantilla.planvigente);
-            this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').setValue(this._Plantilla.boddestino);
-            this.FormPlantillaSolicitudBodega.get('fechacreacion').setValue(this.datePipe.transform(this._Plantilla.fechacreacion, 'dd-MM-yyyy'));
+                    this.detalleplantillapaginacion = [];
+                    this.detalleplantilla = [];
 
-            this.detalleplantillapaginacion = [];
-            this.detalleplantilla = [];
+                    this.detalleplantilla = this._Plantilla.plantillasdet;
+                    this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
+                    this.detalleplantillapaginacionaux = this.detalleplantillapaginacion;
+                    this.detalleplantillaaux = this.detalleplantilla ;
+                  },
+                  error => {
+                    console.log("ERROR (BuscaPlantillas/Accion == 'E') : ", error);
+                  });
+              this.FormPlantillaSolicitudBodega.get('numplantilla').setValue(this._Plantilla.planid);
+              this.FormPlantillaSolicitudBodega.get('bodcodigo').setValue(this._Plantilla.bodorigen);
+              this.FormPlantillaSolicitudBodega.get('descripcion').setValue(this._Plantilla.plandescrip);
+              this.FormPlantillaSolicitudBodega.get('estado').setValue(this._Plantilla.planvigente);
+              this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').setValue(this._Plantilla.boddestino);
+              this.FormPlantillaSolicitudBodega.get('fechacreacion').setValue(this.datePipe.transform(this._Plantilla.fechacreacion, 'dd-MM-yyyy'));
 
-            this.detalleplantilla = this._Plantilla.plantillasdet;
-            this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
-            
-            // },
-            error => {
-              console.log("Error :", error)
+              this.detalleplantillapaginacion = [];
+              this.detalleplantilla = [];
+
+              this.detalleplantilla = this._Plantilla.plantillasdet;
+              this.detalleplantillapaginacion = this.detalleplantilla.slice(0, 20);
+              this.detalleplantillapaginacionaux = this.detalleplantillapaginacion;
+              this.detalleplantillaaux = this.detalleplantilla ;
+
+              // },
+              error => {
+                console.log("ERROR (BuscaPlantillas/Accion == 'M') : ", error);
+              }
+
             }
-
+            this.FormPlantillaSolicitudBodega.get('numplantilla').setValue(numplant);
           }
-          this.FormPlantillaSolicitudBodega.get('numplantilla').setValue(numplant);
         }),
         error => {
-          console.log(error);
-          this.alertSwalError.title = "Error al modificar solictud";
+          console.log("ERROR : ", error);
+          this.alertSwalError.title = "Error al modificar solictud ";
           this.alertSwalError.show();
         }
       // );
     }
   }
 
-  salir() {
-    this.router.navigate(['home']);
+  ConfirmaEliminarPlantilla() {
+    // sE CONFIRMA Eliminar Solicitud
+    const Swal = require('sweetalert2');
+    Swal.fire({
+      title: '¿ Desea Eliminar la Plantilla ?',
+      text: "Confirmar eliminación de plantilla",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Aceptar'
+    }).then((result) => {
+      if (result.value) {
+        this.ModificarPlantilla("E");
+      }
+    })
   }
 
-  SeleccionaBodegaServicio() {
-    this.activabtnagregar = true;
-  }
+  limpiar() {
+    const Swal = require('sweetalert2');
+    if(
+      (this.numplantillaaux !== this.FormPlantillaSolicitudBodega.get('numplantilla').value ||
+        this.serviciocodaux !== this.FormPlantillaSolicitudBodega.get('serviciocod').value ||
+        this.fechacreacionaux !== this.FormPlantillaSolicitudBodega.get('fechacreacion').value ||
+        this.descripcionaux !== this.FormPlantillaSolicitudBodega.get('descripcion').value ||
+        this.estadoaux !== this.FormPlantillaSolicitudBodega.get('estado').value ||
+        this.bodcodigoaux !== this.FormPlantillaSolicitudBodega.get('bodcodigo').value ||
+        this.bodcodigoentregaaux !== this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').value) &&
+      (this.numplantillaaux !== null ||
+        this.serviciocodaux !== null ||
+        this.fechacreacionaux !== null ||
+        this.descripcionaux !== null ||
+        this.bodcodigoaux !== null ||
+        this.bodcodigoentregaaux !== null)) {
+          this.msj = true;
+    }
 
-
-  ActivarBotonModificar() {
-
-    //console.log(this.FormPlantillaSolicitudBodega.get('numplantilla').value);
-    if (this.FormPlantillaSolicitudBodega.get('numplantilla').value != null) {
-      return true
-
+    if ((this.detalleplantillapaginacionaux !== this.detalleplantillapaginacion ||
+      this.detalleplantillaaux !== this.detalleplantilla) &&
+      (this.detalleplantillapaginacionaux.length !== 0 ||
+        this.detalleplantillaaux.length !== 0)) {
+        this.msj = true;
+      console.log('2', this.detalleplantillapaginacionaux, '///', this.detalleplantillaaux);
+      }
+    if(this.msj || this.msjColElim || this.msjColCant){
+      Swal.fire({
+        title: 'Limpiar',
+        text: "¿Seguro que desea Limpiar sin guardar?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si'
+      }).then((result) => {
+        if (result.value) {
+          this.FormPlantillaSolicitudBodega.reset();
+          this.detalleplantillapaginacion = [];
+          this.detalleplantilla = [];
+          this._Plantilla = new Plantillas();
+          this.detalleplantillapaginacionaux = [];
+          this.detalleplantillaaux = [];
+          this._Plantillaaux = new Plantillas();
+          this.FormPlantillaSolicitudBodega.get('fechacreacion').setValue(new Date());
+          this.activabtncreaplant = false;
+          this.FormPlantillaSolicitudBodega.get('estado').setValue("S");
+          this.activabtnagregar = false;
+          this.codprod = null;
+          this.ActivarBotonModificar();
+          this.FormDatosProducto.controls.codigo.setValue('');
+          this.btnLimpiar = false;
+          this.ActivaBotonBuscaGrilla = false;
+          this.verificanull = false;
+          this.verificamodificanull = false;
+          this.bodegassuministro = [];
+          this.bodegasSolicitantes1 = [];
+          this.FormPlantillaSolicitudBodega.controls.bodcodigo.disable();
+          this.FormPlantillaSolicitudBodega.controls.bodcodigoentrega.disable();
+          this.activabtnimprime = false;
+        }
+      });
     } else {
-      return false
+      this.FormPlantillaSolicitudBodega.reset();
+      this.detalleplantillapaginacion = [];
+      this.detalleplantilla = [];
+      this._Plantilla = new Plantillas();
+      this.detalleplantillapaginacionaux = [];
+      this.detalleplantillaaux = [];
+      this._Plantillaaux = new Plantillas();
+      this.FormPlantillaSolicitudBodega.get('fechacreacion').setValue(new Date());
+      this.activabtncreaplant = false;
+      this.FormPlantillaSolicitudBodega.get('estado').setValue("S");
+      this.activabtnagregar = false;
+      this.codprod = null;
+      this.FormDatosProducto.controls.codigo.setValue('');
+      this.btnLimpiar = false;
+      this.ActivaBotonBuscaGrilla = false;
+      this.verificanull = false;
+      this.verificamodificanull = false;
+      this.bodegassuministro = [];
+      this.bodegasSolicitantes1 = [];
+      this.FormPlantillaSolicitudBodega.controls.bodcodigo.disable();
+      this.FormPlantillaSolicitudBodega.controls.bodcodigoentrega.disable();
+      this.activabtnimprime = false;
+    }
+  }
+
+  salir() {
+    const Swal = require('sweetalert2');
+    if (
+      (this.numplantillaaux !== this.FormPlantillaSolicitudBodega.get('numplantilla').value ||
+        this.serviciocodaux !== this.FormPlantillaSolicitudBodega.get('serviciocod').value ||
+        this.fechacreacionaux !== this.FormPlantillaSolicitudBodega.get('fechacreacion').value ||
+        this.descripcionaux !== this.FormPlantillaSolicitudBodega.get('descripcion').value ||
+        this.estadoaux !== this.FormPlantillaSolicitudBodega.get('estado').value ||
+        this.bodcodigoaux !== this.FormPlantillaSolicitudBodega.get('bodcodigo').value ||
+        this.bodcodigoentregaaux !== this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').value) &&
+      (this.numplantillaaux !== null ||
+        this.serviciocodaux !== null ||
+        this.fechacreacionaux !== null ||
+        this.descripcionaux !== null ||
+        this.bodcodigoaux !== null ||
+        this.bodcodigoentregaaux !== null)) {
+      this.msj = true;
+    }
+    if ((this.detalleplantillapaginacionaux !== this.detalleplantillapaginacion ||
+      this.detalleplantillaaux !== this.detalleplantilla) &&
+      (this.detalleplantillapaginacionaux.length !== 0 ||
+        this.detalleplantillaaux.length !== 0)) {
+      this.msj = true;
+    }
+    if (this.msj || this.msjColElim || this.msjColCant) {
+      Swal.fire({
+        title: 'Salir',
+        text: "¿Seguro que desea Salir sin guardar?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si'
+      }).then((result) => {
+        if (result.value) {
+    this.router.navigate(['home']);
+        }
+      });
+    } else {
+      this.router.navigate(['home']);
+    }
+  }
+
+  /**
+   * valida si hay campos vacios grilla desactiva btn modificar
+   * @miguel.lobos
+   * 11-03-2021
+  */
+  async logicaVacios() {
+    if(this.FormPlantillaSolicitudBodega.controls.numplantilla.value === null){
+
+      this.vaciosProductos();
+      // await this.NuevosRegistrosProductos();
+      await this.CambiosCabecera();
+
+      if (this.vacios === true && this.vacioscabecera === true) {
+        this.verificanull = false;
+      }
+      else {
+        this.verificanull = true;
+      }
+    }else{
+      this.vaciosProductos();
+      // await this.NuevosRegistrosProductos();
+      await this.CambiosCabecera();
+      console.log("this.vacios === false && this.vacioscabecera ",this.vacios,this.vacioscabecera )
+      if (this.vacios === true && this.vacioscabecera === true) {
+        this.verificamodificanull = false;
+      }
+      else {
+        if(this.vacios === false && this.vacioscabecera === true){
+          this.verificamodificanull = true;
+        }else{
+          this.verificamodificanull = true;
+        }
+
+
+      }
     }
 
   }
 
+  NuevosRegistrosProductos(){
+    if (this.detalleplantillapaginacion.length) {
+      console.log("hay registros en la grilla",this.lengthproductos,this.detalleplantilla.length)
+      if(this.lengthproductos != this.detalleplantilla.length){
+        this.vacios = false;
 
-  ActivarBotonGuardar() {
-
-    //console.log(this.FormPlantillaSolicitudBodega.get('numplantilla').value);
-    if (this.plantilla == 1) {
-      if (this.FormPlantillaSolicitudBodega.get('numplantilla').value == null
-        && this.FormPlantillaSolicitudBodega.get('descripcion').value != null
-        && this.FormPlantillaSolicitudBodega.get('bodcodigo').value != null
-        && this.FormPlantillaSolicitudBodega.get('bodcodigoentrega').value != null
-        && this.detalleplantilla.length>0
-      ) {
-        return true
-
-      } else {
-        return false
+      }else{
+        this.vacios = true;
       }
-    } else {  // Procedimientos
-      if (this.FormPlantillaSolicitudBodega.get('numplantilla').value == null
-        && this.FormPlantillaSolicitudBodega.get('descripcion').value != null
-        && this.FormPlantillaSolicitudBodega.get('serviciocod').value != null
-        && this.detalleplantilla.length>0
-      ) {
-        return true
-
-      } else {
-        return false
-      }
-
-
+    }else{
+      console.log("no hay registros")
+      // this.vacios =
     }
+  }
+
+  CambiosCabecera(){
+
+    if(this.FormPlantillaSolicitudBodega.controls.numplantilla.value != null){
+      if(this._Plantilla.planvigente != this.FormPlantillaSolicitudBodega.value.estado ||
+        this._Plantilla.bodorigen != this.FormPlantillaSolicitudBodega.controls.bodcodigo.value ||
+        this._Plantilla.boddestino != this.FormPlantillaSolicitudBodega.controls.bodcodigoentrega.value ||
+        this._Plantilla.tipopedido != this.FormPlantillaSolicitudBodega.controls.tipopedido.value
+        ){
+
+        this.vacioscabecera = false;
+      }else{
+        this.vacioscabecera = true;
+      }
+    }else{
+      this.vacioscabecera = true;
+    }
+  }
+
+  vaciosProductos() {
+    if (this.detalleplantillapaginacion.length) {
+      for (var data of this.detalleplantillapaginacion) {
+        if (data.cantsoli < 0 || data.cantsoli === null) {
+          this.vacios = true;
+          return;
+        } else {
+          this.vacios = false;
+
+        }
+      }
+    }
+  }
+
+
+
+
+
+  cambio_cantidad(id: number, property: string,registro: DetallePlantillaBodega , event: any) {
+    this.alertSwalAlert.title = null;
+    this.alertSwalAlert.text = null;
+    if(registro.cantsoli <0){
+      this.alertSwalAlert.title = "Debe ingresar valores mayores a 0";
+      this.alertSwalAlert.show();
+      event.target.value =0;
+
+      if (this.detalleplantillapaginacion[id]["pldeid"] == 0) {
+        this.detalleplantillapaginacion[id]["acciond"] = "I";
+      }
+
+      if (this.detalleplantillapaginacion[id]["pldeid"] > 0) {
+        this.detalleplantillapaginacion[id]["acciond"] = "M";
+      }
+      this.detalleplantilla[id][property] = this.detalleplantillapaginacion[id][property]
+    }else{
+      if(registro.cantsoli == 0){
+        this.alertSwalAlert.title = "Debe ingresar valores mayores a 0";
+        this.alertSwalAlert.text = "No puede dejar valores en 0";
+        this.alertSwalAlert.show();
+        event.target.value =0;
+
+        if (this.detalleplantillapaginacion[id]["pldeid"] == 0) {
+          this.detalleplantillapaginacion[id]["acciond"] = "I";
+        }
+
+        if (this.detalleplantillapaginacion[id]["pldeid"] > 0) {
+          this.detalleplantillapaginacion[id]["acciond"] = "M";
+        }
+        this.detalleplantilla[id][property] = this.detalleplantillapaginacion[id][property]
+
+      }else{
+        if(registro.cantsoli >0){
+          if (this.detalleplantillapaginacion[id]["pldeid"] == 0) {
+            this.detalleplantillapaginacion[id]["acciond"] = "I";
+          }
+
+          if (this.detalleplantillapaginacion[id]["pldeid"] > 0) {
+            this.detalleplantillapaginacion[id]["acciond"] = "M";
+          }
+          this.detalleplantilla[id][property] = this.detalleplantillapaginacion[id][property]
+        }
+      }
+    }
+  }
+
+   /**
+   * @mod verifica accion y vacios en reemplazo de func cambio_cantidad
+   * @autor miguel.lobos@
+   * @fecha 16-03-2021
+   */
+  async setCantidad(id: number, property: string, registro: DetallePlantillaBodega) {
+    this.alertSwalAlert.title = null;
+    this.alertSwalAlert.text = null;
+    // this.validaExcede();
+
+    if(registro.cantsoli !== registro.cantsoliresp){
+      this.varColCant = this.varColCant +1;
+    } else {
+      this.varColCant = this.varColCant -1;
+    }
+
+    if(this.varColCant > 0){
+      this.msjColCant = true;
+    } else {
+      this.msjColCant = false;
+    }
+
+    if(registro.cantsoli < 0){
+      this.alertSwalAlert.title= "NO Debe ingresar valores menores a 0";
+      this.alertSwalAlert.show();
+      registro.cantsoli = 0;
+      if (this.detalleplantillapaginacion[id]["pldeid"] == 0) {
+        this.detalleplantillapaginacion[id]["acciond"] = "I";
+      }
+      if (this.detalleplantillapaginacion[id]["pldeid"] > 0) {
+        this.detalleplantillapaginacion[id]["acciond"] = "M";
+      }
+      this.detalleplantilla[id][property] = this.detalleplantillapaginacion[id][property];
+    }else{
+      if(registro.cantsoli >0){
+        if (this.detalleplantillapaginacion[id]["pldeid"] == 0) {
+          this.detalleplantillapaginacion[id]["acciond"] = "I";
+        }
+        if (this.detalleplantillapaginacion[id]["pldeid"] > 0) {
+          this.detalleplantillapaginacion[id]["acciond"] = "M";
+        }
+        this.detalleplantilla[id][property] = this.detalleplantillapaginacion[id][property];
+      }
+    }
+    await this.logicaVacios();
+  }
+
+  /** Verifica si existe valor negativo y devuelve bool */
+  checkNegativo() {
+    let exist: boolean = false;
+    for (let item of this.detalleplantilla) {
+      if (item.cantsoli < 0) {
+        return exist = true;
+      }
+    }
+    return exist;
+  }
+
+
+
+  validaExcede() {
+    if (this.detalleplantillapaginacion.length) {
+      for (var data of this.detalleplantillapaginacion) {
+        if(data.cantsoli > 99){
+          if(!data.excedecant) {
+            this.alertSwalAlert.title = 'Esta ingresando cantidad de mas de 3 digitos';
+            this.alertSwalAlert.show();
+          }
+          data.excedecant = true;
+        } else {
+          data.excedecant = false;
+        }
+      }
+    }
+  }
+
+  onImprimir(){
+    const Swal = require('sweetalert2');
+    Swal.fire({
+      title: '¿Desea Imprimir Plantilla ?',
+      text: "Confirmar Impresión",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Aceptar'
+    }).then((result) => {
+      if (result.value) {
+        this.ImprimirSolicitud();
+      }
+    })
 
   }
 
+  ImprimirSolicitud() {
+
+    console.log("imprime plantilla:", this.servidor,this.hdgcodigo,this.esacodigo, this.cmecodigo,
+    "pdf",this._Plantilla.planid, 1,this.usuario)
+    this._imprimesolicitudService.RPTImprimePlantillas(this.servidor,this.hdgcodigo,this.esacodigo, this.cmecodigo,
+      "pdf",this._Plantilla.planid, 2,this.usuario).subscribe(
+      response => {
+        if (response != null) {
+          window.open(response[0].url, "", "");
+        }
+      },
+      error => {
+        console.log(error);
+        this.alertSwalError.title = "Error al Imprimir Plantilla de Bodega";
+        this.alertSwalError.show();
+        this._BSModalRef.content.onClose.subscribe((RetornoExito: any) => {
+        })
+      }
+    );
+  }
 }

@@ -8,6 +8,7 @@ export class DetalleRecetas {
 	public hdgcodigo        ?: number,
 	public esacodigo        ?: number,
 	public cmecodigo        ?: number,
+	public cantidadpagadacaja ?: number,
 	public redemeincodmei   ?: string,
 	public redemeindescri   ?: string,
 	public rededosis        ?: number,
@@ -18,7 +19,11 @@ export class DetalleRecetas {
 	public redecantidadadesp  ?: number,
 	public meincontrolado	?: string,
 	public meinid			?: number,
-	public meintiporeg		?: string
+	public meintiporeg		?: string,
+	public acciond			?: string,
+	public bloqcampogrilla	?: boolean,
+	public bloqcampogrilla3 ?: boolean,
+	public marcacheckgrilla ?: boolean,
         
     ) {}
 }

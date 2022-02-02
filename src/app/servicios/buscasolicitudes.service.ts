@@ -17,13 +17,13 @@ import { Grabadetallesolicitudbod } from '../models/entity/Grabadetallesolicitud
 @Injectable()
 export class BuscasolicitudesService {
     
-    public urlbuscaempresa       : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
-    public urlbuscasucursal      : string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
-    public buscabodega           : string = environment.URLServiciosRest.URLConexion.concat('/bodegas');//'http://172.25.108.236:8189/bodegas';
-    public urlbuscasolic         : string = environment.URLServiciosRest.URLConexion.concat('/buscasolicitudes');
-    public urlretornadetsolic    : string = environment.URLServiciosRest.URLConexion.concat('/retornadetsolicitudbod');
-    public urleliminaencsolic    : string = environment.URLServiciosRest.URLConexion.concat('/grabarencabsolicitudbod');
-    public urleliminadetallesolic: string = environment.URLServiciosRest.URLConexion.concat('/grabardetasolicitudbod');
+    public urlbuscaempresa       : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
+    public urlbuscasucursal      : string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
+    public buscabodega           : string = sessionStorage.getItem('enlace').toString().concat('/bodegas');//'http://172.25.108.236:8189/bodegas';
+    public urlbuscasolic         : string = sessionStorage.getItem('enlace').toString().concat('/buscasolicitudes');
+    public urlretornadetsolic    : string = sessionStorage.getItem('enlace').toString().concat('/retornadetsolicitudbod');
+    public urleliminaencsolic    : string = sessionStorage.getItem('enlace').toString().concat('/grabarencabsolicitudbod');
+    public urleliminadetallesolic: string = sessionStorage.getItem('enlace').toString().concat('/grabardetasolicitudbod');
 
     constructor(public _http: HttpClient) {
     }

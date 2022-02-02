@@ -11,7 +11,7 @@ import { environment } from '../../environments/environment';
 })
 export class SubfamiliaService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/subfamilia');//'http://172.25.108.236:8181/subfamilia';
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/subfamilia');//'http://172.25.108.236:8181/subfamilia';
 
   constructor(private httpClient: HttpClient) {
 

@@ -16,31 +16,30 @@ import { environment } from '../../environments/environment';
 
 
 @Injectable()
-export class BodegasService {
-    public urlBuscarpordescripcion: string = environment.URLServiciosRest.URLConexion.concat('/buscaprodpordescripcion');//'http://172.25.108.236:8182/buscaprodpordescripcion'; //Busca productos x descripcion
-    public urlBuscarporcodigo     : string = environment.URLServiciosRest.URLConexion.concat('/buscaprodporcodigo');//'http://172.25.108.236:8182/buscaprodporcodigo'; //Busca productos x codigo
-    public urlbodegasperifericas  : string = environment.URLServiciosRest.URLConexion.concat('/bodegasperifericas');//"http://172.25.108.236:8189/bodegasperifericas"; //buscaproveedores
-    public urlservicio            : string = environment.URLServiciosRest.URLConexion.concat('/servicios');//"http://172.25.108.236:8189/servicios"; //busca servicios
-    public urlgrababodeganueva    : string = environment.URLServiciosRest.URLConexion.concat('/grababodega');//"http://172.25.108.236:8190/grababodega";
-    public urlvalidabodega        : string = environment.URLServiciosRest.URLConexion.concat('/validabodega');//"http://172.25.108.236:8190/validabodega";
-    public urlasociabodservi      : string = environment.URLServiciosRest.URLConexion.concat('/asociaservicioabodega');//"http://172.25.108.236:8190/asociaservicioabodega"; 
-    public urldesasociabodservi   : string = environment.URLServiciosRest.URLConexion.concat('/desasociaservicioabodega');//"http://172.25.108.236:8190/desasociaservicioabodega"
-    public urldesactivabodega     : string = environment.URLServiciosRest.URLConexion.concat('/estadonovigentebodega');//"http://172.25.108.236:8190/estadonovigentebodega";
-    public urlactivabodega        : string = environment.URLServiciosRest.URLConexion.concat('/estadovigentebodega');//"http://172.25.108.236:8190/estadovigentebodega";
-    public urlprodxbodega         : string = environment.URLServiciosRest.URLConexion.concat('/productosxbodega');//"http://172.25.108.236:8190/productosxbodega";
-    public urlasignaprodabodega   : string = environment.URLServiciosRest.URLConexion.concat('/asignaproductosabodega');//"http://172.25.108.236:8190/asignaproductosabodega";
-    public urlgrabaprodabod       : string = environment.URLServiciosRest.URLConexion.concat('/grabarproductosabod');//"http://172.25.108.236:8190/grabarproductosabod";
-    public urleliminaprodabod     : string = environment.URLServiciosRest.URLConexion.concat('/eliminarproductosabod');//"http://172.25.108.236:8190/eliminarproductosabod";
-    public urlbuscaempresa        : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
-    public urlbuscasucursal       : string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
-    public urlasignabodega        : string = environment.URLServiciosRest.URLConexion.concat('/bodegasparaasignar');//'http://172.25.108.236:8189/bodegasparaasignar';
+export class BodegasService {   
+    public urlBuscarpordescripcion: string = sessionStorage.getItem('enlace').toString().concat('/buscaprodpordescripcion');//'http://172.25.108.236:8182/buscaprodpordescripcion'; //Busca productos x descripcion
+    public urlBuscarporcodigo     : string = sessionStorage.getItem('enlace').toString().concat('/buscaprodporcodigo');//'http://172.25.108.236:8182/buscaprodporcodigo'; //Busca productos x codigo
+    public urlbodegasperifericas  : string = sessionStorage.getItem('enlace').toString().concat('/bodegasperifericas');//"http://172.25.108.236:8189/bodegasperifericas"; //buscaproveedores
+    public urlservicio            : string = sessionStorage.getItem('enlace').toString().concat('/servicios');//"http://172.25.108.236:8189/servicios"; //busca servicios
+    public urlgrababodeganueva    : string = sessionStorage.getItem('enlace').toString().concat('/grababodega');//"http://172.25.108.236:8190/grababodega";
+    public urlvalidabodega        : string = sessionStorage.getItem('enlace').toString().concat('/validabodega');//"http://172.25.108.236:8190/validabodega";
+    public urlasociabodservi      : string = sessionStorage.getItem('enlace').toString().concat('/asociaservicioabodega');//"http://172.25.108.236:8190/asociaservicioabodega"; 
+    public urldesasociabodservi   : string = sessionStorage.getItem('enlace').toString().concat('/desasociaservicioabodega');//"http://172.25.108.236:8190/desasociaservicioabodega"
+    public urldesactivabodega     : string = sessionStorage.getItem('enlace').toString().concat('/estadonovigentebodega');//"http://172.25.108.236:8190/estadonovigentebodega";
+    public urlactivabodega        : string = sessionStorage.getItem('enlace').toString().concat('/estadovigentebodega');//"http://172.25.108.236:8190/estadovigentebodega";
+    public urlprodxbodega         : string = sessionStorage.getItem('enlace').toString().concat('/productosxbodega');//"http://172.25.108.236:8190/productosxbodega";
+    public urlasignaprodabodega   : string = sessionStorage.getItem('enlace').toString().concat('/asignaproductosabodega');//"http://172.25.108.236:8190/asignaproductosabodega";
+    public urlgrabaprodabod       : string = sessionStorage.getItem('enlace').toString().concat('/grabarproductosabod');//"http://172.25.108.236:8190/grabarproductosabod";
+    public urleliminaprodabod     : string = sessionStorage.getItem('enlace').toString().concat('/eliminarproductosabod');//"http://172.25.108.236:8190/eliminarproductosabod";
+    public urlbuscaempresa        : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
+    public urlbuscasucursal       : string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
+    public urlasignabodega        : string = sessionStorage.getItem('enlace').toString().concat('/bodegasparaasignar');//'http://172.25.108.236:8189/bodegasparaasignar';
 
     constructor(public _http: HttpClient) {
 
     }
 
     BuscaEmpresa(hdgcodigo: number,usuario:string,servidor:String):Observable<Empresas[]> {
-        console.log("Buscará Empresa según holding")
         return this._http.post<Empresas[]>(this.urlbuscaempresa, {
             'hdgcodigo': hdgcodigo,
             'usuario'  : usuario,
@@ -49,7 +48,6 @@ export class BodegasService {
     }
 
     BuscaSucursal(hdgcodigo: number, esacodigo: number,usuario:string,servidor:String):Observable<Sucursal[]> {
-        console.log("Buscará sucursal")
         return this._http.post<Sucursal[]>(this.urlbuscasucursal, {
             'hdgcodigo': hdgcodigo,
             'esacodigo': esacodigo,
@@ -69,7 +67,6 @@ export class BodegasService {
     }
 
     buscarProductosporcodigo(codigo: string, tipodeproducto: string,usuario:string,servidor:string): Observable<Bodegas[]> {
-        console.log("Se realizará búsqueda por código:", codigo, tipodeproducto);
         return this._http.post<Bodegas[]>(this.urlBuscarporcodigo, {
             'codigo'        : codigo,
             'tipodeproducto': tipodeproducto,
@@ -148,7 +145,6 @@ export class BodegasService {
 
     DesasociaBodegaServicio(hdgcodigo: number,esacodigo: number,cmecodigo:number,codbodega: number, 
         codserbodperi: number,usuario:string,servidor:string):Observable<Bodegas[]> {
-        console.log("se envian datos para desasociar");
         return this._http.post<Bodegas[]>(this.urldesasociabodservi, {
             'hdgcodigo'     : hdgcodigo,
             'esacodigo'     : esacodigo,
@@ -162,7 +158,6 @@ export class BodegasService {
     }
 
     DesactivaBodega(hdgcodigo: number,esacodigo: number,cmecodigo:number,codbodega: number,usuario:string,servidor:string):Observable<Bodegas[]> {
-        console.log("se envian datos para desactivar");
         return this._http.post<Bodegas[]>(this.urldesactivabodega, {
             'hdgcodigo': hdgcodigo,
             'esacodigo': esacodigo,
@@ -174,7 +169,6 @@ export class BodegasService {
     }
 
     ActivaBodega(hdgcodigo: number,esacodigo: number,cmecodigo:number,codbodega: number,usuario:string,servidor:string):Observable<Bodegas[]> {
-        console.log("se envian datos para asctivar");
         return this._http.post<Bodegas[]>(this.urlactivabodega, {
             'hdgcodigo': hdgcodigo,
             'esacodigo': esacodigo,
@@ -187,8 +181,6 @@ export class BodegasService {
 
     BuscaProductoporBodega(hdgcodigo:number,esacodigo:number,cmecodigo:number,codbodega: number,
         usuario: string,servidor:string):Observable<Bodegas1[]> {
-        console.log("se envia codigo, para saber que productos tiene la bodega",hdgcodigo,esacodigo,
-        cmecodigo, codbodega);
         return this._http.post<Bodegas1[]>(this.urlprodxbodega, {
             'hdgcodigo': hdgcodigo,
             'esacodigo': esacodigo,
@@ -202,8 +194,6 @@ export class BodegasService {
     Asignaprodabodega(hdgcodigo:number,esacodigo:number,cmecodigo:number,codbodega: number,
         meincodprod: string,meindesprod: string,  meintipoprod: string,
         usuario:string,servidor: string):Observable<Bodegas2[]> {
-        console.log("se envia codigo, para saber que productos tiene la bodega",hdgcodigo,esacodigo,
-        cmecodigo, codbodega,meincodprod, meindesprod, meintipoprod);
         return this._http.post<Bodegas2[]>(this.urlasignaprodabodega, {
             'hdgcodigo'   : hdgcodigo,
             'esacodigo'   : esacodigo,
@@ -218,7 +208,6 @@ export class BodegasService {
     }
 
     GrabaProductosaBodega(paramgrabaproductosabod):Observable<ParamGrabaproductosaBodega[]>{
-        console.log("Se enviará info de devolución a grabar");
         return this._http.post<ParamGrabaproductosaBodega[]>(this.urlgrabaprodabod, {
             paramgrabaproductosabod
         });
@@ -226,7 +215,6 @@ export class BodegasService {
     }
 
     EliminaProductodeBodega(parameliminaproductosabod):Observable<ParamEliminaProductosaBod[]> {
-        console.log("se envia codigo, para saber que productos tiene la bodega",parameliminaproductosabod);
         return this._http.post<ParamEliminaProductosaBod[]>(this.urleliminaprodabod, {
             'parameliminaproductosabod': parameliminaproductosabod
         });        

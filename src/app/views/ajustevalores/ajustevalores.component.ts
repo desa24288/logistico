@@ -60,7 +60,6 @@ export class AjustevaloresComponent implements OnInit {
 
   getCmecodigo(event: any) {
     this.cmecodigo = event.cmecodigo;
-    // this.BuscaBodegaDestino();
   }
 
   BuscaProducto(){
@@ -69,10 +68,8 @@ export class AjustevaloresComponent implements OnInit {
       if (response == undefined) { }
       else {
         this.productoselec=response;
-        console.log("PRod. seleccionado", this.productoselec);
         this.FormAjusteValores.get('codigo').setValue(this.productoselec.codigo);
         this.FormAjusteValores.get('descripcion').setValue(this.productoselec.descripcion);
-        //this.BuscaStockProducto(response.mein, this.FormCreaSolicitud.value.bodcodigo, this.FormCreaSolicitud.value.codbodegasuministro);
         
       }
     });

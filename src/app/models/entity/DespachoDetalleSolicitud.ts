@@ -1,6 +1,6 @@
 export class DespachoDetalleSolicitud{
     constructor (
-        public soliid           ?: number,   
+        public soliid           ?: number,
         public hdgcodigo        ?: number,
         public esacodigo        ?: number,
         public cmecodigo        ?: number,
@@ -8,15 +8,15 @@ export class DespachoDetalleSolicitud{
         public mfdeid           ?: number,
         public movfid           ?: number,
         public mdevid           ?: number,
-        public codmei           ?: string, 
+        public codmei           ?: string,
         public meindescri       ?: string,
         public meinid           ?: number,
         public cantsoli         ?: number,
         public cantadespachar   ?: number,
         public cantdespachada   ?: number,
-        public observaciones    ?: string,  
+        public observaciones    ?: string,
         public usuariodespacha  ?: string,
-        public estid            ?: number, 
+        public estid            ?: number,
         public ctaid            ?: number,
         public cliid            ?: number,
         public valcosto         ?: number,
@@ -32,13 +32,13 @@ export class DespachoDetalleSolicitud{
         public lote             ?: string,
         public fechavto         ?: string,
         public bodorigen        ?: number,
-        public boddestino       ?: number, 
+        public boddestino       ?: number,
         public cantrecepcionado ?: number,
         public cantrecepcionada ?: number,
         public cantidadarecepcionar?: number,
         public cantdevolarecepcionar ?: number,
         public cantidadadevolver?: number,
-        public codservicioori   ?: number, 
+        public codservicioori   ?: number,
         public codservicioactual?: string,
         public stockorigen      ?: number,
         public acciond          ?: string,
@@ -46,7 +46,18 @@ export class DespachoDetalleSolicitud{
         public receid           ?: number,
         public recenumero       ?: number,
         public sodecantrecepdevo?: number,
-        public consumo          ?: string
-    )     
+        public consumo          ?: string,
+        public cantpendienterecepdevol?: number,
+        public cantadespacharresp?: number,
+        public bloqcampogrilla  ?: boolean,
+        public marcacheckgrilla ?: boolean,
+        public bloqcampogrilla2 ?: boolean,
+        public retira          ?: number,
+        public codtipidentificacionretira?: number,
+        public numidentificacionretira ?: string,
+        public nombresretira    ?: string,
+        public codcobroincluido ?: number,
+        public tiporeporte ?: string
+    )
     {}
 }

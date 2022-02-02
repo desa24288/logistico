@@ -13,17 +13,17 @@ import { ValidaCantidadDevuelta } from '../models/entity/ValidaCantidadDevuelta'
 @Injectable()
 
 export class MovimientosfarmaciaService {
-    public url                  : string = environment.URLServiciosRest.URLConexion.concat('/movimientosfarmacia');
-    public url_guardaMovimiento : string = environment.URLServiciosRest.URLConexion.concat('/grabarmovimientos');
-    public urlbodegacargo       : string = environment.URLServiciosRest.URLConexion.concat('/bodegascargo');
-    public urlbodegadestino     : string = environment.URLServiciosRest.URLConexion.concat('/bodegasdestino');
-    public urlRecuperaMovimiento: string = environment.URLServiciosRest.URLConexion.concat('/buscamovimientos');
-    public urlguardarDetalleDevolucuines : string = environment.URLServiciosRest.URLConexion.concat('/grabarmovimientosdevol');
-    public urlloteprod          : string = environment.URLServiciosRest.URLConexion.concat('/lotesdelprodpac');
-    public urlvalidacantdevolver: string = environment.URLServiciosRest.URLConexion.concat('/validacantdevuelvepac');
-    public urlguardaMovimiento : string = environment.URLServiciosRest.URLConexion.concat('/grabarmovimientosfarmacia');
-    public urlloteprodbod       : string = environment.URLServiciosRest.URLConexion.concat('/lotesdelprodbod');
-    public urlvalidacantdevolverbod : string = environment.URLServiciosRest.URLConexion.concat('/validacantdevuelvebod');
+    public url                  : string = sessionStorage.getItem('enlace').toString().concat('/movimientosfarmacia');
+    public url_guardaMovimiento : string = sessionStorage.getItem('enlace').toString().concat('/grabarmovimientos');
+    public urlbodegacargo       : string = sessionStorage.getItem('enlace').toString().concat('/bodegascargo');
+    public urlbodegadestino     : string = sessionStorage.getItem('enlace').toString().concat('/bodegasdestino');
+    public urlRecuperaMovimiento: string = sessionStorage.getItem('enlace').toString().concat('/buscamovimientos');
+    public urlguardarDetalleDevolucuines : string = sessionStorage.getItem('enlace').toString().concat('/grabarmovimientosdevol');
+    public urlloteprod          : string = sessionStorage.getItem('enlace').toString().concat('/lotesdelprodpac');
+    public urlvalidacantdevolver: string = sessionStorage.getItem('enlace').toString().concat('/validacantdevuelvepac');
+    public urlguardaMovimiento : string = sessionStorage.getItem('enlace').toString().concat('/grabarmovimientosfarmacia');
+    public urlloteprodbod       : string = sessionStorage.getItem('enlace').toString().concat('/lotesdelprodbod');
+    public urlvalidacantdevolverbod : string = sessionStorage.getItem('enlace').toString().concat('/validacantdevuelvebod');
 
     constructor(public _http: HttpClient) {
 

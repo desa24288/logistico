@@ -1,10 +1,12 @@
-<app-navbar></app-navbar>
+<!-- <app-navbar></app-navbar>
 <app-sidebar></app-sidebar>
-<div class="content-wrapper pl-2">
+<div class="content-wrapper pl-5"> -->
+<app-main-nav>
+  <div style="padding: 10px;">
     <div class="my-2 ml-2 titulo text-center">
-        <h5>
+        <h3>
             Recepción Devolución de Pacientes
-        </h5>
+        </h3>
     </div>
     <!-- Mensaje de alerta en caso de errores -->
     <div *ngFor="let alert of alerts">
@@ -35,21 +37,24 @@
         </form>
     </div>
 
-    <div class="card border-primary mt-0" style="padding: 5px;height: 1200px;">
+    <div class="card border-primary mt-0" style="padding: 5px">
         <form [formGroup]="dForm" autocomplete="off" spellcheck="false">
             <div class="form-row ">
                 <div class="form-group col-md-2">
                     <label for="codmei">Código *</label>
-                    <input type="text" class="form-control form-control-sm" formControlName="codmei">
-                    <p class="text-danger text-form-valid" *ngIf="dForm.controls['codmei'].invalid && 
+                    <input type="text" class="form-control form-control-sm" formControlName="codmei"
+                    (keyup.enter)="getProducto(dForm.value.codmei)"
+                    (keydown.tab)="getProducto(dForm.value.codmei)">
+                    <p class="text-danger text-form-valid" *ngIf="dForm.controls['codmei'].invalid &&
                         (dForm.controls['codmei'].dirty || dForm.controls['codmei'].touched)">
                         *Requerido</p>
                 </div>
                 <div class="form-group col-md-2">
                     <label for="descripcion">Descripción *</label>
                     <input type="text" class="form-control form-control-sm" formControlName="descripcion"
-                    (focusout)="SeleccionaDescripcion($event,dForm.value.descripcion)">
-                    <p class="text-danger text-form-valid" *ngIf="dForm.controls['descripcion'].invalid && 
+                    (keyup.enter)="SeleccionaDescripcion(dForm.value.descripcion)"
+                    (keydown.tab)="SeleccionaDescripcion(dForm.value.descripcion)">
+                    <p class="text-danger text-form-valid" *ngIf="dForm.controls['descripcion'].invalid &&
                         (dForm.controls['descripcion'].dirty || dForm.controls['descripcion'].touched)">
                         *Requerido</p>
                 </div>
@@ -76,13 +81,14 @@
                         Buscar
                     </button> -->
                     <button type="button" (click)="buscarSolicitud()"
-                        class="btn btn-info btn-rounded  btn-sm button-my-styles-busqueda_01">
+                        class="btn btn-info btn-rounded  btn-sm button-my-styles-busqueda_01"
+                        [disabled]="!dForm.controls.codmei.valid">
                         Buscar solicitud <i class="fas fa-search"></i>
                     </button>
                 </div>
             </div>
         </form>
-        <div class="table-editable table-responsive mt-2" style="height: 1060px;">
+        <div class="table-editable table-responsive mt-2" style="max-height: 1060px;min-height: 600px;">
             <table class="table table-sm table-condensed table-bordered table-striped text-center">
                 <tr class="table table-sm  table-primary table-bordered">
                     <th>Solicitud</th>
@@ -97,14 +103,18 @@
                     <!-- <th>Recepcionada</th> -->
                     <th>Devuelta</th>
                     <th>A Devolver</th>
-                    <th></th>
+                    <th><button type="button" id="btnElinaRegistro" class="btn btn-info btn-danger btn-sm ml-2 "
+                        (click)="ConfirmaEliminaProductoDeLaGrilla2()" [disabled]= "!desactivabtnelim">
+                        Eliminar <i class="fas fa-trash-restore-alt  ml-1"></i>
+                        </button>
+                    </th>
                 </tr>
                 <tr class="table-secondary"
                     *ngFor="let solicitud of solicitudesgrillaPaginacion">
                     <td><small>{{ solicitud.soliid }}</small></td>
                     <td><small>{{ solicitud.codmei}}</small> </td>
                     <td class="text-nowrap help   " tooltip="{{solicitud.meindescri }}">
-                        <small>{{ solicitud.meindescri | slice:0:20}}</small> 
+                        <small>{{ solicitud.meindescri | slice:0:20}}</small>
                     </td>
                     <td><small>{{ solicitud.fechacreacionsol | date:'dd-MM-yyyy' }}</small></td>
                     <td><small>{{ solicitud.fechadispensacion | date:'dd-MM-yyyy' }}</small></td>
@@ -122,15 +132,19 @@
                         </small>
                     </td>
                     <td>
-                        <small><span><button type="button" id="btnEliminar" class="btn btn-danger btn-rounded btn-sm ml-2" [disabled]="!ActivarEliminar()"
-                                (click)="onBorrar(solicitud)">Eliminar
-                            </button></span>
+                        <small>
+                            <input class="mr-2  " type="checkbox"  [disabled]="!solicitud.bloqcampogrilla"
+                              (click)="CambioCheck(solicitud,$event,solicitud.marcacheckgrilla)">
                         </small>
+                        <!-- <small><span><button type="button" id="btnEliminar" class="btn btn-danger btn-rounded btn-sm ml-2" [disabled]="!ActivarEliminar()"
+                                (click)="onEliminarGrilla(solicitud)">Eliminar <!--onBorrar(solicitud)->
+                            </button></span>
+                        </small> -->
                     </td>
                 </tr>
             </table>
         </div>
-        <div class="row m-1">
+        <div class="row m-1" *ngIf="solicitudesgrillaPaginacion.length>20">
             <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
                 [totalItems]="solicitudesgrilla.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                 [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
@@ -145,14 +159,14 @@
             <!-- <button type="button" id="btnguardar" [disabled]="!devolver" (click)="onDevolver()"
                 class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02">DEVOLVER
             </button> -->
-            <button type="button" id="btnguardar" [disabled]="!ActivarBotonDevolver()" (click)="onDevolver()"
+            <button type="button" id="btnguardar" [disabled]="!solicitudexist" (click)="onDevolver()"
                 class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02">DEVOLVER
                 <i class="fas fa-save ml-1"></i>
             </button>
         </div>
         <!-- <div class="form-group  align-self-end" *ngIf="modelopermisos.btnimprimedevolpac"> Aún NO se desarrolla el reporte
             <button type="button" id="btnguardar" [disabled]="!solicituddevuelta"
-                class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02" 
+                class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
                 (click)="onImprimir()">IMPRIMIR SOLICITUD <i class="fas fa-file-pdf ml-1"></i>
             </button>
         </div> -->
@@ -176,7 +190,10 @@
         <table class="table table-hover mt-4" *swalPartial>
             <thead class="table-header-text">
                 <tr>
+                    <th>Selección</th>
                     <th>Solicitud</th>
+                    <th>Bodega</th>
+                    <th>Servicio</th>
                     <th>Código</th>
                     <th>F.Creacion</th>
                     <th>F.Vencimiento</th>
@@ -188,6 +205,12 @@
             <tbody class="table-body-text text-nowrap">
                 <tr class="text-nowrap" *ngFor="let solicitud of solicitudeslistapag">
                     <td>
+                        <small>
+                            <input type="checkbox" [disabled]="solicitud.checkgrilla"
+                            (click)="onCheck($event,solicitud)">
+                        </small>
+                    </td>
+                    <!-- <td>
                         <div *ngIf="setCheckRow(solicitud)" class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input pointer"
                                 (click)="onCheck($event, solicitud)"
@@ -208,7 +231,7 @@
                              *</label>
                         </div>
 
-                        <!-- <div class="custom-control custom-checkbox">
+                        <!- <div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input pointer"
                                 (click)="onCheck($event, solicitud)"
                                 id="idmov-{{solicitud.soliid}} {{solicitud.idmovimientodet}}">
@@ -216,8 +239,11 @@
                                 for="idmov-{{solicitud.soliid}} {{solicitud.idmovimientodet}}">
                                 {{ solicitud.soliid }}
                              *</label>
-                        </div> -->
-                    </td>
+                        </div> ->
+                    </td> -->
+                    <td><small>{{ solicitud.soliid}} </small> </td>
+                    <td><small>{{ solicitud.descbodegadestino}} </small></td>
+                    <td><small>{{ solicitud.descservicio}} </small></td>
                     <td><small>{{ solicitud.codmei}}</small> </td>
                     <td><small>{{ solicitud.fechacreacionsol | date:'dd-MM-yyyy'}}</small></td>
                     <td><small>{{ solicitud.fechavto | date:'dd-MM-yyyy' }}</small></td>
@@ -234,4 +260,5 @@
         </table>
     </swal>
     <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '3px' }"> </ngx-loading>
-</div>
+  </div>
+</app-main-nav>

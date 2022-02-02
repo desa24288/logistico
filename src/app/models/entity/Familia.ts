@@ -1,6 +1,6 @@
 export class Familia {
-    private idfamilia: number;
-    private descripcion: string;
+    public idfamilia: number;
+    public descripcion: string;
 
     constructor(idfamilia: number, descripcion: string) {
         this.idfamilia = idfamilia;

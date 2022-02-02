@@ -10,8 +10,8 @@ import { environment } from '../../environments/environment';
 })
 export class TiporegistroService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/tipoderegistro');
-  private urltiporep = environment.URLServiciosRest.URLConexion.concat('/boxtiporeposicion');
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/tipoderegistro');
+  private urltiporep = sessionStorage.getItem('enlace').toString().concat('/boxtiporeposicion');
 
 
   constructor(public httpClient: HttpClient) {

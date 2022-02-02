@@ -1,0 +1,316 @@
+<app-main-nav>
+    <div>
+        <!-- Contenedor feneral de la página -->
+        <div class="my-2 ml-2 titulo text-center">
+            <!--menu -->
+            <h3>
+                Creación Recetas Ambulatorias
+            </h3>
+        </div>
+        <!-- Mensaje de alerta en caso de errores -->
+        <div *ngFor="let alert of alerts">
+            <alert [type]="alert.type" [dismissOnTimeout]="alert.timeout" (onClosed)="onClosed(alert)">
+                {{ alert.msg }}
+            </alert>
+        </div>
+        <!-- lineas de edición y bpusqueda -->
+
+        <div class="card border-primary mt-0" style="padding: 5px; height: 270px; width: 600">
+            <form [formGroup]="FormDatosPaciente" autocomplete="off" spellcheck="false">
+                <div class="content" style="height: 360px;">
+                    <div class="form-row">
+                        <div class="form-group col-md-1">
+                            <label for="fechahora">Fecha *</label>
+                            <input appSelecttext type="text" placeholder="DD/MM/YYYY"
+                                class="form-control form-control-sm" [bsConfig]="bsConfig" bsDatepicker
+                                formControlName="fechahora" />
+                        </div>
+
+                        <div class="form-group col-sm-2">
+                            <label for="tipoDocumento">Tipo Documento *</label>
+                            <input type="text" class="form-control form-control-sm"
+                            formControlName="tipodocumento">
+                        </div>
+
+                        <div class="form-group col-sm-2">
+                            <label for="numidentificacion">N° Identificación *</label>
+                            <input type="text" class="form-control form-control-sm"
+                            formControlName="numidentificacion">
+                        </div>
+
+                        <div class="form-group col-sm-3">
+                            <label for="nombrepaciente">Nombres y Apellidos del Paciente *</label>
+                            <input type="text" class="form-control form-control-sm"
+                            formControlName="nombrepaciente">
+                        </div>
+
+                        <div class="form-group col-sm-1">
+                            <label for="sexo">Sexo *</label>
+                            <input type="text" class="form-control form-control-sm"
+                            formControlName="sexo">
+                        </div>
+
+                        <div class="form-group col-sm-1">
+                            <label for="edad">Edad *</label>
+                            <input type="text" class="form-control form-control-sm" formControlName="edad">
+                        </div>
+
+                        <div class="form-group col-sm-2 align-self-end">
+                            <button type="button" id="paciente" [disabled]="!desactivabtnbuscapac"
+                                class="btn btn-primary btn-sm button-my-styles-busqueda_01"
+                                (click)="BuscarPaciente()">Buscar Paciente <i class="fas fa-search ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-1">
+                            <label for="tipoDocumento">Tipo Doc. *</label>
+                            <select class="form-control form-control-sm"
+                                formControlName="tipodocumentomed"
+                                (change)="SeleccionTipoDoc()">
+                                <option *ngFor="let tipodoc of docsidentis" [ngValue]='tipodoc.docidentcodigo'>
+                                    {{ tipodoc.docidentdescripcion }}
+                                </option>
+                            </select>
+
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label for="numidentificacionmedico">N° Identificación Médico *</label>
+
+                            <input type="text" class="form-control form-control-sm" (keyup.enter)="getMedicoTipoDoc()"
+                                (keydown.tab)="getMedicoTipoDoc()" formControlName="numidentificacionmedico">
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label for="nombremedico">Nombres Médico *</label>
+                            <input type="text" class="form-control form-control-sm" (keyup.enter)="getMedicoTipoDoc()"
+                                (keydown.tab)="getMedicoTipoDoc()" formControlName="nombremedico">
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label for="apellidopatemedico">Apellido Paterno del Médico *</label>
+                            <input type="text" class="form-control form-control-sm" (keyup.enter)="getMedicoTipoDoc()"
+                                (keydown.tab)="getMedicoTipoDoc()" formControlName="apellidopatemedico">
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label for="apellidomatemedico">Apellidos Materno Médico *</label>
+                            <input type="text" class="form-control form-control-sm" (keyup.enter)="getMedicoTipoDoc()"
+                                (keydown.tab)="getMedicoTipoDoc()" formControlName="apellidomatemedico">
+                        </div>
+                        <div class="form-group col-md-2 align-self-end">
+                            <button type="button" id="btbuscareceta" class="btn btn-primary btn-sm
+                                button-my-styles-busqueda_01" [disabled]="!activabtnbuscaprof"
+                                (click)="BuscaProfesional()">
+                                Busca Médico <i class="fas fa-search ml-1"></i>
+                            </button>
+                        </div>
+
+
+                    </div>
+                    <div class="form-row">
+
+                        <div class="form-group col-md-3">
+                            <label for="bodcodigo">Bodega *</label>
+                            <select name="bodcodigo" class='form-control form-control-sm'
+                                (change)="SeleccionaBodegaActivaBtnAgregar(FormDatosPaciente.value.bodcodigo)"
+                                formControlName='bodcodigo'>
+                                <option *ngFor='let listaBodegasSolictante of bodegasSolicitantes'
+                                    [ngValue]='listaBodegasSolictante.bodcodigo'>
+                                    {{ listaBodegasSolictante.boddescripcion }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-group col-sm-3">
+                            <label for="receobservacion">Observaciones</label>
+
+                            <input type="text" class="form-control form-control-sm"
+                            maxlength="9999999999" formControlName="receobservacion"
+                            (input)="ActivaBotonModificar()">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="bodcodigo">Cobro incluído en</label>
+                            <select name="cobroincluido" class='form-control form-control-sm'
+                                formControlName='cobroincluido'>
+                                <option *ngFor='let detalle of listacobros' [ngValue]='detalle.codigo'>
+                                    {{ detalle.descripcion }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-1">
+                            <label for="numeroreceta">N° Receta</label>
+                            <input type="number" class="form-control form-control-sm" min="0"
+                            max="9999999999" formControlName="numeroreceta">
+                        </div>
+                        <div class="form-group col-md-2 align-self-end">
+                            <button type="button" id="btbuscareceta" class="btn btn-primary btn-sm
+                                button-my-styles-busqueda_01" [disabled]= "!activabtnbuscareceta"
+                                (click)="getRecetas(FormDatosPaciente.value.numeroreceta)">Busca Recetas
+                                <i class="fas fa-search ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="card border-primary mt-1" style="padding: 5px;">
+            <div class="table-editable mt-1" style="padding: 5px">
+                <tabset>
+                    <tab heading="Medicamentos" id="tab1">
+                        <form [formGroup]="FormDatosProducto" autocomplete="off" spellcheck="false">
+                            <div class="row form-group align-self-end ml-1">
+                                <div class="form-group col-md-2">
+                                    <label for="codigo">Código *</label>
+                                    <input type="text" class="form-control form-control-sm"
+                                     formControlName="codigo">
+                                </div>
+                                <div class="form-group col-md-6 align-self-end">
+                                    <!--NO BORRAR la línea de código, sirve para activar
+                                            el btn agregar con el numero de receta agregado y se agrega en el [disabled]
+                                             || !FormDatosPaciente.controls.numeroreceta.valid)?true:false -->
+                                    <button
+                                      [disabled]="(!FormDatosPaciente.controls.bodcodigo.value) || (isbodegacontrolado)"
+                                      type="button" class="btn btn-info btn-sm"
+                                      (click)="getProducto()">Agregar <i class="fas fa-plus ml-1"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-info btn-sm ml-2"
+                                        [disabled]="(!ActivaBotonBuscaGrilla) || (isbodegacontrolado)"
+                                         (click)="getProducto()">Buscar<i class="fas fa-search ml-1"></i>
+                                    </button>
+                                    <button type="button" [disabled]="!ActivaBotonLimpiaBusca"
+                                        class="btn btn-danger btn-sm ml-2" (click)="limpiarCodigo()">Limpiar Búsqueda<i
+                                            class="fas fa-brush ml-1"></i>
+                                    </button>
+                                </div>
+
+                            </div>
+                        </form>
+                        <div class="table-responsive mt-3" style="max-height: auto;min-height: 100px;">
+                            <table id="tbldatosordendevolucion"
+                                class="table table-striped table ml-1 table-condensed table-bordered ">
+                                <thead class="table-primary  table-sm">
+                                    <!-- da color de fondo a la columna-->
+                                    <tr class="text-center table-sm">
+                                        <th>Código</th>
+                                        <th>Descripción</th>
+                                        <th>Dosifica*</th>
+                                        <th>Veces al Día* </th>
+                                        <th>Días*</th>
+                                        <th>Posología</th>
+                                        <th>Total</th>
+                                        <th>A Dispensar </th>
+                                        <th>
+                                            <button type="button" id="btnElinaRegistro"
+                                                class="btn btn-info btn-danger btn-sm ml-2"
+                                                (click)="ConfirmaEliminaProductoDeLaGrilla2()"
+                                                [disabled]="!desactivabtnelim">Eliminar<i
+                                                    class="fas fa-trash-restore-alt  ml-1"></i>
+                                            </button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let detalle of arrdetalleSolicitudMedPaginacion; let id = index"
+                                        class="table-secondary">
+                                        <td><small>{{ detalle.redemeincodmei }}</small></td>
+                                        <td class="text-nowrap help" tooltip="{{detalle.redemeindescri }}">
+                                            <small>{{ detalle.redemeindescri | slice: 0:15}}</small>
+                                        </td>
+                                        <td>
+                                            <small><input type="number" class="form-control form-control-sm text-right"
+                                                    min="1" max="100" [(ngModel)]="detalle.rededosis"
+                                                    [disabled]="!detalle.bloqcampogrilla" maxlength="2"
+                                                    (keyup.enter)="setCantidadsolicitada(detalle)"
+                                                    (keydown.tab)="setCantidadsolicitada(detalle)">
+                                                <!--bloqueacamposgrilla-->
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                <input type="number" class="form-control form-control-sm text-right"
+                                                    min="1" max="100" [(ngModel)]="detalle.redeveces"
+                                                    [disabled]="!detalle.bloqcampogrilla" maxlength="2"
+                                                    (keyup.enter)="setCantidadsolicitada(detalle)"
+                                                    (keydown.tab)="setCantidadsolicitada(detalle)">
+                                                <!--bloqueacamposgrilla-->
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                <input type="number" class="form-control form-control-sm text-right"
+                                                    min="1" max="1000" [(ngModel)]="detalle.redetiempo"
+                                                    [disabled]="!detalle.bloqcampogrilla"
+                                                    (keyup.enter)="setCantidadsolicitada(detalle)"
+                                                    (keydown.tab)="setCantidadsolicitada(detalle)">
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                <input type="text" class="form-control form-control-sm text-right"
+                                                    min="1" max="2000" [(ngModel)]="detalle.redeglosaposologia"
+                                                    [disabled]="!detalle.bloqcampogrilla">
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <small>{{detalle.redecantidadsolo}}</small>
+                                        <td>
+                                            <small>{{detalle.redecantidadadesp}}</small>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                <input class="mr-2  " type="checkbox"
+                                                    [disabled]="!detalle.bloqcampogrilla3"
+                                                    (click)="CambioCheck(detalle,id,$event,detalle.marcacheckgrilla)">
+                                            </small>
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="row m-1" *ngIf="arrdetalleSolicitudMed.length>20">
+                                <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
+                                    [totalItems]="arrdetalleSolicitudMed.length" [itemsPerPage]=20
+                                    [previousText]="'Anterior'" [nextText]="'Siguiente'" [firstText]="'&laquo;'"
+                                    [lastText]="'&raquo;'" (pageChanged)="pageChanged($event)">
+                                </pagination>
+                            </div>
+                        </div>
+                    </tab>
+
+                </tabset>
+            </div>
+        </div>
+
+        <!--  Botones de página -->
+        <div class="row float-right mr-1 mt-2">
+            <div class="form-group  align-self-end" *ngIf="modelopermisos.btngrabacreareceta">
+                <button type="button" [disabled]="!verificanull" id="btnguardar"
+                    class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+                    (click)="CrearRecetas()">CREAR RECETA <i class="fas fa-save"></i>
+                </button>
+            </div>
+            <div class="form-group  align-self-end" *ngIf="modelopermisos.btnmodifreceta">
+                <button type="button" id="btnguardar" [disabled]="!btnmodificar"
+                    class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+                    (click)="CrearRecetas()">MODIFICAR RECETA <i class="fas fa-save"></i>
+                </button>
+            </div>
+            <div class="form-group  align-self-end">
+                <button type="button" id="btnlimpiar" (click)="limpiar()"
+                    class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02">LIMPIAR
+                    <i class="fas fa-eraser ml-1"></i>
+                </button>
+            </div>
+            <div class="form-group  align-self-end">
+                <button type="button" id="btnsalir" class="btn btn-primary btn-sm button-my-styles-busqueda_02"
+                    (click)="Salir()">SALIR<i class="fas fa-window-close ml-1"></i>
+                </button>
+            </div>
+        </div>
+        <swal #alertSwal title="" text="" type="success" [showCancelButton]="false"> </swal>
+        <swal #alertSwalAlert title="" text="" type="warning" [showCancelButton]="false"> </swal>
+        <swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
+        <swal #alertSwalConfirmar title="" text="" type="question" [showCancelButton]="true"> </swal>
+        <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '3px' }"> </ngx-loading>
+    </div>
+</app-main-nav>

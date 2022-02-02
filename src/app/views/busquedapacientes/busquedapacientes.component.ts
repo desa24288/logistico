@@ -10,7 +10,7 @@ import  { TipodocumentoidentService } from '../../servicios/tipodocumentoident.s
 import  { TipoDocumentoIdentificacion } from '../../models/entity/TipoDocumentoIdentificacion';
 
 
-// uso de fechas 
+// uso de fechas
 import { DatePipe } from '@angular/common';
 import { defineLocale } from 'ngx-bootstrap/chronos';
 import { esLocale } from 'ngx-bootstrap/locale';
@@ -24,7 +24,7 @@ import { Camas } from '../../models/entity/Camas';
 import { Paciente } from '../../models/entity/Paciente';
 import { Unidades } from '../../models/entity/Unidades';
 
- 
+
 @Component({
   selector: 'app-busquedapacientes',
   templateUrl: './busquedapacientes.component.html',
@@ -36,6 +36,8 @@ export class BusquedapacientesComponent implements OnInit {
   @Input() esacodigo: number;
   @Input() cmecodigo: number;
   @Input() titulo   : string;
+  @Input() pagina   : string;
+
   @ViewChild('alertSwal', { static: false }) alertSwal: SwalComponent;//Componente para visualizar alertas
   @ViewChild('alertSwalAlert', { static: false }) alertSwalAlert: SwalComponent;
   @ViewChild('alertSwalError', { static: false }) alertSwalError: SwalComponent;
@@ -49,10 +51,7 @@ export class BusquedapacientesComponent implements OnInit {
   public lForm: FormGroup;
   public uForm: FormGroup;
   public hForm: FormGroup;
-  public movimfarid: number = 0;
-  public movimfecha: string;
   public onClose: Subject<ListaPacientes>;
-  public estado: boolean = false;
   public servidor = environment.URLServiciosRest.ambiente;
   public usuario  = environment.privilegios.usuario;
 
@@ -61,6 +60,7 @@ export class BusquedapacientesComponent implements OnInit {
   public piezas: Array<Piezas> = [];
   public camas: Array<Camas> = [];
   public filtrohosp = false;
+  public filtrourg = false;
   public paterno = null;
   public materno = null;
   public nombres = null;
@@ -70,40 +70,41 @@ export class BusquedapacientesComponent implements OnInit {
   public pacientes_urgencia: Array<Paciente> = [];
   public listadopacientes: Array<Paciente> = [];
   public listadopacientespaginacion: Array<Paciente> = [];
-
-  
   public unidades: Array<Unidades> = [];
-  public filtrourg = false;
-  public piezasurg: Array<any> = [];
-  public filtroamb = false;
 
+  public activatipobusquedahosp : boolean = true;
+  public activatipobusquedaamb  : boolean = true;
+  public activatipobusquedaurg  : boolean = true;
 
   constructor(
     public bsModalRef: BsModalRef,
     public formBuilder: FormBuilder,
     public _PacientesService: PacientesService,
-    public _TipodocumentoidentService : TipodocumentoidentService, 
+    public _TipodocumentoidentService : TipodocumentoidentService,
   // para manejo de fechas
     public datePipe: DatePipe,
     public localeService: BsLocaleService,
     public estructuraunidadesService: EstructuraunidadesService
 
-   ) 
+   )
     {
     this.lForm = this.formBuilder.group({
       tipoidentificacion: [{ value: null, disabled: false }, Validators.required],
-      numeroidentificacion: [{ value: null, disabled: false }, Validators.required],
+      numeroidentificacion: [{ value: null, disabled: true }, Validators.required],
       apellidopaterno: [{ value: null, disabled: false }, Validators.required],
       apellidomaterno: [{ value: null, disabled: false }, Validators.required],
-      nonbrespaciente: [{ value: null, disabled: false }, Validators.required],
-
+      nombrespaciente: [{ value: null, disabled: false }, Validators.required],
      }
     );
 
     this.uForm = this.formBuilder.group({
       servicio: [{ value: null, disabled: false }, Validators.required],
       pieza: [{ value: null, disabled: true }, Validators.required],
-
+      tipoidentificacion : [{ value: null, disabled: false }, Validators.required],
+      numeroidentificacion : [{ value: null, disabled: true }, Validators.required],
+      apellidopaterno: [{ value: null, disabled: false }, Validators.required],
+      apellidomaterno: [{ value: null, disabled: false }, Validators.required],
+      nombrespaciente: [{ value: null, disabled: false }, Validators.required],
      }
     );
 
@@ -114,13 +115,31 @@ export class BusquedapacientesComponent implements OnInit {
       servicio       : [{ value: null, disabled: false }, Validators.required],
       pieza          : [{ value: null, disabled: true }, Validators.required],
       cama           : [{ value: null, disabled: true }, Validators.required],
+      tipoidentificacion  : [{ value: null, disabled: false }, Validators.required],
+      numeroidentificacion: [{ value: null, disabled: true }, Validators.required],
     }
     );
   }
 
 
-  ngOnInit() 
+  ngOnInit()
   {
+    if(this.pagina === 'Despacho'){
+      if(this.esacodigo === 3){
+        this.activatipobusquedahosp = false;
+        this.activatipobusquedaamb = false;
+        this.activatipobusquedaurg = true;;
+      } else{
+        this.activatipobusquedahosp = true;
+        this.activatipobusquedaamb = false;
+        this.activatipobusquedaurg = true;
+      }
+
+    }else{
+      this.activatipobusquedaamb = true;
+      this.activatipobusquedahosp = false;
+      this.activatipobusquedaurg = false;
+    }
 
     this.onClose = new Subject();
     this.setDate();
@@ -131,24 +150,18 @@ export class BusquedapacientesComponent implements OnInit {
       data => {
         this.arreglotipodocumentoidentificacion = data;
       }, err => {
-        console.log(err.error);
+
       }
     );
 
-    this.BuscarPaciente('urgencia');
-
-    
   }
 
   onCerrar(pacienteseleccionado:  ListaPacientes) {
-
-    this.estado = true;
     this.onClose.next(pacienteseleccionado);
     this.bsModalRef.hide();
   };
 
   onCerrarSalir() {
-    this.estado = false;
     this.bsModalRef.hide();
   };
 
@@ -161,7 +174,7 @@ export class BusquedapacientesComponent implements OnInit {
 
   async BuscarPacienteFiltro(in_tipodocuemto:number,in_numerodocumento: string, in_paterno : string,
   in_materno: string, in_nombres : string )
-  {  
+  {
     this.loading = true;
 
     if (in_numerodocumento == null ) {
@@ -174,17 +187,17 @@ export class BusquedapacientesComponent implements OnInit {
 
     if (in_nombres == null ) {
     } else {in_nombres = in_nombres.toUpperCase() };
-         
+
     if (in_nombres == null ) {
     } else {in_nombres = in_nombres.toUpperCase() };
-          
+
     let respuesta:any;
 
     try {
       respuesta = await this._PacientesService.BuscaListaPacientes(this.hdgcodigo  , this.cmecodigo
       ,in_tipodocuemto,in_numerodocumento, in_paterno, in_materno, in_nombres
       ,this.usuario,this.servidor).toPromise();
-   
+
       this.listadopacientes = respuesta;
       this.listadopacientespaginacion = this.listadopacientes.slice(0, 8);
 
@@ -196,8 +209,8 @@ export class BusquedapacientesComponent implements OnInit {
       this.loading = false;
 
     }
-  }               
-   
+  }
+
   /* Función búsqueda con paginación */
 
   pageChanged(event: PageChangedEvent): void {
@@ -224,13 +237,28 @@ export class BusquedapacientesComponent implements OnInit {
     this.lForm.reset();
     this.listadopacientes= [];
     this.listadopacientespaginacion = [];
-    
+    this.pacientes_urgencia = [];
+    this.pacientes_urgencia_paginacion = [];
+    this.uForm.reset();
+    this.uForm.controls['pieza'].disable();
+    this.hForm.reset();
+    this.listadopacienteshosp = [];
+    this.listadopacienteshosppaginacion = [];
+
+    this.filtrohosp = false;
+    this.filtrourg = false;
+    this.hForm.controls.numeroidentificacion.disable();
+    this.uForm.controls.numeroidentificacion.disable();
+    this.hForm.controls.pieza.disable();
+    this.hForm.controls.cama.disable();
+
   }
 
   async ListarEstServicios() {
     try {
       this.loading = true;
-      this.servicios = await this.estructuraunidadesService.BuscarServicios(
+
+      this.estructuraunidadesService.BuscarServicios(
         this.hdgcodigo,
         this.esacodigo,
         this.cmecodigo,
@@ -238,8 +266,12 @@ export class BusquedapacientesComponent implements OnInit {
         this.servidor,
         3,
         ''
-      ).toPromise();
-      
+      ).subscribe( resp => {
+        this.servicios = resp;
+        this.quitavacioservicio();
+
+      });
+
       this.loading = false;
 
     } catch (err) {
@@ -258,7 +290,7 @@ export class BusquedapacientesComponent implements OnInit {
         this.usuario,
         this.servidor
       ).toPromise();
-  
+
       this.loading = false;
     } catch (err) {
       alert(err.message);
@@ -267,8 +299,7 @@ export class BusquedapacientesComponent implements OnInit {
   }
 
   onSelectServicio(event: any) {
-    // this.loading = true;
-    // console.log(event)
+
     this.filtrohosp = true;
     this.piezas = [];
     this.camas = [];
@@ -318,7 +349,7 @@ export class BusquedapacientesComponent implements OnInit {
   BuscarPaciente(tipo: string) {
     switch (tipo) {
       case 'hospitalizado':
-     
+
         this.paterno = this.hForm.controls['apellidopaterno'].value;
         this.materno = this.hForm.controls['apellidomaterno'].value;
         this.nombres = this.hForm.controls['nombrespaciente'].value;
@@ -326,16 +357,24 @@ export class BusquedapacientesComponent implements OnInit {
         var idpieza = parseInt(this.hForm.controls['pieza'].value);
         var idcama = parseInt(this.hForm.controls['cama'].value);
         this.loading = true;
-        this._PacientesService.BuscaPacientesAmbito(this.hdgcodigo, this.cmecodigo, this.esacodigo, this.paterno,
-          this.materno, this.nombres, idservicio, idpieza, idcama, this.servidor,
+        this._PacientesService.BuscaPacientesAmbito(this.hdgcodigo, this.cmecodigo, this.esacodigo,
+          this.hForm.controls.tipoidentificacion.value, this.hForm.controls.numeroidentificacion.value,
+          this.paterno, this.materno, this.nombres, idservicio, idpieza, idcama, this.servidor,
           this.hForm.value.servicio,3).subscribe(
             response => {
-              this.listadopacienteshosp = response;
-              this.listadopacienteshosppaginacion = this.listadopacienteshosp.slice(0, 8);
-              this.loading = false;
+              if (response != null){
+                let exlistadopacientes: Array<Paciente> = response;
+                exlistadopacientes.sort( (a, b) => a.apepaternopac.localeCompare(b.apepaternopac));
+                this.listadopacienteshosp = exlistadopacientes;
+
+                this.listadopacienteshosppaginacion = this.listadopacienteshosp.slice(0, 8);
+                this.loading = false;
+              } else {
+                this.loading = false;
+              }
             },
             error => {
-              console.log(error);
+
               this.alertSwalError.title = 'Error '.concat(error.message);
               this.alertSwalError.show();
               this.loading = false;
@@ -344,30 +383,30 @@ export class BusquedapacientesComponent implements OnInit {
       case 'urgencia':
 
           this.loading = true;
-          this._PacientesService.BuscaPacientesAmbito(this.hdgcodigo, this.cmecodigo, this.esacodigo,'', '', '', 0, 0, 0, this.servidor,'',2).subscribe(
+          this._PacientesService.BuscaPacientesAmbito(this.hdgcodigo, this.cmecodigo, this.esacodigo,
+            this.uForm.controls.tipoidentificacion.value, this.uForm.controls.numeroidentificacion.value,
+            this.uForm.controls.apellidopaterno.value, this.uForm.controls.apellidomaterno.value,
+            this.uForm.controls.nombrespaciente.value, 0, 0, 0, this.servidor,'',2).subscribe(
               response => {
-           
-                this.pacientes_urgencia = response;
-                this.pacientes_urgencia_paginacion = this.pacientes_urgencia.slice(0, 8);
-                this.loading = false;
+                if (response != null){
+                  let exlistadopacientes: Array<Paciente> = response;
+                  exlistadopacientes.sort( (a, b) => a.apepaternopac.localeCompare(b.apepaternopac));
+
+                  this.pacientes_urgencia = exlistadopacientes;
+                  this.pacientes_urgencia_paginacion = this.pacientes_urgencia.slice(0, 8);
+                  this.loading = false;
+                } else {
+                  this.loading = false;
+                }
               },
               error => {
-                console.log(error);
                 this.alertSwalError.title = 'Error '.concat(error.message);
                 this.alertSwalError.show();
                 this.loading = false;
               });
           break;
- 
+
     }
-  }
-
-   /* Función búsqueda con paginación */
-
-   pageChanged2(event: PageChangedEvent): void {
-    const startItem = (event.page - 1) * event.itemsPerPage;
-    const endItem = event.page * event.itemsPerPage;
-    this.listadopacienteshosppaginacion = this.listadopacienteshosp.slice(startItem, endItem);
   }
 
   pageChangedUrgencia(event: PageChangedEvent): void {
@@ -375,43 +414,49 @@ export class BusquedapacientesComponent implements OnInit {
     const endItem = event.page * event.itemsPerPage;
     this.pacientes_urgencia_paginacion = this.pacientes_urgencia.slice(startItem, endItem);
   }
-  
 
-  onSelectServioUgencia(event: any) {
-    this.loading = true;
-    this.filtrourg = true;
-    this.piezasurg = [];
-    const idunidadurg = parseInt(event);
-    this.uForm.controls['pieza'].setValue(null);
-    this.uForm.controls['pieza'].enable();
-    this.ListarPiezasUrg(idunidadurg);
+  findValidControls() {
+    let invalid = true;
+    let controls = this.lForm.controls;
+    for (let name in controls) {
+      if (controls[name].valid  && name !== 'tipoidentificacion') {
+          invalid = false;
+      }
+    }
+    return invalid;
+
   }
 
-  async ListarPiezasUrg(idunidadurg: number) {
-    this.loading = true;
-    this.piezasurg = await this.estructuraunidadesService.BuscarPiezas(
-      this.hdgcodigo,
-      this.esacodigo,
-      this.cmecodigo,
-      idunidadurg,
-      this.usuario,
-      this.servidor,
-      ''
-    ).toPromise();
-    this.loading = false;
+
+  /** Tipo int
+   * 1 = Hospitalizado
+   * 2 = Urgencia
+   */
+  activarNumid(tipo: number) {
+    if( tipo === 1 ){
+      this.hForm.controls.numeroidentificacion.enable();
+
+    } else if( tipo === 2 ){
+      this.uForm.controls.numeroidentificacion.enable();
+
+    } else if( tipo === 3 ){
+      this.lForm.controls.numeroidentificacion.enable();
+
+    }
+
+  }
+
+  quitavacioservicio() {
+    const codserv = this.servicios.findIndex( x => x.serviciodesc.trim() === '' );
+    this.servicios.splice( codserv, 1);
+
   }
 
   onValidafiltro(event: any, lugar: number) {
 
     let numid = event;
     switch (lugar) {
-      case 1:
-        if (numid.length > 0) {
-          this.filtroamb = true;
-        } else {
-          this.filtroamb = false;
-        }
-        break;
+
       case 2:
         if (numid.length > 0) {
           this.filtrohosp = true;
@@ -428,4 +473,5 @@ export class BusquedapacientesComponent implements OnInit {
         break;
     }
   }
+
 }

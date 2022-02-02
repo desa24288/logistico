@@ -1,3 +1,4 @@
+import { Mensaje } from './Mensaje';
 export class DetallePlantillaBodega {
     constructor(
         public pldeid            ?: number,
@@ -14,6 +15,13 @@ export class DetallePlantillaBodega {
         public usuarioelimina    ?: string,
         public fechaelimina      ?: string,
         public acciond           ?: string,
-        public tiporegmein          ?: string
-    ) { }
+        public tiporegmein       ?: string,
+        public excedecant        ?: boolean,
+        public marcacheckgrilla  ?: boolean,
+        public bloqcampogrilla   ?: boolean,
+        public cantsoliresp      ?: number,
+        public mensajes          ?: Mensaje[]
+    ) {
+      this.excedecant = false;
+    }
 }

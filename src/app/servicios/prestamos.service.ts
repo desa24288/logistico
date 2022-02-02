@@ -17,19 +17,19 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class PrestamosService {
-    public urlbuscabodegaorigen   : string = environment.URLServiciosRest.URLConexion.concat('/traebodegasxservicios');// "http://172.25.108.236:8189/traebodegasxservicios";
-    public urlbuscatraspaso       : string = environment.URLServiciosRest.URLConexion.concat('/buscatraspasos');//"http://172.25.108.236:8193/buscatraspasos";
-    public urlllenatraspaso       : string = environment.URLServiciosRest.URLConexion.concat('/llenatraspaso');//"http://172.25.108.236:8193/llenatraspaso";
-    public urlbuscaempresa        : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
-    public urlbuscasucursal       : string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal";
-    public urldetalletraspaso     : string = environment.URLServiciosRest.URLConexion.concat('/llenadetatraspaso');//"http://172.25.108.236:8193/llenadetatraspaso";
-    public urlBuscarpordescripcion: string = environment.URLServiciosRest.URLConexion.concat('/buscaprodpordescripcion');//'http://172.25.108.236:8182/buscaprodpordescripcion'; //Busca productos x descripcion
-    public urlBuscarporcodigo     : string = environment.URLServiciosRest.URLConexion.concat('/buscaprodporcodigo');//'http://172.25.108.236:8182/buscaprodporcodigo'; 
-    public urlBuscastock          : string = environment.URLServiciosRest.URLConexion.concat('/buscastock');//"http://172.25.108.236:8193/buscastock";
-    public urlGrabatraspaso       : string = environment.URLServiciosRest.URLConexion.concat('/grabartraspasos');//"http://172.25.108.236:8193/grabartraspasos";
-    public urlGrabadetalletraspaso: string = environment.URLServiciosRest.URLConexion.concat('/grabardetalletraspasos');//"http://172.25.108.236:8193/grabardetalletraspasos";
-    public urlserviciobodega      : string = environment.URLServiciosRest.URLConexion.concat('/serviciosconbodegas');//'http://172.25.108.236:8189/serviciosconbodegas';
-    public urlrptcomprobante      : string = environment.URLServiciosRest.URLConexionInformes.concat('/buscastockenbodegas');//"http://172.25.108.236:";//falta agregar el resto de la direccion
+    public urlbuscabodegaorigen   : string = sessionStorage.getItem('enlace').toString().concat('/traebodegasxservicios');// "http://172.25.108.236:8189/traebodegasxservicios";
+    public urlbuscatraspaso       : string = sessionStorage.getItem('enlace').toString().concat('/buscatraspasos');//"http://172.25.108.236:8193/buscatraspasos";
+    public urlllenatraspaso       : string = sessionStorage.getItem('enlace').toString().concat('/llenatraspaso');//"http://172.25.108.236:8193/llenatraspaso";
+    public urlbuscaempresa        : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
+    public urlbuscasucursal       : string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal";
+    public urldetalletraspaso     : string = sessionStorage.getItem('enlace').toString().concat('/llenadetatraspaso');//"http://172.25.108.236:8193/llenadetatraspaso";
+    public urlBuscarpordescripcion: string = sessionStorage.getItem('enlace').toString().concat('/buscaprodpordescripcion');//'http://172.25.108.236:8182/buscaprodpordescripcion'; //Busca productos x descripcion
+    public urlBuscarporcodigo     : string = sessionStorage.getItem('enlace').toString().concat('/buscaprodporcodigo');//'http://172.25.108.236:8182/buscaprodporcodigo'; 
+    public urlBuscastock          : string = sessionStorage.getItem('enlace').toString().concat('/buscastock');//"http://172.25.108.236:8193/buscastock";
+    public urlGrabatraspaso       : string = sessionStorage.getItem('enlace').toString().concat('/grabartraspasos');//"http://172.25.108.236:8193/grabartraspasos";
+    public urlGrabadetalletraspaso: string = sessionStorage.getItem('enlace').toString().concat('/grabardetalletraspasos');//"http://172.25.108.236:8193/grabardetalletraspasos";
+    public urlserviciobodega      : string = sessionStorage.getItem('enlace').toString().concat('/serviciosconbodegas');//'http://172.25.108.236:8189/serviciosconbodegas';
+    public urlrptcomprobante      : string = sessionStorage.getItem('enlace').toString().concat('/buscastockenbodegas');//"http://172.25.108.236:";//falta agregar el resto de la direccion
 
     constructor(public _http: HttpClient) {
 

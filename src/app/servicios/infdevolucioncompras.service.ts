@@ -11,9 +11,9 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class InfdevolucioncomprasService {
-    public urldevolcompras : string = environment.URLServiciosRest.URLConexionInformes.concat('/obtieneurlinfdevolucioncompras');//"http://172.25.108.236:8194/obtieneurlinfajustesprecios";
-    public urlbuscaempresa : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
-    public urlbuscasucursal: string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
+    public urldevolcompras : string = sessionStorage.getItem('enlace').toString().concat('/obtieneurlinfdevolucioncompras');//"http://172.25.108.236:8194/obtieneurlinfajustesprecios";
+    public urlbuscaempresa : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
+    public urlbuscasucursal: string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal"
        
     constructor(public _http: HttpClient) {
 

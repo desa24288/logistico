@@ -12,11 +12,11 @@ import { StockProducto } from '../models/entity/StockProducto';
 
 @Injectable()
 export class IngresoconteomanualService {
-    public urlperiodoinv         : string = environment.URLServiciosRest.URLConexion.concat('/periodosinventarios');//"http://172.25.108.236:8187/periodosinventarios";
-    public urlbuscainventario    : string = environment.URLServiciosRest.URLConexion.concat('/ConsultaInventario');//"http://172.25.108.236:8195/ConsultaInventario";
-    public urlgrabainventario    : string = environment.URLServiciosRest.URLConexion.concat('/grabarinvmanual');//"http://172.25.108.236:8195/grabarinvmanual";
-    public urlactualizainventario: string = environment.URLServiciosRest.URLConexion.concat('/actualizainv');//"http://172.25.108.236:8195/actualizainv";
-    public urlBuscastock          : string = environment.URLServiciosRest.URLConexion.concat('/buscastock');
+    public urlperiodoinv         : string = sessionStorage.getItem('enlace').toString().concat('/periodosinventarios');//"http://172.25.108.236:8187/periodosinventarios";
+    public urlbuscainventario    : string = sessionStorage.getItem('enlace').toString().concat('/ConsultaInventario');//"http://172.25.108.236:8195/ConsultaInventario";
+    public urlgrabainventario    : string = sessionStorage.getItem('enlace').toString().concat('/grabarinvmanual');//"http://172.25.108.236:8195/grabarinvmanual";
+    public urlactualizainventario: string = sessionStorage.getItem('enlace').toString().concat('/actualizainv');//"http://172.25.108.236:8195/actualizainv";
+    public urlBuscastock          : string = sessionStorage.getItem('enlace').toString().concat('/buscastock');
        
     constructor(public _http: HttpClient) {
 

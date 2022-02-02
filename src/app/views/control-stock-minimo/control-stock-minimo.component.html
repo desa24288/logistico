@@ -1,192 +1,204 @@
-<app-navbar></app-navbar>
-<app-sidebar></app-sidebar>
-<div class="content-wrapper pl-2">
-  <form [formGroup]="FormControlMinimo">
-    <!-- Contenedor feneral de la página -->
+<app-main-nav>
+  <div style="padding: 10px;">
+    <form [formGroup]="FormControlMinimo">
+      <!-- Contenedor feneral de la página -->
 
-    <div class="my-2 ml-2 titulo text-center">
+      <div class="my-2 ml-2 titulo text-center">
 
-      <h3>
-        Control Stock Mínimo
-      </h3>
-    </div>
-
-    <!-- lineas de edición y bpusqueda -->
-
-    <div class="card m-2 border-primary" style="padding: 10px;">
-      <div class="form-row">
-        <div class="form-group col-md-3">
-          <label for="codbodegasuministro">Bodega Suministro *</label>
-          <select name="codbodegasuministro" class='form-control form-control-sm' formControlName='codbodegasuministro'
-            (change)="BuscaBodegasSolicitantes(FormControlMinimo.value.codbodegasuministro)">
-            <option *ngFor='let suministro of bodegassuministro' [ngValue]='suministro.bodcodigo'>
-              {{ suministro.boddescripcion }}
-            </option>
-          </select>
-        </div>
-
-        <div class="form-group col-md-2">
-          <label for="produc">Tipo de Producto *</label>
-          <select name="idtiporegistro" class='form-control form-control-sm' formControlName='tiporegistro'>
-            <option *ngFor='let tipoderegistro of tiposderegistros' [ngValue]='tipoderegistro.idtiporegistro'>
-              {{ tipoderegistro.desctiporegistro }}
-            </option>
-          </select>
-        </div>
-
-        <div class="form-group col-md-3">
-          <label for="bodcodigo">Bodega Solicitante *</label>
-          <select name="bodcodigo" class='form-control form-control-sm' formControlName='bodcodigo'>
-            <option *ngFor='let regbodegasolicitante of bodegasSolicitantes' [ngValue]='regbodegasolicitante.bodcodigo'>
-              {{ regbodegasolicitante.boddescripcion }}
-            </option>
-          </select>
-        </div>
-
-
-
-        <div class="form-group col-md-3 align-self-end">
-          <button type="button" id="btnbuscargeneral" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
-            [disabled]="FormControlMinimo.value.codbodegasuministro==null || FormControlMinimo.value.tiporegistro== null   || FormControlMinimo.value.fechadesde==null || FormControlMinimo.value.fechahasta==null"
-            (click)="Buscar_General()">Buscar <i class="fas fa-search ml-1"></i>
-          </button>
-        </div>
+        <h3>
+          Control Stock Mínimo
+        </h3>
       </div>
 
+      <!-- lineas de edición y bpusqueda -->
 
-      <div class="form-row">
+      <div class="card m-2 border-primary" style="padding: 10px;">
+        <div class="form-row">
+          <div class="form-group col-md-3">
+            <label for="codbodegasuministro">Bodega Suministro *</label>
+            <select name="codbodegasuministro" class='form-control form-control-sm' formControlName='codbodegasuministro'
+              (change)="BuscaBodegasSolicitantes(FormControlMinimo.value.codbodegasuministro)">
+              <option *ngFor='let suministro of bodegassuministro' [ngValue]='suministro.bodcodigo'>
+                {{ suministro.boddescripcion }}
+              </option>
+            </select>
+          </div>
 
-        <div class="form-group col-md-2">
-          <label for="fechadesde">Fecha Desde*  *</label>
-          <input appSelecttext type="text" placeholder="DD/MM/YYYY" class="form-control form-control-sm"
-            [bsConfig]="bsConfig" bsDatepicker formControlName="fechadesde" />
-        </div>
-        <div class="form-group col-md-2">
-          <label for="fehcahasta">Fecha Hasta*  *</label>
-          <input appSelecttext type="text" placeholder="DD/MM/YYYY" class="form-control form-control-sm"
-            [bsConfig]="bsConfig" bsDatepicker formControlName="fechahasta" />
-        </div>
-        <div class="form-group col-md-4">
-          <label for="nombrearticulo">Artículo  *</label>
-          <input appSelecttext type="text" class="form-control form-control-sm" formControlName="nombrearticulo"
-            disabled />
+          <div class="form-group col-md-2">
+            <label for="produc">Tipo de Producto *</label>
+            <select name="idtiporegistro" class='form-control form-control-sm' formControlName='tiporegistro'>
+              <option *ngFor='let tipoderegistro of tiposderegistros' [ngValue]='tipoderegistro.idtiporegistro'>
+                {{ tipoderegistro.desctiporegistro }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group col-md-3">
+            <label for="bodcodigo">Bodega Solicitante *</label>
+            <select name="bodcodigo" class='form-control form-control-sm' formControlName='bodcodigo'>
+              <option *ngFor='let regbodegasolicitante of bodegasSolicitantes'
+                [ngValue]='regbodegasolicitante.bodcodigo'>
+                {{ regbodegasolicitante.boddescripcion }}
+              </option>
+            </select>
+          </div>
+
+
+
+          <div class="form-group col-md-3 align-self-end">
+            <button type="button" id="btnbuscargeneral" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
+              [disabled]="!logicabtnbuscar()"
+              (click)="Buscar_General()">Buscar <i class="fas fa-search ml-1"></i>
+            </button>
+
+          </div>
         </div>
 
-        <div class="form-group col-md-2 align-self-end">
-          <button type="button" id="btnbuscar" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
-            [disabled]="FormControlMinimo.value.codbodegasuministro==null || FormControlMinimo.value.tiporegistro== null   || FormControlMinimo.value.fechadesde==null || FormControlMinimo.value.fechahasta==null"
-            (click)="BuscarProducto()">Buscar Artículo <i class="fas fa-search ml-1"></i>
-          </button>
+
+        <div class="form-row">
+
+          <div class="form-group col-md-2">
+            <label for="fechadesde">Fecha Desde*  *</label>
+            <input appSelecttext type="text" placeholder="DD/MM/YYYY" class="form-control form-control-sm"
+              [bsConfig]="bsConfig" bsDatepicker formControlName="fechadesde" />
+          </div>
+          <div class="form-group col-md-2">
+            <label for="fehcahasta">Fecha Hasta*  *</label>
+            <input appSelecttext type="text" placeholder="DD/MM/YYYY" class="form-control form-control-sm"
+              [bsConfig]="bsConfig" bsDatepicker formControlName="fechahasta" />
+          </div>
+          <div class="form-group col-md-4">
+            <label for="nombrearticulo">Artículo  *</label>
+            <input appSelecttext type="text" class="form-control form-control-sm"
+              formControlName="nombrearticulo" disabled />
+          </div>
+
+          <div class="form-group col-md-2 align-self-end">
+            <button type="button" id="btnbuscar" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
+              [disabled]="!logicabtnbuscar()"
+              (click)="BuscarProducto()">Buscar Artículo <i class="fas fa-search ml-1"></i>
+            </button>
+          </div>
         </div>
+
       </div>
-
-    </div>
-  </form>
+    </form>
 
 
-  
-  <div class="card border-primary" style="padding: 5px;margin-top: 10px;height: 990px;">
- 
-      <h6 class="card-header text-center ">Detalle Artículo</h6>
 
-      <div id="table" class="table-editable table-responsive mt-2" style="height:950px;">  
-        <table class="table table-sm  table-primary table-bordered table-responsive-md table-striped text-center">
-          <tr class="table-primary">
-            <th scope="col">Fecha</th>
-            <th scope="col">Tipo Movimiento</th>
-            <th scope="col">Bodega Solicitante</th>
-            <th scope="col">Bodega Suministro</th>
-            <th scope="col">Código Artículo</th>
-            <th scope="col">Artículo</th>
-            <th scope="col">Solicitado</th>
-            <th scope="col">Despachado</th>
-            <th scope="col">Devolución</th>
-            <th scope="col">Pendientes</th>
-            <th scope="col">Respuesta(Horas)</th>
-            <th scope="col">Acción</th>
-          </tr>
+    <div class="card border-primary" style="padding: 5px;margin-top: 10px">
 
-          <tr class="table-secondary" *ngFor="let registro of arreglomovimientosPaginacion; let id = index">
-            <td><small>{{registro.fechamovimiento | date:'dd/MM/yyyy HH:MM'}} </small></td>
-            <td>
-              <small>{{registro.tipomovimiento}}</small>
-            </td>
-            <td>
-              <small> {{registro.nombodegasolicta}}</small>
-            </td>
-            <td>
-              <small> {{registro.nombodegasuministro}}</small>
-            </td>
-            <td>
-              <small> {{registro.codigoarticulo}}</small>
-            </td>
-            <td>
-              <small> {{registro.descarticulo}}</small>
-            </td>
-            <td>
-              <small> {{registro.catidadsolicitada}}</small>
-            </td>
-            <td>
-              <small> {{registro.cantidaddespachada}}</small>
-            </td>
-            <td>
-              <small> {{registro.cantidaddevuelta}}</small>
-            </td>
-            <td>
-              <small> {{registro.cantidadpendiente}}</small>
-            </td>
-            <td>
-              <small> {{registro.diasdespaho}}</small>
-            </td>
-            <div *ngIf="registro.cantidadpendiente != 0">
-              <td><span><button type="button" id="btnEditardespacho" class="btn btn-danger btn-sm ml-2"
-                    (click)="EditarDespacho(registro.idsolicitud )"><small>Despachar</small>
-                  </button>
-                </span>
+        <h6 class="card-header text-center ">Detalle Artículo</h6>
+
+        <div id="table" class="table-editable table-responsive mt-2" style="max-height: auto;min-height: 100px;">
+          <table class="table table-sm  table-primary table-bordered table-responsive-md table-striped text-center">
+            <tr class="table-primary">
+              <th scope="col">Fecha</th>
+              <th scope="col">Tipo Movimiento</th>
+              <th scope="col">N° Solicitud</th>
+              <th scope="col">Bodega Solicitante</th>
+              <th scope="col">Bodega Suministro</th>
+              <th scope="col">Código Artículo</th>
+              <th scope="col">Artículo</th>
+              <th scope="col">Solicitado</th>
+              <th scope="col">Despachado</th>
+              <th scope="col">Devolución</th>
+              <th scope="col">Pendientes</th>
+              <th scope="col">Respuesta(Horas)</th>
+              <th scope="col">Acción</th>
+            </tr>
+
+            <tr class="table-secondary" *ngFor="let registro of arreglomovimientosPaginacion; let id = index">
+              <td><small>{{registro.fechamovimiento | date:'dd/MM/yyyy HH:MM'}} </small></td>
+              <td>
+                <small>{{registro.tipomovimiento}}</small>
               </td>
-            </div>
-            <div *ngIf="registro.cantidadpendiente ==0">
-              <td><span><button type="button" id="btnEditarverdespacho" class="btn btn-info btn-sm ml-2"
-                    (click)="EditarDespacho(registro.idsolicitud )"><small>Ver Despacho</small>
-                  </button>
-
-                </span>
+              <td>
+                  <small> {{registro.idsolicitud}}</small>
+                </td>
+              <td>
+                <small> {{registro.nombodegasolicta}}</small>
               </td>
-            </div>
-          </tr>
-        </table>
-      </div>
-      
-      <div class="row m-1">
-        <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
-          [totalItems]="arreglomovimientos.length" [itemsPerPage]=20 [previousText]="'Anterior'" [nextText]="'Siguiente'"
-          [firstText]="'&laquo;'" [lastText]="'&raquo;'" (pageChanged)="pageChanged($event)">
-        </pagination>
-      </div>
+              <td>
+                <small> {{registro.nombodegasuministro}}</small>
+              </td>
+              <td>
+                <small> {{registro.codigoarticulo}}</small>
+              </td>
+              <td>
+                <small> {{registro.descarticulo}}</small>
+              </td>
+              <td>
+                <small> {{registro.catidadsolicitada}}</small>
+              </td>
+              <td>
+                <small> {{registro.cantidaddespachada}}</small>
+              </td>
+              <td>
+                <small> {{registro.cantidaddevuelta}}</small>
+              </td>
+              <td>
+                <small> {{registro.cantidadpendiente}}</small>
+              </td>
+              <td>
+                <small> {{registro.diasdespaho}}</small>
+              </td>
+              <div *ngIf="registro.cantidadpendiente != 0">
+                <td><span><button type="button" id="btnEditardespacho" class="btn btn-danger btn-sm ml-2"
+                      (click)="EditarDespacho(registro.idsolicitud )"><small>Despachar</small>
+                    </button>
+                  </span>
+                </td>
+              </div>
+              <div *ngIf="registro.cantidadpendiente ==0">
+                <td><span><button type="button" id="btnEditarverdespacho" class="btn btn-info btn-sm ml-2"
+                      (click)="EditarDespacho(registro.idsolicitud )"><small>Ver Despacho</small>
+                    </button>
 
-  </div>
+                  </span>
+                </td>
+              </div>
+            </tr>
+          </table>
+        </div>
 
-  <!--  Botones de página -->
+        <div class="row m-1" *ngIf="arreglomovimientos.length>20">
+          <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
+            [totalItems]="arreglomovimientos.length" [itemsPerPage]=20 [previousText]="'Anterior'" [nextText]="'Siguiente'"
+            [firstText]="'&laquo;'" [lastText]="'&raquo;'" (pageChanged)="pageChanged($event)">
+          </pagination>
+        </div>
 
-
-  <div class="form-row float-right">
-
-    <div class="form-group  align-self-end">
-      <button type="button" id="btnlimpiar" class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
-        (click)="limpiar()">LIMPIAR <i class="fas fa-eraser ml-1"></i>
-      </button>
     </div>
 
-    <div class="form-group col-md-3 align-self-end">
-      <button type="button" id="btnsalir" class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
-        (click)="salir()">SALIR <i class="fas fa-window-close ml-1"></i>
-      </button>
+    <!--  Botones de página -->
+
+
+    <div class="form-row float-right mr-1">
+
+      <div class="form-group  align-self-end" *ngIf="modelopermisos.btnimprimestockminimo">
+        <button type="button" id="btnimprimir" class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+            (click)="onImprimir()" [disabled]="!btnimprime">IMPRIMIR PDF
+            <i class="fas fa-file-pdf ml-1"></i>
+        </button>
+      </div>
+      <div class="form-group  align-self-end">
+        <button type="button" id="btnlimpiar" class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+          (click)="limpiar()">LIMPIAR <i class="fas fa-eraser ml-1"></i>
+        </button>
+      </div>
+
+      <div class="form-group col-md-3 align-self-end">
+        <button type="button" id="btnsalir" class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+          (click)="salir()">SALIR <i class="fas fa-window-close ml-1"></i>
+        </button>
+      </div>
     </div>
+
+
+    <swal #alertSwal title="" text="" type="success" [showCancelButton]="false"> </swal>
+    <swal #alertSwalAlert title="" text="" type="warning" [showCancelButton]="false"> </swal>
+    <swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
+    <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '3px' }"> </ngx-loading>
   </div>
-
-
-  <swal #alertSwal title="" text="" type="success" [showCancelButton]="false"> </swal>
-  <swal #alertSwalAlert title="" text="" type="warning" [showCancelButton]="false"> </swal>
-  <swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
-  <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '3px' }"> </ngx-loading>
-</div>
+</app-main-nav>

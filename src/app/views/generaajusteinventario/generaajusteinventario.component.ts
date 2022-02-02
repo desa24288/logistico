@@ -50,9 +50,9 @@ export class GeneraajusteinventarioComponent implements OnInit {
     public _BsModalService          : BsModalService,
     private TiporegistroService     : TiporegistroService,
     private MotivoAjusteService     : MotivoAjusteService
-  ) { 
+  ) {
 
-    this.FormGeneraAjusteInventario = this.formBuilder.group({  
+    this.FormGeneraAjusteInventario = this.formBuilder.group({
       tiporegistro : [null],
       boddestino   : [null],
       periodo      : [null],
@@ -61,7 +61,7 @@ export class GeneraajusteinventarioComponent implements OnInit {
   }
 
   ngOnInit() {
-    
+
     this.TiporegistroService.list(this.usuario,this.servidor).subscribe(
       data => {
         this.tiposderegistros = data;
@@ -89,7 +89,7 @@ export class GeneraajusteinventarioComponent implements OnInit {
   }
 
   getCmecodigo(event: any) {
-    this.cmecodigo = event.cmecodigo;  
+    this.cmecodigo = event.cmecodigo;
     this.BuscaBodegaDestino();
   }
 
@@ -109,11 +109,13 @@ export class GeneraajusteinventarioComponent implements OnInit {
     // console.log("usuario:", this.usuario,"servidor:",this.servidor);
     this._BodegasService.listaBodegaDestinoSucursal(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.usuario, this.servidor).subscribe(
       response => {
-        this.bodegasdestino = response;
+        if (response != null) {
+          this.bodegasdestino = response;
+        }
       },
       error => {
         console.log(error);
-        
+
         alert("Error al Buscar Bodegas de Destino");
       }
     );
@@ -122,7 +124,9 @@ export class GeneraajusteinventarioComponent implements OnInit {
   BuscaPeriodoInventario(codigobod: number){
     this._inventarioService.BuscaPeriodo(codigobod,this.usuario,this.servidor).subscribe(
       response => {
-        this.periodos=response
+        if (response != null) {
+          this.periodos=response
+        }
       },
       error => {
         console.log(error);
@@ -133,7 +137,7 @@ export class GeneraajusteinventarioComponent implements OnInit {
   }
 
   Limpiar(){
-   
+
     this.FormGeneraAjusteInventario.reset();
     this.detallesinventariosPaginacion =[];
     this.detallesinventarios= [];
@@ -169,13 +173,15 @@ export class GeneraajusteinventarioComponent implements OnInit {
     this._inventarioService.BuscaDetalleInventario(this.FormGeneraAjusteInventario.value.periodo,
       this.FormGeneraAjusteInventario.value.boddestino, this.FormGeneraAjusteInventario.value.tiporegistro,this.usuario,this.servidor).subscribe(
       response => {
-        if(response.length==0){
-          this.alertSwalAlert.title="Debe ingresar parametros de búsqueda";
-          this.alertSwalAlert.text="Puede que no existan registros"
-          this.alertSwalAlert.show();
-        }else{
-          this.detallesinventarios=response;
-          this.detallesinventariosPaginacion = this.detallesinventarios.slice(0,8)
+        if (response != null) {
+          if(response.length==0){
+            this.alertSwalAlert.title="Debe ingresar parametros de búsqueda";
+            this.alertSwalAlert.text="Puede que no existan registros"
+            this.alertSwalAlert.show();
+          }else{
+            this.detallesinventarios=response;
+            this.detallesinventariosPaginacion = this.detallesinventarios.slice(0,8)
+          }
         }
       },
       error => {
@@ -185,11 +191,6 @@ export class GeneraajusteinventarioComponent implements OnInit {
     );
   }
 
-  // CambioMotivo(motivo: MotivoAjuste, registro: InventarioDetalle){
-  //   this.motivos2 = motivo;
-  //   console.log("ID y codmotivo", this.motivos2,motivo, registro);
-  //   //console.log("el valor es:", registro)
-  // }
   CambioMotivo(registro:InventarioDetalle){
   }
 
@@ -208,13 +209,12 @@ export class GeneraajusteinventarioComponent implements OnInit {
       if (result.value) {
         this.GuardaAjusteInventario();
       }
-    })    
+    })
   }
 
   GuardaAjusteInventario(){
     var estajuste= 0;
-    this.detallesinventarios.forEach(element => { 
-     // if(element.campo == ""){
+    this.detallesinventarios.forEach(element => {
         var temporal = new GrabaAjuste;
         temporal.iddetalleinven = element.iddetalleinven;
         temporal.idinventario   = element.idinventario;
@@ -235,28 +235,9 @@ export class GeneraajusteinventarioComponent implements OnInit {
           estajuste= estajuste+1;
         }else{
         }
-
         this.paraminvajuste.push(temporal);
-        
         }
-      //}
     );
-    // console.log("se llena la variable", this.paraminvajuste);
-    // this._inventarioService.GrabaAjuste(this.paraminvajuste).subscribe(
-    //   response => {
-    //     this.alertSwal.title = "Ajuste Inventario Generado Correctamente".concat();
-    //     this.alertSwal.show();                   
-    //   },
-    //   error => {
-    //     this.alertSwalError.title="Error al Guardar Ajuste Inventario";
-    //     this.alertSwalError.show();
-        
-    //   }
-    // );
-    
-    if(estajuste >0){
-
-    }
   }
 
 }

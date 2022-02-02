@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { PageChangedEvent } from 'ngx-bootstrap/pagination';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
@@ -6,6 +6,9 @@ import { environment } from '../../../environments/environment';
 import { AlertComponent } from 'ngx-bootstrap/alert/alert.component';
 import { DatePipe } from '@angular/common';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
+import { Router, ActivatedRoute } from '@angular/router';
+/* Tabs */
+import { TabsetComponent } from 'ngx-bootstrap/tabs';
 /* Models */
 import { DocIdentificacion } from '../../models/entity/DocIdentificacion';
 import { Solicitud } from '../../models/entity/Solicitud';
@@ -34,6 +37,9 @@ import { InformesService } from '../../servicios/informes.service';
 import { Plantillas } from 'src/app/models/entity/PlantillasBodegas';
 import { DetallePlantillaBodega } from '../../models/entity/DetallePlantillaBodega';
 import { Permisosusuario } from '../../permisos/permisosusuario';
+import { BusquedaproductosService } from 'src/app/servicios/busquedaproductos.service';
+import { PacientesService } from '../../servicios/pacientes.service';
+import { BodegaDestino } from 'src/app/models/entity/BodegaDestino';
 
 @Component({
   selector: 'app-solicitudpaciente',
@@ -46,95 +52,138 @@ export class SolicitudpacienteComponent implements OnInit {
   @ViewChild('alertSwalAlert', { static: false }) alertSwalAlert: SwalComponent;
   @ViewChild('alertSwalError', { static: false }) alertSwalError: SwalComponent;
   @ViewChild('alertSwalConfirmar', { static: false }) alertSwalConfirmar: SwalComponent;
+  /**Para uso dinamico de tabs */
+  @ViewChild('tabProducto', { static: false }) tabProductoTabs: TabsetComponent;
 
-  public modelopermisos: Permisosusuario = new Permisosusuario();
+  public modelopermisos               : Permisosusuario = new Permisosusuario();
   //Array
-  public alerts: Array<any> = [];
-  public docsidentis: Array<DocIdentificacion> = [];
-  public tipoambitos: Array<TipoAmbito> = [];
-  public estadosolicitudes: Array<EstadoSolicitud> = [];
-  public arrdetalleMedicamentos: Array<DetalleSolicitud> = [];
-  public arrMedicamentopaginacion: Array<DetalleSolicitud> = [];
-  public arrdetalleInsumos: Array<DetalleSolicitud> = [];
-  public arrInsumospaginacion: Array<DetalleSolicitud> = [];
-  public grillaMedicamentos: Array<DetalleSolicitud> = [];
-  public grillaInsumos: Array<DetalleSolicitud> = [];
+  public alerts                       : Array<any> = [];
+  public docsidentis                  : Array<DocIdentificacion> = [];
+  public tipoambitos                  : Array<TipoAmbito> = [];
+  public estadosolicitudes            : Array<EstadoSolicitud> = [];
+  public arrdetalleMedicamentos       : Array<DetalleSolicitud> = [];
+  public arrMedicamentopaginacion     : Array<DetalleSolicitud> = [];
+  public arrdetalleMedicamentos_aux   : Array<DetalleSolicitud> = [];
+  public arrMedicamentopaginacion_aux : Array<DetalleSolicitud> = [];
+  public arrdetalleMedicamentos_2     : Array<DetalleSolicitud> = [];
+  public arrdetalleInsumos            : Array<DetalleSolicitud> = [];
+  public arrdetalleInsumos_2          : Array<DetalleSolicitud> = [];
+  public arrInsumospaginacion         : Array<DetalleSolicitud> = [];
+  public arrdetalleInsumos_aux        : Array<DetalleSolicitud> = [];
+  public arrInsumospaginacion_aux     : Array<DetalleSolicitud> = [];
+  public grillaMedicamentos           : Array<DetalleSolicitud> = [];
+  public grillaInsumos                : Array<DetalleSolicitud> = [];
   //Obj
-  public FormDatosPaciente: FormGroup;
-  private _BSModalRef: BsModalRef;
-  public dataPacienteSolicitud: Solicitud = new Solicitud();// Guarda datos de la busqueda
-  public solmedicamento: Solicitud = new Solicitud();
-  public solinsumo: Solicitud = new Solicitud();
-  public solicitudMedicamento: Solicitud = new Solicitud();
-  public solicitudInsumo: Solicitud = new Solicitud();
-  public varListaDetalleDespacho: DetalleSolicitud = new DetalleSolicitud();
+  public FormDatosPaciente            : FormGroup;
+  public FormDatosProducto            : FormGroup;
+  private _BSModalRef                 : BsModalRef;
+  public dataPacienteSolicitud        : Solicitud = new Solicitud();// Guarda datos de la busqueda
+  public solmedicamento               : Solicitud = new Solicitud();
+  public solinsumo                    : Solicitud = new Solicitud();
+  public solicitudMedicamento         : Solicitud = new Solicitud();
+  public solicitudInsumo              : Solicitud = new Solicitud();
+  public varListaDetalleDespacho      : DetalleSolicitud = new DetalleSolicitud();
   //Var
-  public servidor = environment.URLServiciosRest.ambiente;
-  public usuario = environment.privilegios.usuario;
-  public hdgcodigo: number;
-  public esacodigo: number;
-  public cmecodigo: number;
-  public numsolins: number;
-  public numsolicitud: number = 0;
-  public bodorigen: string;
-  public boddestino: string;
+  public servidor     = environment.URLServiciosRest.ambiente;
+  public usuario      = environment.privilegios.usuario;
+  public hdgcodigo    : number;
+  public esacodigo    : number;
+  public cmecodigo    : number;
+  public numsolins    : number;
+  public numsolicitud : number = 0;
+  public bodorigen    : string;
+  public boddestino   : string;
   /**Usado para la funcion logicavacios()//@ML */
-  public btnCrearsol = false;
+  public verificanull = false;
   /**/
-  public vacios = true;
-  public tipobusqueda = null;
-  public loading = false;
-  public solmedic: boolean = false;
-  public solins: boolean = false;
-  public imprimesolins: boolean = false;
-  public accionsolicitud = 'I';
-  public locale = 'es';
-  public bsConfig: Partial<BsDatepickerConfig>;
-  public colorTheme = 'theme-blue';
-  public bodegassuministro: Array<BodegasrelacionadaAccion> = [];
-  public solic1: string;
-  public solic2: string;
+  public vacios             = true;
+  public tipobusqueda       = null;
+  public loading            = false;
+  public solmedic           : boolean = false;
+  public solins             : boolean = false;
+  public imprimesolins      : boolean = false;
+  public accionsolicitud    = 'I';
+  public locale             = 'es';
+  public bsConfig           : Partial<BsDatepickerConfig>;
+  public colorTheme         = 'theme-blue';
+  public bodegasdestino     : Array<BodegaDestino> = [];
+  public bodegassuministro  : Array<BodegasrelacionadaAccion> = [];
+  public solic1             : string;
+  public solic2             : string;
   public modificarsolicitud = false;
-  public imprimirsolicitud = false;//usado para activar btnImprimir al crear 2 solicitud //@Mlobos
-  public fechaactual: string;
-  public nomplantilla: string;
-  es_controlado: string;
-  es_consignacion: string;
-  public numsolmedicamento = null;
-  public numsolinsumo = null;
-  public codambito = null;
+  /**usado para activar btnImprimir al crear 2 solicitud //@Mlobos */
+  public imprimirsolicitud            = false;
+  public fechaactual                  : string;
+  public nomplantilla                 : string;
+  es_controlado                       : string;
+  es_consignacion                     : string;
+  public numsolmedicamento            = null;
+  public numsolinsumo                 = null;
+  public codambito                    = null;
+  public btnlimpiargrillamed          = false;
+  public btnlimpiargrillains          = false;
+  public soliid                       = sessionStorage.getItem('detallecargo');
+  public codprod                      = null;
+  public descprod                     = null;
+  public btnvolver                    = this.soliid === undefined || this.soliid === null?false:true;
+  public desactivabtnelimmed          : boolean = false;
+  public desactivabtnelimins          : boolean = false;
+  public bloqbtn                      : boolean = false;
+  public ActivaBotonLimpiaBusca       : boolean = false;
+  public ActivaBotonBuscaGrilla       : boolean = false;
+  public ActivaBotonBuscaGrillaInsumo : boolean = false;
+  public ActivaBotonLimpiaBuscaInsumo : boolean = false;
+  public activaagregar                : boolean = false;
+  public estado_aux                   : number;
+  public origensolicitud              : number = 40;
+
+  public optMed : string = "DESC";
+  public optIns : string = "DESC";
+
+  /** indica si solicitud es medicamento o insumos */
+  public tieneProductos = false;
 
   constructor(
-    public datePipe: DatePipe,
-    public localeService: BsLocaleService,
-    public DocidentificacionService: DocidentificacionService,
-    public formBuilder: FormBuilder,
-    public _BsModalService: BsModalService,
-    public _solicitudService: SolicitudService,
-    public _tipoambitoService: TipoambitoService,
+    public datePipe                 : DatePipe,
+    public localeService            : BsLocaleService,
+    public DocidentificacionService : DocidentificacionService,
+    public formBuilder              : FormBuilder,
+    public _BsModalService          : BsModalService,
+    public _solicitudService        : SolicitudService,
+    public _tipoambitoService       : TipoambitoService,
     public _estadosolicitudesService: SolicitudService,
-    public _BodegasService: BodegasService,
+    public _BodegasService          : BodegasService,
     private _imprimesolicitudService: InformesService,
+    private route                   : ActivatedRoute,
+    private router                  : Router,
+    public _BusquedaproductosService: BusquedaproductosService,
+    public _PacientesService        : PacientesService,
   ) {
     this.FormDatosPaciente = this.formBuilder.group({
-      tipodocumento: [{ value: null, disabled: true }, Validators.required],
-      numidentificacion: [{ value: null, disabled: true }, Validators.required],
-      numcuenta: [{ value: null, disabled: true }, Validators.required],
-      nombrepaciente: [{ value: null, disabled: true }, Validators.required],
-      edad: [{ value: null, disabled: true }, Validators.required],
-      unidad: [{ value: null, disabled: true }, Validators.required],
-      sexo: [{ value: null, disabled: true }, Validators.required],
-      ambito: [{ value: 3, disabled: false }, Validators.required],
-      estado: [{ value: 10, disabled: false }, Validators.required],
-      numsolicitud: [{ value: null, disabled: true }, Validators.required],
-      pieza: [{ value: null, disabled: true }, Validators.required],
-      cama: [{ value: null, disabled: true }, Validators.required],
-      fechahora: [{ value: new Date(), disabled: true }, Validators.required],
-      ubicacion: [{ value: null, disabled: true }, Validators.required],
-      medico: [{ value: null, disabled: true }, Validators.required],
-      bodcodigo: [{ value: null, disabled: false }, Validators.required],
+      tipodocumento     : [{ value: null, disabled: false }, Validators.required],
+      numidentificacion : [{ value: null, disabled: false }, Validators.required],
+      numcuenta         : [{ value: null, disabled: true }, Validators.required],
+      nombrepaciente    : [{ value: null, disabled: true }, Validators.required],
+      edad              : [{ value: null, disabled: true }, Validators.required],
+      unidad            : [{ value: null, disabled: true }, Validators.required],
+      sexo              : [{ value: null, disabled: true }, Validators.required],
+      ambito            : [{ value: 3, disabled: false }, Validators.required],
+      estado            : [{ value: 10, disabled: false }, Validators.required],
+      numsolicitud      : [{ value: null, disabled: true }, Validators.required],
+      pieza             : [{ value: null, disabled: true }, Validators.required],
+      cama              : [{ value: null, disabled: true }, Validators.required],
+      fechahora         : [{ value: new Date(), disabled: true }, Validators.required],
+      ubicacion         : [{ value: null, disabled: true }, Validators.required],
+      medico            : [{ value: null, disabled: true }, Validators.required],
+      bodcodigo         : [{ value: null, disabled: false }, Validators.required],
       codbodegasuministro: [{ value: null, disabled: false }, Validators.required],
     });
+    this.FormDatosProducto = this.formBuilder.group({
+      codigo      : [{ value: null, disabled: false }, Validators.required],
+      descripcion : [{ value: null, disabled : true}, Validators.required],
+      cantidad    : [{ value: null, disabled: false }, Validators.required]
+    });
+    // this.soliid = sessionStorage.getItem('detallecargo');
 
   }
 
@@ -143,18 +192,51 @@ export class SolicitudpacienteComponent implements OnInit {
     this.esacodigo = Number(sessionStorage.getItem('esacodigo').toString());
     this.cmecodigo = Number(sessionStorage.getItem('cmecodigo').toString());
     this.usuario = sessionStorage.getItem('Usuario').toString();
+    this.FormDatosPaciente.controls.ambito.disable();
+    this.FormDatosPaciente.controls.estado.disable();
+    this.FormDatosProducto.controls.codigo.disable();
+    this.FormDatosProducto.controls.descripcion.disable();
+    this.FormDatosProducto.controls.cantidad.disable();
+    this.FormDatosPaciente.controls.numidentificacion.disable();
     this.datosUsuario();
     /* completa combobox */
+    this.BuscaBodegaDestino();
     this.getParametros();
     this.setDate();
+  }
 
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.setSolpaciente();
+    });
+  }
+
+  ngOnDestroy(){
+    if(this.dataPacienteSolicitud != undefined){
+      if(this.dataPacienteSolicitud.bandera != 2){
+        this.ValidaEstadoSolicitud(1,'destroy');
+      }
+    }
+  }
+
+  /**
+   * se crea funcion que carga solicitud desde pantalla busqueda de cuentas-> Cargos paciente
+   * fecha mod. : 20-01-2021
+   * autor: miguel.lobos@sonda.com
+   */
+  setSolpaciente() {
+    if (this.soliid === undefined || this.soliid === null) {
+      return;
+    } else {
+      sessionStorage.removeItem('detallecargo');
+      this.busquedaSolicitud(this.soliid, 'Solicitud');
+    }
   }
 
   setDate() {
     defineLocale(this.locale, esLocale);
     this.localeService.use(this.locale);
     this.bsConfig = Object.assign({}, { containerClass: this.colorTheme });
-    console.log("hora?",this.bsConfig,this.locale,esLocale,new Date())
   }
 
   datosUsuario() {
@@ -191,7 +273,12 @@ export class SolicitudpacienteComponent implements OnInit {
     }
   }
 
-  cargaSolicitud(soliid: number) {
+  SeleccionTipoDoc(){
+    this.FormDatosPaciente.controls.numidentificacion.enable();
+  }
+
+  cargaSolicitud(solid: any) {
+    const soliid = parseInt(solid);
     this.arrdetalleMedicamentos = [];
     this.arrMedicamentopaginacion = [];
     this.arrdetalleInsumos = [];
@@ -200,17 +287,63 @@ export class SolicitudpacienteComponent implements OnInit {
     this.tipobusqueda = 'Solicitud';
 
     this._solicitudService.BuscaSolicitud(soliid, this.hdgcodigo, this.esacodigo, this.cmecodigo, null,
-      null, null, null, null, null, this.servidor, null, this.codambito, null, null, null, null, null,0).subscribe(
+      null, null, null, null, null, this.servidor, null, this.codambito, null, null, null, null, null,0, "","").subscribe(
         async response => {
+          if (response != null) {
+            this.dataPacienteSolicitud = response[0];
+            this.imprimirsolicitud = true;
+            this.tipobusqueda = "Solicitud";
+            this.loading = false;
+            this.setDatos();
+            this.estado_aux = this.dataPacienteSolicitud.estadosolicitud;
 
-          this.dataPacienteSolicitud = response[0];
-          this.imprimirsolicitud = true;
-          this.tipobusqueda = "Solicitud";
-          // response.forEach(data => {
-          //   this.dataPacienteSolicitud = data;
-          // });
+            if(this.dataPacienteSolicitud.bandera === 2){ //Si bandera es =2 solicitud tomada
+              this.verificanull = false;
+              this.activaagregar = false;
+              this.FormDatosProducto.disable();
+              if(this.arrdetalleMedicamentos.length >0){
+
+                this.tieneProductos = true;
+
+                this.arrdetalleMedicamentos.forEach(x=>{
+                  x.bloqcampogrilla = false;
+                  x.bloqcampogrilla2 = false;
+                });
+
+                this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice( 0,20);
+                this.alertSwalAlert.title = "Solicitud en preparación";
+                this.alertSwalAlert.text = "No puede ser modificada";
+                this.alertSwalAlert.show();
+              }else{
+                this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice( 0,20);
+                this.alertSwalAlert.title = "Solicitud en preparación";
+                this.alertSwalAlert.text = "No puede ser modificada";
+                this.alertSwalAlert.show();
+              }
+              if(this.arrdetalleInsumos.length > 0){
+
+                this.tieneProductos = true;
+
+                this.arrdetalleInsumos.forEach(x=>{
+                  x.bloqcampogrilla = false;
+                  x.bloqcampogrilla2 = false;
+                })
+                this.arrInsumospaginacion = this.arrdetalleInsumos.slice( 0,20);
+                this.alertSwalAlert.title = "Solicitud en preparación";
+                this.alertSwalAlert.text = "No puede ser modificada";
+
+                this.alertSwalAlert.show();
+              }else{
+                this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice( 0,20);
+                this.alertSwalAlert.title = "Solicitud en preparación";
+                this.alertSwalAlert.text = "No puede ser modificada";
+                this.alertSwalAlert.show();
+              }
+            }else{
+              this.ValidaEstadoSolicitud(2,'BuscaSolicitudes');
+            }
+          }
           this.loading = false;
-          this.setDatos();
         },
         error => {
           this.loading = false;
@@ -226,33 +359,82 @@ export class SolicitudpacienteComponent implements OnInit {
     this.arrdetalleMedicamentos = [];
     this.arrMedicamentopaginacion = [];
     this._solicitudService.BuscaSolicitud(soliid, this.hdgcodigo, this.esacodigo, this.cmecodigo, null,
-      null, null, null, null, null, this.servidor, null, this.codambito, null, null, null, null, null,0).subscribe(
+      null, null, null, null, null, this.servidor, null, this.codambito, null, null, null, null, null,0, "","").subscribe(
         response => {
-          /** Activar solo btn Imprimir // @MLobos */
-          this.imprimirsolicitud = false;
-          this.btnCrearsol = false;
-          this.modificarsolicitud = false;
-          /***/
-          response.forEach(data => {
-            this.dataPacienteSolicitud = data;
-          });
-          this.loading = false;
-          this.tipobusqueda = null;
-          this.dataPacienteSolicitud.solicitudesdet.forEach(element => {
-            if (element.tiporegmein == "I") {
-              this.solins = true;
-              this.arrdetalleInsumos = this.dataPacienteSolicitud.solicitudesdet
-              this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0, 20);
-              this.loading = false;
-            } else {
-              if (element.tiporegmein == "M") {
-                this.solmedic = true;
-                this.arrdetalleMedicamentos = this.dataPacienteSolicitud.solicitudesdet;
-                this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0, 20)
+          if (response != null) {
+            /** Activar solo btn Imprimir */
+            this.imprimirsolicitud = true;
+            this.verificanull = false;
+            this.modificarsolicitud = false;
+            /***/
+            response.forEach(data => {
+              this.dataPacienteSolicitud = data;
+            });
+            this.loading = false;
+            this.tipobusqueda = 'Total';
+            this.dataPacienteSolicitud.solicitudesdet.forEach(element => {
+              if (element.tiporegmein == "I") {
+                this.solins = true;
+                this.arrdetalleInsumos = this.dataPacienteSolicitud.solicitudesdet
+                element.bloqcampogrilla = true;
+                this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0, 20);
                 this.loading = false;
+              } else {
+                if (element.tiporegmein == "M") {
+                  this.solmedic = true;
+                  this.arrdetalleMedicamentos = this.dataPacienteSolicitud.solicitudesdet;
+                  element.bloqcampogrilla = true;
+                  this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0, 20)
+                  this.loading = false;
+                }
               }
+            })
+            if(this.dataPacienteSolicitud.bandera === 2){ //Si bandera es =2 solicitud tomada
+              this.verificanull = false;
+              this.activaagregar = false;
+              this.FormDatosProducto.disable();
+              if(this.arrdetalleMedicamentos.length >0){
+
+                this.tieneProductos = true;
+
+                this.arrdetalleMedicamentos.forEach(x=>{
+                  x.bloqcampogrilla = false;
+                  x.bloqcampogrilla2 = false;
+                })
+                this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice( 0,20);
+                this.alertSwalAlert.title = "Solicitud en preparación";
+                this.alertSwalAlert.text = "No puede ser modificada";
+                this.alertSwalAlert.show();
+              }else{
+                this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice( 0,20);
+                this.alertSwalAlert.title = "Solicitud en preparación";
+                this.alertSwalAlert.text = "No puede ser modificada";
+                this.alertSwalAlert.show();
+              }
+              if(this.arrdetalleInsumos.length >0){
+
+                this.tieneProductos = true;
+
+                this.arrdetalleInsumos.forEach(x=>{
+                  x.bloqcampogrilla = false;
+                  x.bloqcampogrilla2 = false;
+                })
+                this.arrInsumospaginacion = this.arrdetalleInsumos.slice( 0,20);
+                this.alertSwalAlert.title = "Solicitud en preparación";
+                this.alertSwalAlert.text = "No puede ser modificada";
+
+                this.alertSwalAlert.show();
+              }else{
+                this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice( 0,20);
+                this.alertSwalAlert.title = "Solicitud en preparación";
+                this.alertSwalAlert.text = "No puede ser modificada";
+                this.alertSwalAlert.show();
+              }
+            }else{
+              this.ValidaEstadoSolicitud(2,'BuscaSolicitudes');
             }
-          })
+          }
+          this.loading = false;
         },
         error => {
           this.loading = false;
@@ -270,7 +452,7 @@ export class SolicitudpacienteComponent implements OnInit {
       this.alertSwalAlert.show();
       return;
     }
- 
+
     switch (busqueda) {
       case 'Paciente':
         this._BSModalRef = this._BsModalService.show(ModalpacienteComponent, this.setModal("Busqueda de ".concat(busqueda)));
@@ -280,51 +462,152 @@ export class SolicitudpacienteComponent implements OnInit {
             /* 1-Limpia 2-asigna variable tipobusqueda 3-Aplica logica vacios 4-setea datos buscados//comentarios @MLobos*/
 
             this.limpiar();
-            this.dataPacienteSolicitud = Retorno
-            this.imprimirsolicitud = true;
+            this.dataPacienteSolicitud = Retorno;
+            this.imprimirsolicitud = false;
             this.tipobusqueda = busqueda;
+            this.FormDatosProducto.controls.codigo.enable();
+            this.FormDatosProducto.controls.descripcion.enable();
+            this.FormDatosProducto.controls.cantidad.enable();
+            this.FormDatosPaciente.controls.tipodocumento.disable();
+            this.FormDatosPaciente.controls.numidentificacion.disable();
+            this.activaagregar = true;
             this.logicaVacios();
             this.setDatos();
+
+          }else{
+            this.loading = false;
+            this.ValidaEstadoSolicitud(2,'BuscaPaciente');
 
           }
         });
         break;
       case 'Solicitud':
+        if(this.dataPacienteSolicitud != undefined){
+          if(this.dataPacienteSolicitud.bandera === 1){  //Si bandera es =2 solicitud tomada
+            this.ValidaEstadoSolicitud(1,'BuscaSolicitudes');
+          }
+        }
         this._BSModalRef = this._BsModalService.show(BusquedasolicitudpacientesComponent, this.setModal("Busqueda de ".concat(busqueda)));
         this._BSModalRef.content.onClose.subscribe((Retorno: any) => {
+
+
+
           if (Retorno !== undefined) {
-
-            /* 1-Limpia 2-asigna variable tipobusqueda 3-Aplica logica vacios 4-setea datos buscados//comentarios @MLobos*/
-
-            this._solicitudService.BuscaSolicitud(Retorno.soliid, this.hdgcodigo, this.esacodigo, this.cmecodigo, 0, "", "", 0, 0, 0, this.servidor, 0, -1, 0, 0, 0, 0, "",0).subscribe(
-              response => {
-                this.limpiar();
-                this.dataPacienteSolicitud = response[0];
-
-                this.BuscaBodegaDeServicio(Retorno.codservicioori)
-
-                this.imprimirsolicitud = true;
-                this.tipobusqueda = busqueda;
-                this.logicaVacios();
-                this.setDatos();
-              });
-
+            this.busquedaSolicitud(Retorno.soliid, busqueda);
+          }else{
+            this.ValidaEstadoSolicitud(2,'BuscaSolicitudes');
           }
+
         }
         );
         break;
     }
+  }
 
+  /**
+   * funcion que tras buscar solicitud Limpia, asigna tipobusqueda, aplica logica vacios y setea datos buscados
+   * fecha mod : 11-02-2021
+   * @param_numsol = numero de solcitud entrante
+   * @param_busqueda = el tipo de busqueda que ejecuta el servicio, puede ser Solicitud, Paciente, null o Total
+   * autor: Miguel L. miguel.lobos@sonda.com
+   */
+  async busquedaSolicitud(numsol, busqueda) {
+    // tslint:disable-next-line: radix
+    const soliid = parseInt(numsol);
+    this.loading = true;
+    try {
+      const solicitud = await this._solicitudService.BuscaSolicitud(soliid, this.hdgcodigo, this.esacodigo,
+        this.cmecodigo, 0, '', '', 0, 0, 0, this.servidor, 0, -1, 0, 0, 0, 0, '', 0, "","").toPromise();
+
+      await this.limpiar();
+      const codservori = solicitud[0].codservicioori;
+      this.dataPacienteSolicitud = solicitud[0];
+      this.estado_aux = this.dataPacienteSolicitud.estadosolicitud;
+      /** verifica si solicitud es despachado total */
+      if(this.dataPacienteSolicitud.estadosolicitud === 50) {
+        this.tipobusqueda = 'Total';
+      } else {
+        this.tipobusqueda = busqueda;
+      }
+      if(this.dataPacienteSolicitud.estadosolicitud == 50 || this.dataPacienteSolicitud.estadosolicitud == 60
+        || this.dataPacienteSolicitud.estadosolicitud == 70 || this.dataPacienteSolicitud.estadosolicitud ==75){
+          this.bloqbtn = true;
+          this.FormDatosProducto.controls.codigo.enable();
+      }
+      if(this.dataPacienteSolicitud.estadosolicitud === 10 || this.dataPacienteSolicitud === 40){
+        this.FormDatosProducto.controls.codigo.enable();
+        this.FormDatosProducto.controls.descripcion.enable();
+        this.FormDatosProducto.controls.cantidad.enable();
+        this.activaagregar = true;
+      }
+
+      // await this.BuscaBodegaDeServicio(codservori); //se desconoce su utilidad
+      this.imprimirsolicitud = true;
+      await this.logicaVacios();
+      await this.setDatos();
+      this.loading = false;
+
+      if(this.dataPacienteSolicitud.bandera === 2){ //Si bandera es =2 solicitud tomada
+        this.verificanull = false;
+        this.activaagregar = false;
+        this.FormDatosProducto.disable();
+        if(this.arrdetalleMedicamentos.length >0){
+
+          this.tieneProductos = true;
+
+          this.arrdetalleMedicamentos.forEach(x=>{
+            x.bloqcampogrilla = false;
+            x.bloqcampogrilla2 = false;
+          })
+          this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice( 0,20);
+          this.alertSwalAlert.title = "Solicitud en preparación";
+          this.alertSwalAlert.text = "No puede ser modificada";
+          this.alertSwalAlert.show();
+        }else{
+          this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice( 0,20);
+          this.alertSwalAlert.title = "Solicitud en preparación";
+          this.alertSwalAlert.text = "No puede ser modificada";
+          this.alertSwalAlert.show();
+        }
+        if(this.arrdetalleInsumos.length >0){
+
+          this.tieneProductos = true;
+
+          this.arrdetalleInsumos.forEach(x=>{
+            x.bloqcampogrilla = false;
+            x.bloqcampogrilla2 = false;
+          })
+          this.arrInsumospaginacion = this.arrdetalleInsumos.slice( 0,20);
+          this.alertSwalAlert.title = "Solicitud en preparación";
+          this.alertSwalAlert.text = "No puede ser modificada";
+          this.alertSwalAlert.show();
+        }else{
+          this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice( 0,20);
+          this.alertSwalAlert.title = "Solicitud en preparación";
+          this.alertSwalAlert.text = "No puede ser modificada";
+          this.alertSwalAlert.show();
+        }
+
+      }else{
+        this.ValidaEstadoSolicitud(2,'BuscaSolicitudes');
+      }
+    } catch {
+      this.alertSwalAlert.title = 'Error en el proceso favor reintente';
+      this.alertSwalAlert.show();
+      this.loading = false;
+    }
   }
 
   BuscaBodegaDeServicio(codservicioori: number) {
     this._BodegasService.BuscaBodegaporServicio(this.hdgcodigo, this.esacodigo, this.cmecodigo,
       codservicioori, this.usuario, this.servidor).subscribe(
         response => {
-          if (response.length == 0) {
-          } else {
-            this.FormDatosPaciente.get('bodcodigo').setValue(response[0].boddescodigo);
-            this.BuscaBodegasSuministro(response[0].boddescodigo);
+          if (response != null) {
+            if (response.length == 0) {
+            } else {
+              this.FormDatosPaciente.get('bodcodigo').setValue(response[0].boddescodigo);
+              this.BuscaBodegasSuministro(response[0].boddescodigo);
+            }
           }
         },
         error => {
@@ -339,11 +622,101 @@ export class SolicitudpacienteComponent implements OnInit {
     this._BSModalRef = this._BsModalService.show(BusquedaproductosComponent, this.setModal("Busqueda de Productos"));
     this._BSModalRef.content.onClose.subscribe((RetornoProductos: Articulos) => {
       if (RetornoProductos !== undefined) {
-
-        this.setProducto(RetornoProductos);
-        this.logicaVacios();
+        this.validaCodigo(RetornoProductos.codigo).then((result) => {
+          if(result) {
+            this.setProducto(RetornoProductos);
+            this.FormDatosProducto.reset();
+            this.loading = false;
+            this.logicaVacios();
+          }
+        });
+      }else{
+        this.loading = false;
       }
-    });
+    },error => {
+        this.loading = false;
+      }
+    );
+    this.loading = false;
+  }
+
+  async getProducto(tipo: number) {
+      var noexisteprod : boolean = false;
+      if(this.FormDatosProducto.controls.codigo.value!=null){
+        var codProdAux = this.FormDatosProducto.controls.codigo.value.toString();
+      }
+      switch (tipo) {
+        case 1:
+          if(this.arrdetalleMedicamentos.length>0){
+
+            this.tieneProductos = true;
+
+            this._solicitudService.BuscarProductoPorLike(this.hdgcodigo, this.esacodigo,
+            this.cmecodigo,codProdAux,1,this.usuario,this.servidor,
+            this.arrdetalleMedicamentos,null,null,null,null).subscribe(response => { });
+          }else{
+            noexisteprod= false;
+          }
+          break;
+        case 2:
+          if(this.arrdetalleInsumos.length>0){
+
+            this.tieneProductos = true;
+
+            this._solicitudService.BuscarProductoPorLike(this.hdgcodigo, this.esacodigo,
+              this.cmecodigo,codProdAux,1,this.usuario,this.servidor,
+              this.arrdetalleInsumos,null,null,null,null).subscribe(response => { });
+            this.loading = false;
+          }else{
+            noexisteprod= false;
+          }
+          break;
+      }
+      if(!noexisteprod ){
+        this.codprod = this.FormDatosProducto.controls.codigo.value;
+        if (this.codprod === null || this.codprod === '') {
+          return;
+        } else {
+          this.loading = true;
+          const tipodeproducto = 'MIM';
+          const controlado = '';
+          const controlminimo = '';
+          const idBodega = 0;
+          const consignacion = '';
+
+          this._BusquedaproductosService.BuscarArticulosFiltros(this.hdgcodigo, this.esacodigo,
+            this.cmecodigo, this.codprod, null, null, null, null, tipodeproducto, idBodega, controlminimo, controlado, consignacion
+            , this.usuario, null, this.servidor).subscribe(
+              response => {
+                if (response != null) {
+                  if (!response.length) {
+                    this.loading = false;
+                    this.onBuscarProducto();
+                  } else if (response.length) {
+                    if(response.length > 1){
+                      if(noexisteprod === false){
+                        this.onBuscarProducto();
+                      }
+                    }else{
+                      if(response.length === 1){
+                        this.loading = false;
+                        this.validaCodigo(response[0].codigo).then((result) => {
+                          if(result) {
+                            this.FormDatosProducto.reset();
+                            this.setProducto(response[0]);
+                            this.logicaVacios();
+                          }
+                        });
+                      }
+                    }
+                  }
+                }
+                this.loading = false;
+              }, error => {
+                this.loading = false;
+              });
+        }
+      }
   }
 
   onBuscarPlantillas() {
@@ -354,47 +727,30 @@ export class SolicitudpacienteComponent implements OnInit {
       else {
 
         this._BodegasService.BuscaPlantillas(this.servidor, sessionStorage.getItem('Usuario'), this.hdgcodigo, this.esacodigo,
-          this.cmecodigo, response.planid, '', '', '', 0, 0, '', '', 2).subscribe(
+          this.cmecodigo, response.planid, '', '', '', 0, 0, '', '', 2,"").subscribe(
             response_plantilla => {
-              if (response_plantilla.length == 0) {
-
-              } else {
-
+              if (response_plantilla.length != 0) {
                 this.loading = true;
                 if (response_plantilla.length > 0) {
-
-
                   let arrPlantillas: Plantillas = new Plantillas();
                   arrPlantillas = response_plantilla[0];
-
                   this.nomplantilla = arrPlantillas.plandescrip;
                   arrPlantillas.plantillasdet.forEach(res => {
-
-
                     this.setPlantilla(res);
                     this.logicaVacios();
                   });
-
                 }
                 this.loading = false;
-
-
-
               }
             });
       }
-
     });
-
-
-
   }
 
   /* Carga datos busqueda en pantalla */
   async setDatos() {
-
     this.numsolicitud = this.dataPacienteSolicitud.soliid;
-    this.FormDatosPaciente.get('tipodocumento').setValue(this.dataPacienteSolicitud.glstipidentificacion);
+    this.FormDatosPaciente.get('tipodocumento').setValue(this.dataPacienteSolicitud.tipodocpac);
     this.FormDatosPaciente.get('numidentificacion').setValue(this.dataPacienteSolicitud.numdocpac);
     this.FormDatosPaciente.get('nombrepaciente').setValue(this.dataPacienteSolicitud.apepaternopac.concat(" ")
       .concat(this.dataPacienteSolicitud.apematernopac).concat(" ")
@@ -413,7 +769,10 @@ export class SolicitudpacienteComponent implements OnInit {
     this.FormDatosPaciente.get('ambito').setValue(this.dataPacienteSolicitud.codambito);
     if (this.tipobusqueda === "Paciente") {
       this.FormDatosPaciente.get('fechahora').setValue(new Date());
-    } else if (this.tipobusqueda === "Solicitud") {
+      this.FormDatosPaciente.get('ambito').setValue(this.dataPacienteSolicitud.codambito);
+      this.FormDatosPaciente.controls.ambito.disable()
+      this.FormDatosPaciente.controls.estado.disable();
+    } else if (this.tipobusqueda === "Solicitud" || this.tipobusqueda === null || this.tipobusqueda === 'Total') {
       this.FormDatosPaciente.get('fechahora').setValue(this.datePipe.transform(this.dataPacienteSolicitud.fechacreacion, 'dd-MM-yyyy HH:mm:ss'));
       this.FormDatosPaciente.get('ambito').disable();
       this.FormDatosPaciente.get('estado').disable();
@@ -422,7 +781,17 @@ export class SolicitudpacienteComponent implements OnInit {
         //**Si tiene detalle de producto ejecuta funcion */
         this.cargaGrillaproductos();
       }
+
+      /**
+       * se bloquea combo bodegas al estar despachada total
+       * inc=263 | 13/12/2021 | @mlobos
+       */
+      if( this.dataPacienteSolicitud.estadosolicitud === 50 ) {
+        this.FormDatosPaciente.controls.bodcodigo.disable();
+
+      }
     }
+
     this.checkSoleliminada();
     this.loading = false;
   }
@@ -439,6 +808,17 @@ export class SolicitudpacienteComponent implements OnInit {
 
   cargaGrillaproductos() {
     this.dataPacienteSolicitud.solicitudesdet.forEach(element => {
+
+      this.tieneProductos = true;
+
+      if(this.dataPacienteSolicitud.estadosolicitud == 50 || this.dataPacienteSolicitud.estadosolicitud == 60
+      || this.dataPacienteSolicitud.estadosolicitud == 70 || this.dataPacienteSolicitud.estadosolicitud ==75){
+
+        element.bloqcampogrilla = false;
+
+      }else{
+        element.bloqcampogrilla = true;
+      }
       if (element.tiporegmein == "I") {
         this.solins = true;
       } else {
@@ -446,36 +826,47 @@ export class SolicitudpacienteComponent implements OnInit {
           this.solmedic = true;
         }
       }
-    })
+    });
     if (this.solins == true) {
-
+      this.tabProductoTabs.tabs[1].active = true;
       this.arrdetalleInsumos = this.dataPacienteSolicitud.solicitudesdet
       this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0, 20); // <- Llamar Función paginación
-      this.solins = false;
+
+      this.arrdetalleInsumos_aux = this.arrdetalleInsumos;
+      this.arrInsumospaginacion_aux = this.arrInsumospaginacion;
+
+      this.ActivaBotonBuscaGrillaInsumo = true;
       this.solmedic = false;
+      this.checkInsumosnuevo();
     } else {
       if (this.solmedic == true) {
+        this.tabProductoTabs.tabs[0].active = true;
         this.arrdetalleMedicamentos = this.dataPacienteSolicitud.solicitudesdet;
-        this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0,20)
+        this.arrdetalleMedicamentos.forEach(element => {
+          element.marcacheckgrilla = false;
+        });
+        this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0,20);
+
+        this.arrdetalleMedicamentos_aux = this.arrdetalleMedicamentos;
+        this.arrMedicamentopaginacion_aux = this.arrdetalleMedicamentos;
+
+        this.ActivaBotonBuscaGrilla = true;
         this.solins = false;
-        this.solmedic = false;
-
+        this.checkMedicamentonuevo();
       }
-
     }
   }
 
   /* Calculo formulación grilla Productos //@MLobos*/
   cantidadsolicitada(detalle: DetalleSolicitud) {
-    let dosis, dias, total: number = 0;
+    var dosis, dias, total: number = 0;
     dosis = detalle.dosis;
-    // formulacion = Math.round(24 / detalle.formulacion);
     dias = detalle.dias;
     total = dosis * detalle.formulacion;
     detalle.cantsoli = total * dias;
-    /* Si la busqueda es 'Solicitud'.. 
-      si acciond=I (inserta) entonces mantiene..
-      de lo contrario acciond=M (modifica) */
+    /* Si la busqueda es 'Solicitud'..
+    si acciond=I (inserta) entonces mantiene..
+    de lo contrario acciond=M (modifica) */
     if (this.tipobusqueda == 'Solicitud') {
       if (detalle.acciond !== 'I') {
         detalle.acciond = 'M';
@@ -495,11 +886,21 @@ export class SolicitudpacienteComponent implements OnInit {
   }
 
   limpiar() {
+    if(this.dataPacienteSolicitud != undefined){
+      if(this.dataPacienteSolicitud.bandera != 2){
+        this.ValidaEstadoSolicitud(1,'limpiar');
+      }
+    }
+
+    // this.dataPacienteSolicitud = null;
+    this.numsolmedicamento = null;
+    this.numsolinsumo = null;
     this.dataPacienteSolicitud = new Solicitud();
     this.accionsolicitud = 'I';
     this.fechaactual = null;
     this.nomplantilla = null;
     this.FormDatosPaciente.reset();
+    this.FormDatosProducto.reset();
     this.arrdetalleMedicamentos = [];
     this.arrMedicamentopaginacion = [];
     this.arrdetalleInsumos = [];
@@ -517,59 +918,94 @@ export class SolicitudpacienteComponent implements OnInit {
     this.solins = false;
     this.imprimesolins = false;
     this.FormDatosPaciente.get('fechahora').setValue(new Date());
+    this.desactivabtnelimmed = false;
+    this.desactivabtnelimins = false;
+    this.bloqbtn = false;
+    this.FormDatosPaciente.controls.ambito.disable()
+    this.FormDatosPaciente.controls.estado.disable();
+    this.ActivaBotonBuscaGrilla = false;
+    this.ActivaBotonBuscaGrillaInsumo = false;
+    this.FormDatosProducto.controls.codigo.disable();
+    this.FormDatosProducto.controls.descripcion.disable();
+    this.FormDatosProducto.controls.cantidad.disable();
+    this.FormDatosPaciente.controls.tipodocumento.enable();
+    this.FormDatosPaciente.controls.numidentificacion.disable();
+    this.activaagregar = false;
     /* Desactivan btn barra inferior //@MLobosh*/
-    this.btnCrearsol = false;
+    this.verificanull = false;
     this.modificarsolicitud = false;
     this.imprimirsolicitud = false;
     this.vacios = true;
+    /** btn limpiar nuevos productos med/insumo grilla */
+    this.btnlimpiargrillamed = false;
+    this.btnlimpiargrillains = false;
+
+    /** habilita combo bodega */
+    this.FormDatosPaciente.controls.bodcodigo.enable();
+
   }
 
+  /**Funcion que remueve todos los productos nuevos ingresados acciond="I"
+   * y desactiva btn si no existen.
+   * 15-12-2020 @MLobos
+  */
   limpiarGrillamedicamento() {
-    if (this.arrdetalleMedicamentos.length) {
-      this.alertSwalAlert.title = '¿Borrar todos los elementos en la tabla?';
-      this.alertSwalAlert.show().then(resp => {
-        if (resp.value) {
-          this.arrdetalleMedicamentos = [];
-          this.arrMedicamentopaginacion = [];
-
-          this.grillaMedicamentos = [];
+    let temparrdetalleMedicamentos: Array<DetalleSolicitud> = [];
+    this.alertSwalAlert.title = '¿Borrar todos los nuevos elementos?';
+    this.alertSwalAlert.show().then(resp => {
+      if (resp.value) {
+        for(let d of this.arrdetalleMedicamentos){
+          if(d.acciond != 'I') {
+            temparrdetalleMedicamentos.push(d)
+          }
         }
-        this.logicaVacios();
       }
-      );
-    }
+      this.arrdetalleMedicamentos = temparrdetalleMedicamentos;
+      this.arrMedicamentopaginacion = this.arrdetalleMedicamentos;
+      this.grillaMedicamentos = this.arrdetalleMedicamentos;
+      this.btnlimpiargrillamed = this.arrdetalleMedicamentos.length?true:false;
+      this.vacios = this.arrdetalleMedicamentos.length?false:true;
+      this.logicaVacios();
+      this.checkMedicamentonuevo();
+    });
   }
 
   limpiarGrillainsumo() {
-    if (this.arrdetalleInsumos.length) {
-      this.alertSwalAlert.title = '¿Borrar todos los elementos en la tabla?';
-      this.alertSwalAlert.show().then(resp => {
-        if (resp.value) {
-          this.arrdetalleInsumos = [];
-          this.arrInsumospaginacion = [];
-          this.grillaInsumos = [];
+    let temparrdetalleInsumos: Array<DetalleSolicitud> = [];
+    this.alertSwalAlert.title = '¿Borrar todos los nuevos elementos?';
+    this.alertSwalAlert.show().then(resp => {
+      if (resp.value) {
+        for(let d of this.arrdetalleInsumos){
+          if(d.acciond != 'I') {
+            temparrdetalleInsumos.push(d)
+          }
         }
-        this.logicaVacios();
       }
-      );
-    }
+      this.arrdetalleInsumos = temparrdetalleInsumos;
+      this.arrInsumospaginacion = this.arrdetalleInsumos;
+      this.grillaInsumos = this.arrdetalleInsumos;
+      this.btnlimpiargrillains = this.arrdetalleInsumos.length?true:false;
+      this.vacios = this.arrdetalleInsumos.length?false:true;
+      this.logicaVacios();
+      this.checkInsumosnuevo();
+    });
   }
 
   /**Si hay campos vacios grilla desactiva Crear Sol//@Mlobos */
   async logicaVacios() {
     this.vaciosProductos()
     if (this.vacios === true) {
-      this.btnCrearsol = false;
+      this.verificanull = false;
     }
     else {
-      this.btnCrearsol = true;
+      this.verificanull = true;
     }
   }
 
   vaciosProductos() {
     if (this.arrMedicamentopaginacion.length) {
       for (var data of this.arrMedicamentopaginacion) {
-        if (data.dosis === 0 || data.formulacion === 0 || data.dias === 0 ||
+        if (data.dosis <= 0 || data.formulacion <= 0 || data.dias <= 0 ||
           data.dosis === null || data.formulacion === null || data.dias === null) {
           this.vacios = true;
           return;
@@ -580,7 +1016,7 @@ export class SolicitudpacienteComponent implements OnInit {
     }
     if (this.arrInsumospaginacion.length) {
       for (var data of this.arrInsumospaginacion) {
-        if (data.cantsoli === 0 || data.cantsoli === null) {
+        if (data.cantsoli <= 0 || data.cantsoli === null) {
           this.vacios = true;
           return;
         } else {
@@ -590,6 +1026,12 @@ export class SolicitudpacienteComponent implements OnInit {
     }
   }
 
+  /**
+   * Ajustes: se cambia logica para no ingresar prod existentes..
+   * Al modificar solo agrega tipo de productos asociados a la solicitud.
+   * autor: MLobos miguel.lobos@sonda.com
+   * fecha: 21-12-2020
+   */
   async setPlantilla(art: DetallePlantillaBodega) {
     var detalleSolicitud = new DetalleSolicitud;
     detalleSolicitud.sodeid = 0;
@@ -597,9 +1039,9 @@ export class SolicitudpacienteComponent implements OnInit {
     detalleSolicitud.repoid = 0;
     detalleSolicitud.codmei = art.codmei;
     detalleSolicitud.meinid = art.meinid;
-    detalleSolicitud.dosis = 1;
-    detalleSolicitud.formulacion = 1;
-    detalleSolicitud.dias = 1;
+    detalleSolicitud.dosis = 0;
+    detalleSolicitud.formulacion = 0;
+    detalleSolicitud.dias = 0;
     detalleSolicitud.cantsoli = art.cantsoli;
     detalleSolicitud.pendientedespacho = 0;
     detalleSolicitud.cantdespachada = 0;
@@ -621,20 +1063,114 @@ export class SolicitudpacienteComponent implements OnInit {
     detalleSolicitud.cantadespachar = 0;
     detalleSolicitud.descunidadmedida = null;
     detalleSolicitud.tiporegmein = art.tiporegmein;
-    detalleSolicitud.acciond = 'I';
     detalleSolicitud.nomplantilla = this.nomplantilla;
+    detalleSolicitud.bloqcampogrilla = true;
     if (detalleSolicitud.tiporegmein == "M") {
-      this.arrdetalleMedicamentos.unshift(detalleSolicitud);
-      this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0, 20);
-    } else {
-      if (detalleSolicitud.tiporegmein == "I") {
-        this.arrdetalleInsumos.unshift(detalleSolicitud);
-        this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0, 20);
+      if(this.tipobusqueda==='Solicitud' && this.solins) {
+        /*debe ingresar solo Insumos*/
+        return;
+      } else {
+        /** si producto existe en grilla, elimina Medicamento y vuelve a ingresar y cambia accion a Modificar*/
+        let indx = this.arrdetalleMedicamentos.findIndex(d => d.codmei ===  detalleSolicitud.codmei, 1);
+        if(indx >= 0) {
+        } else {
+          detalleSolicitud.acciond = 'I';
+
+        this.arrdetalleMedicamentos.unshift(detalleSolicitud);
+        this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0, 20);
+
+        this.optMed = "DESC"
+        this.arrMedicamentopaginacion.sort(function (a, b) {
+          if (a.meindescri > b.meindescri) {
+          return 1;
+          }
+          if (a.meindescri < b.meindescri) {
+          return -1;
+          }
+          // a must be equal to b
+          return 0;
+        });
+
+        this.arrdetalleMedicamentos_aux = this.arrdetalleMedicamentos;
+        this.arrMedicamentopaginacion_aux = this.arrdetalleMedicamentos;
+        this.ActivaBotonBuscaGrilla = true;
+        this.checkMedicamentonuevo();
+        }
       }
-    }
+    } else if (detalleSolicitud.tiporegmein == "I") {
+        if(this.tipobusqueda ==='Solicitud' && this.solmedic) {
+          /*debe ingresar solo Medicamentos*/
+          return;
+        } else {
+          /** si producto existe en grilla, elimina Insumo y vuelve a ingresar */
+          let indx = this.arrdetalleInsumos.findIndex(d => d.codmei ===  detalleSolicitud.codmei, 1);
+          if(indx >= 0) {
+            // this.arrdetalleInsumos.splice(indx, 1);
+            // detalleSolicitud.acciond = 'M';
+          } else {
+            detalleSolicitud.acciond = 'I';
+
+          this.arrdetalleInsumos.unshift(detalleSolicitud);
+          this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0, 20);
+
+          this.optIns = "DESC"
+          this.arrInsumospaginacion.sort(function (a, b) {
+            if (a.meindescri > b.meindescri) {
+            return 1;
+            }
+            if (a.meindescri < b.meindescri) {
+            return -1;
+            }
+            // a must be equal to b
+            return 0;
+          });
+
+          this.arrdetalleInsumos_aux = this.arrdetalleInsumos;
+          this.arrInsumospaginacion_aux = this.arrInsumospaginacion;
+          this.ActivaBotonBuscaGrillaInsumo = true;
+          this.checkInsumosnuevo();
+          }
+        }
+      }
+  }
+
+  /**funcion que habilita/desactiva btnLimpiargrilla Medicamentos */
+  checkMedicamentonuevo() {
+    const tipogrilla = this.arrdetalleMedicamentos;
+    if (tipogrilla.length || tipogrilla === null) {
+      for(let d of tipogrilla){
+        if(d.acciond === 'I') {
+          this.btnlimpiargrillamed = true;
+          break;
+        } else {
+          this.btnlimpiargrillamed = false;
+        }
+      }
+    } else{ this.btnlimpiargrillamed = false; }
+  }
+
+  /**funcion que habilita/desactiva btnLimpiargrilla Insumos */
+  checkInsumosnuevo() {
+    const tipogrilla = this.arrdetalleInsumos;
+    if (tipogrilla.length || tipogrilla === null) {
+      for(let d of tipogrilla){
+        if(d.acciond === 'I') {
+          this.btnlimpiargrillains = true;
+          break;
+        } else {
+          this.btnlimpiargrillains = false;
+        }
+      }
+    } else{ this.btnlimpiargrillains = false; }
   }
 
   setProducto(art: Articulos) {
+    this.codprod = null;
+    this.descprod = null;
+    let cantidad = this.FormDatosProducto.controls.cantidad.value;
+    if(cantidad === undefined || cantidad <= 0) {
+      cantidad = 1;
+    }
     var detalleSolicitud = new DetalleSolicitud;
     detalleSolicitud.sodeid = 0;
     detalleSolicitud.soliid = 0;
@@ -644,7 +1180,8 @@ export class SolicitudpacienteComponent implements OnInit {
     detalleSolicitud.dosis = 0;
     detalleSolicitud.formulacion = 0;
     detalleSolicitud.dias = 0;
-    detalleSolicitud.cantsoli = 0;
+    // tslint:disable-next-line: radix
+    detalleSolicitud.cantsoli = parseInt(cantidad);
     detalleSolicitud.pendientedespacho = 0;
     detalleSolicitud.cantdespachada = 0;
     detalleSolicitud.cantdevolucion = 0;
@@ -671,13 +1208,68 @@ export class SolicitudpacienteComponent implements OnInit {
     detalleSolicitud.controlado = this.es_controlado;
     detalleSolicitud.consignacion = this.es_consignacion;
     detalleSolicitud.acciond = 'I';
+    detalleSolicitud.bloqcampogrilla = true;
     if (detalleSolicitud.tiporegmein == "M") {
-      this.arrdetalleMedicamentos.unshift(detalleSolicitud);
-      this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0, 20)
+      if(this.tipobusqueda==='Solicitud' && this.solins) {
+        /*debe ingresar solo Insumos*/
+        this.alertSwalAlert.title = "No puede ingresar Medicamento";
+        this.alertSwalAlert.show();
+        return;
+      } else {
+        /** Cambia a tab Medicamento */
+        this.tabProductoTabs.tabs[0].active = true;
+        /** */
+        this.arrdetalleMedicamentos.unshift(detalleSolicitud);
+        this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0, 20);
+
+        this.optMed = "DESC"
+        this.arrMedicamentopaginacion.sort(function (a, b) {
+          if (a.meindescri > b.meindescri) {
+          return 1;
+          }
+          if (a.meindescri < b.meindescri) {
+          return -1;
+          }
+          // a must be equal to b
+          return 0;
+        });
+
+        this.arrdetalleMedicamentos_aux = this.arrdetalleMedicamentos;
+        this.arrMedicamentopaginacion_aux = this.arrMedicamentopaginacion;
+        this.ActivaBotonBuscaGrilla = true;
+        this.checkMedicamentonuevo();
+      }
 
     } else if (detalleSolicitud.tiporegmein == "I") {
-      this.arrdetalleInsumos.unshift(detalleSolicitud);
-      this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0, 20)
+      if(this.tipobusqueda==='Solicitud' && this.solmedic) {
+        /*debe ingresar solo Medicamentos*/
+        this.alertSwalAlert.title = "No puede ingresar Insumos";
+        this.alertSwalAlert.show();
+        return;
+      } else {
+        /** Cambia a tab Insumo */
+        this.tabProductoTabs.tabs[1].active = true;
+        /** */
+        this.arrdetalleInsumos.unshift(detalleSolicitud);
+        this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0, 20);
+
+        this.optIns = "DESC"
+        this.arrInsumospaginacion.sort(function (a, b) {
+          if (a.meindescri > b.meindescri) {
+          return 1;
+          }
+          if (a.meindescri < b.meindescri) {
+          return -1;
+          }
+          // a must be equal to b
+          return 0;
+        });
+
+        this.arrdetalleInsumos_aux = this.arrdetalleInsumos;
+        this.arrInsumospaginacion_aux = this.arrInsumospaginacion;
+        this.ActivaBotonBuscaGrillaInsumo = true;
+        this.checkInsumosnuevo();
+      }
     }
   }
 
@@ -759,13 +1351,21 @@ export class SolicitudpacienteComponent implements OnInit {
     cabeceraSolicitud.codservicioactual = this.dataPacienteSolicitud.codservicioactual;
     cabeceraSolicitud.codservicioori = this.dataPacienteSolicitud.codservicioori;
     cabeceraSolicitud.codserviciodes = 0;
-    cabeceraSolicitud.boddestino = this.FormDatosPaciente.value.bodcodigo;
-    cabeceraSolicitud.bodorigen = this.FormDatosPaciente.value.bodcodigo;
+    cabeceraSolicitud.boddestino = this.FormDatosPaciente.controls.bodcodigo.value;
+    cabeceraSolicitud.bodorigen = this.FormDatosPaciente.controls.bodcodigo.value;
+    if (cabeceraSolicitud.boddestino > 0){
+      this.bodegasdestino.forEach(element => {
+        if(cabeceraSolicitud.boddestino === element.bodcodigo){
+          cabeceraSolicitud.tipoboddestino = element.bodtipobodega;
+          cabeceraSolicitud.tipobodorigen = element.bodtipobodega;
+        }
+      });
+    }
     cabeceraSolicitud.tipoproducto = 0;
     cabeceraSolicitud.numeroreceta = 0;
     cabeceraSolicitud.tipomovim = 'C';
     cabeceraSolicitud.tiposolicitud = 40;
-    cabeceraSolicitud.estadosolicitud = parseInt(this.FormDatosPaciente.controls['estado'].value);
+    cabeceraSolicitud.estadosolicitud = parseInt(this.FormDatosPaciente.controls.estado.value);
     cabeceraSolicitud.prioridadsoli = 1;
     cabeceraSolicitud.tipodocprof = this.dataPacienteSolicitud.tipodocprof;
     cabeceraSolicitud.numdocprof = this.dataPacienteSolicitud.numdocprof;
@@ -775,7 +1375,7 @@ export class SolicitudpacienteComponent implements OnInit {
     cabeceraSolicitud.cuentanumcuenta = this.dataPacienteSolicitud.cuentanumcuenta;
     cabeceraSolicitud.usuario = this.usuario;
     cabeceraSolicitud.servidor = this.servidor;
-    cabeceraSolicitud.origensolicitud = 40;
+    cabeceraSolicitud.origensolicitud = this.origensolicitud;
     /* Datos paciente */
     cabeceraSolicitud.codpieza = this.dataPacienteSolicitud.codpieza;
     cabeceraSolicitud.camid = this.dataPacienteSolicitud.camid;
@@ -798,16 +1398,24 @@ export class SolicitudpacienteComponent implements OnInit {
 
   }
 
+  /**
+   * Ajuste: condicion para variable acciond para agregar nuevo producto a solicitud creada
+   * fecha: 21-12-2020
+   * autor: MLobos miguel.lobos@sonda.com
+   */
   async setGrillamedicamentos() {
     this.grillaMedicamentos = [];
-
     this.arrdetalleMedicamentos.forEach(element => {
       var medicamento = new DetalleSolicitud;
       if (this.numsolicitud > 0) {
         if (this.accionsolicitud == 'M') {
           medicamento.soliid = this.FormDatosPaciente.controls.numsolicitud.value;
           medicamento.sodeid = element.sodeid;
-          medicamento.acciond = element.acciond;
+          if(element.acciond===null||!element.acciond.length||element.acciond===''){
+            medicamento.acciond = this.accionsolicitud;
+          } else{
+            medicamento.acciond = element.acciond;
+          }
           medicamento.fechamodifica = this.fechaactual;
           medicamento.usuariomodifica = this.usuario;
         }
@@ -833,7 +1441,7 @@ export class SolicitudpacienteComponent implements OnInit {
       medicamento.pendientedespacho = 0;
       medicamento.cantdespachada = 0;
       medicamento.cantdevolucion = 0;
-      medicamento.estado = 1;
+      medicamento.estado = 10;
       medicamento.observaciones = null;
       medicamento.fechamodifica = null;
       medicamento.usuariomodifica = null;
@@ -884,8 +1492,16 @@ export class SolicitudpacienteComponent implements OnInit {
     cabeceraSolicitud.codservicioactual = this.dataPacienteSolicitud.codservicioactual;
     cabeceraSolicitud.codservicioori = this.dataPacienteSolicitud.codservicioori;
     cabeceraSolicitud.codserviciodes = 0;
-    cabeceraSolicitud.boddestino = this.FormDatosPaciente.value.bodcodigo;
-    cabeceraSolicitud.bodorigen = this.FormDatosPaciente.value.bodcodigo;
+    cabeceraSolicitud.boddestino = this.FormDatosPaciente.controls.bodcodigo.value;
+    cabeceraSolicitud.bodorigen = this.FormDatosPaciente.controls.bodcodigo.value;
+    if (cabeceraSolicitud.boddestino > 0){
+      this.bodegasdestino.forEach(element => {
+        if(cabeceraSolicitud.boddestino === element.bodcodigo){
+          cabeceraSolicitud.tipoboddestino = element.bodtipobodega;
+          cabeceraSolicitud.tipobodorigen = element.bodtipobodega;
+        }
+      });
+    }
     cabeceraSolicitud.tipoproducto = 0;
     cabeceraSolicitud.numeroreceta = 0;
     cabeceraSolicitud.tipomovim = 'C';
@@ -900,7 +1516,7 @@ export class SolicitudpacienteComponent implements OnInit {
     cabeceraSolicitud.cuentanumcuenta = this.dataPacienteSolicitud.cuentanumcuenta;
     cabeceraSolicitud.usuario = this.usuario;
     cabeceraSolicitud.servidor = this.servidor;
-    cabeceraSolicitud.origensolicitud = 40;
+    cabeceraSolicitud.origensolicitud = this.origensolicitud;
     /* Datos paciente */
     cabeceraSolicitud.codpieza = this.dataPacienteSolicitud.codpieza;
     cabeceraSolicitud.camid = this.dataPacienteSolicitud.camid;
@@ -914,8 +1530,8 @@ export class SolicitudpacienteComponent implements OnInit {
     cabeceraSolicitud.edad = this.dataPacienteSolicitud.edad;
     cabeceraSolicitud.controlado = this.es_controlado;
     cabeceraSolicitud.consignacion = this.es_consignacion;
-    cabeceraSolicitud.solitiporeg = "M";
-    /** asigna grilla medicamentos */
+    cabeceraSolicitud.solitiporeg = "I";
+    /** asigna grilla insumos */
     this.setGrillainsumos();
     cabeceraSolicitud.solicitudesdet = this.grillaInsumos;
     this.solicitudInsumo = cabeceraSolicitud;
@@ -929,7 +1545,11 @@ export class SolicitudpacienteComponent implements OnInit {
         if (this.accionsolicitud == 'M') {
           insumo.soliid = this.FormDatosPaciente.controls.numsolicitud.value;
           insumo.sodeid = element.sodeid;
-          insumo.acciond = element.acciond;
+          if(element.acciond===null||!element.acciond.length||element.acciond===''){
+            insumo.acciond = this.accionsolicitud;
+          } else{
+            insumo.acciond = element.acciond;
+          }
           insumo.fechamodifica = this.fechaactual;
           insumo.usuariomodifica = this.usuario;
         }
@@ -957,7 +1577,7 @@ export class SolicitudpacienteComponent implements OnInit {
       insumo.pendientedespacho = 0;
       insumo.cantdespachada = 0;
       insumo.cantdevolucion = 0;
-      insumo.estado = 1;
+      insumo.estado = 10;
       insumo.observaciones = null;
       insumo.fechamodifica = null;
       insumo.usuariomodifica = null;
@@ -978,12 +1598,10 @@ export class SolicitudpacienteComponent implements OnInit {
   }
 
   async setSolicitud() {
-
     this.fechaactual = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
     /**Seteamos variables cabecera Solicitud //@Mlobos */
     try {
       await this.setCabeceramedicamentos();
-
       await this.setCabecerainsumos();
     } catch (err) {
       this.alertSwalError.title = "Error";
@@ -1016,58 +1634,50 @@ export class SolicitudpacienteComponent implements OnInit {
     }).then(async (result) => {
       if (result.value) {
         this.loading = true;
+        if( this.tieneProductos ) {
+          if(this.arrdetalleInsumos.length > 0) {
+            await this.eliminarSolInsumo();
+          }
+          if(this.arrdetalleMedicamentos.length > 0) {
+            await this.eliminarSolMedicamento();
+          }
+          if (this.arrdetalleMedicamentos.length === 0 && this.arrdetalleInsumos.length === 0){
+            await this.eliminarSolMedicamento();
+          }
+          this.loading = false;
+        } else {
 
-        if (this.arrdetalleMedicamentos.length > 0) {
-          this.arrdetalleMedicamentos.forEach(element => {
-            element.acciond = "E";
-            element.usuarioelimina = this.usuario;
-          })
           await this.setSolicitud();
           this.solicitudMedicamento.usuarioelimina = this.usuario;
           this.solicitudMedicamento.estadosolicitud = 110;
-          this.solicitudMedicamento.soliid = this.dataPacienteSolicitud.soliid// this.FormSolicitudPaciente.value.numsolicitud;
+          this.solicitudMedicamento.soliid = this.dataPacienteSolicitud.soliid;// this.FormSolicitudPaciente.value.numsolicitud;
           this.solicitudMedicamento.accion = "E";
-          this.solicitudMedicamento.solicitudesdet = this.arrdetalleMedicamentos;
+          this.solicitudMedicamento.bandera = 1;
 
+          if(this.dataPacienteSolicitud != undefined){
+            if(this.dataPacienteSolicitud.bandera != 2){
+              this.ValidaEstadoSolicitud(1,'destroy');
+            }
+          }
           this._solicitudService.crearSolicitud(this.solicitudMedicamento).subscribe(data => {
             this.alertSwal.title = "Solicitud Eliminada";
             this.alertSwal.show();
             this.loading = false;
+            this.cargaSolicitud(data.solbodid);
           }, err => {
             this.loading = false;
             this.alertSwalError.title = "Error";
             this.alertSwalError.text = err.message;
             this.alertSwalError.show();
-          }
-          );
-        } else {
-          if (this.arrdetalleInsumos.length > 0) {
-            this.arrdetalleInsumos.forEach(element => {
-              element.acciond = "E";
-              element.usuarioelimina = this.usuario;
-            })
-            await this.setSolicitud();
-            this.solicitudInsumo.usuarioelimina = this.usuario;
-            this.solicitudInsumo.estadosolicitud = 110;
-            this.solicitudInsumo.soliid = this.dataPacienteSolicitud.soliid// this.FormSolicitudPaciente.value.numsolicitud;
-            this.solicitudInsumo.accion = "E";
-            this.solicitudInsumo.solicitudesdet = this.arrdetalleInsumos;
+          });
 
-            this._solicitudService.crearSolicitud(this.solicitudInsumo).subscribe(data => {
-              this.alertSwal.title = "Solicitud Eliminada";
-              this.alertSwal.show();
-              this.loading = false;
-            }, err => {
-              this.loading = false;
-              this.alertSwalError.title = "Error";
-              this.alertSwalError.text = err.message;
-              this.alertSwalError.show();
-            }
-            );
-          }
+          this.loading = false;
+
         }
+
       }
     });
+
   }
 
   //Elimina medicamento desde la grilla
@@ -1094,6 +1704,8 @@ export class SolicitudpacienteComponent implements OnInit {
             this.loading = false;
             this.alertSwal.title = "Producto eliminado exitosamente";
             this.alertSwal.show();
+            this.checkMedicamentonuevo();
+            this.checkInsumosnuevo();
           }
         }
         else {
@@ -1124,6 +1736,12 @@ export class SolicitudpacienteComponent implements OnInit {
   }
 
   guardaProdeliminado(solicitud: Solicitud) {
+    if(this.dataPacienteSolicitud != undefined){
+      if(this.dataPacienteSolicitud.bandera != 2){
+        this.ValidaEstadoSolicitud(1,'salir');
+      }
+    }
+
     this._solicitudService.crearSolicitud(solicitud).subscribe(data => {
 
       this.loading = false;
@@ -1202,18 +1820,18 @@ export class SolicitudpacienteComponent implements OnInit {
       confirmButtonText: 'Aceptar',
       cancelButtonText: 'Cancelar'
     }).then(async (result) => {
-
       if (result.value) {
         this.loading = true;
         /**Define Solicitud antes de enviar */
         await this.setSolicitud();
-
         /** Modificar */
         if (this.accionsolicitud == 'M') {
           this.solicitudMedicamento.accion = 'M';
           this.solicitudInsumo.accion = "M";
           this.solicitudMedicamento.usuariomodifica = this.usuario;
           this.solicitudInsumo.usuariomodifica = this.usuario;
+          this.solicitudMedicamento.bandera = 1;
+          this.solicitudInsumo.bandera = 1;
           if (this.numsolicitud > 0 && this.numsolins > 0) {
             this.solicitudMedicamento.soliid = this.numsolicitud;
             this.solicitudInsumo.soliid = this.numsolins;
@@ -1232,15 +1850,23 @@ export class SolicitudpacienteComponent implements OnInit {
         }
         this.numsolicitud = 0;
         this.numsolins = 0;
+        // reseteo de bandera
+        if(this.dataPacienteSolicitud != undefined){
+          if(this.dataPacienteSolicitud.bandera != 2){
+            this.ValidaEstadoSolicitud(1,'destroy');
+          }
+        }
+
         if (this.solicitudInsumo.solicitudesdet.length == 0 && this.solicitudMedicamento.solicitudesdet.length >= 1) {
           await this._solicitudService.crearSolicitud(this.solicitudMedicamento).subscribe(data => {
-            this.alertSwal.title = "Solicitud Medicamentos exitosamente, N°: " + data.solbodid;
+            this.alertSwal.title = `${ mensaje } Solicitud Medicamentos exitoso, N°: ` + data.solbodid;
+            this.numsolmedicamento = data.solbodid;
             this.alertSwal.text = "";
             this.alertSwal.show();
             this.loading = false;
             this.solmedic = true;
             this.numsolicitud = data.solbodid;
-            this.btnCrearsol = true;
+            this.verificanull = true;
             this.cargaSolicitud(data.solbodid);
           }, err => {
             this.loading = false;
@@ -1250,15 +1876,14 @@ export class SolicitudpacienteComponent implements OnInit {
           });
         } else {
           if (this.solicitudMedicamento.solicitudesdet.length == 0 && this.solicitudInsumo.solicitudesdet.length >= 1) {
-
             await this._solicitudService.crearSolicitud(this.solicitudInsumo).subscribe(data => {
-              this.alertSwal.title = "Solicitud Insumos exitosamente, N°: " + data.solbodid;
+              this.alertSwal.title = `${ mensaje } Solicitud Insumos exitoso, N°: ` + data.solbodid;
               this.alertSwal.text = "";
               this.alertSwal.show();
               this.loading = false;
               this.solins = true;
               this.numsolins = data.solbodid;
-              this.btnCrearsol = true;
+              this.verificanull = true;
               this.cargaSolicitud(data.solbodid);
             }, err => {
               this.loading = false;
@@ -1287,9 +1912,9 @@ export class SolicitudpacienteComponent implements OnInit {
       this.numsolinsumo = data.solbodid;
       this.solmedic = true;
       this.numsolins = data.solbodid;
-      this.btnCrearsol = true;
+      this.verificanull = true;
       this.imprimesolins = true;
-      
+
       await this.cargaDoblesolicitud(this.numsolinsumo);
       await this.grabadobleSolicitudmedicamento();
     });
@@ -1300,7 +1925,6 @@ export class SolicitudpacienteComponent implements OnInit {
       this.numsolmedicamento = data.solbodid;
       this.solins = true;
       this.numsolicitud = data.solbodid;
-      // this.imprimirsolicitud = true;
       await this.cargaDoblesolicitud(this.numsolmedicamento);
       this.loading = true;
       await this.confirmadobleSolicitud();
@@ -1310,20 +1934,17 @@ export class SolicitudpacienteComponent implements OnInit {
 
   confirmadobleSolicitud() {
     this.imprimesolins = true;
+    this.imprimirsolicitud = true;
     this.tipobusqueda = 'Solicitud';
     this.FormDatosPaciente.get('numsolicitud').setValue(this.numsolmedicamento + " " + this.numsolinsumo);
     this.alertSwal.title = "Solicitudes Exitosas";
     this.alertSwal.text = "Solicitud de Medicamentos, N°: " + this.numsolmedicamento + ".   Solicitud Insumos, N°: " + this.numsolinsumo;
     this.alertSwal.show();
-    // this.imprimirsolicitud = true;
     this.loading = false;
   }
 
   setModal(titulo: string) {
     let dtModal: any = {};
-
-    //console.log("ambito del forms", this.FormDatosPaciente.controls.ambito.value );
-    //console.log("ambito del control", this.FormDatosPaciente.value.ambito );
     dtModal = {
       keyboard: true,
       backdrop: 'static',
@@ -1334,7 +1955,7 @@ export class SolicitudpacienteComponent implements OnInit {
         esacodigo: this.esacodigo,
         cmecodigo: this.cmecodigo,
         tipo_busqueda: 'Todo-Medico',
-        id_Bodega: 0,
+        id_Bodega: this.FormDatosPaciente.controls.bodcodigo.value,
         ambito: this.FormDatosPaciente.controls.ambito.value, //this.FormDatosPaciente.value.ambito,
         nombrepaciente: this.dataPacienteSolicitud.nombrespac,
         apepaternopac: this.dataPacienteSolicitud.apepaternopac,
@@ -1342,8 +1963,10 @@ export class SolicitudpacienteComponent implements OnInit {
         codservicioactual: this.dataPacienteSolicitud.codservicioactual,
         tipodocumento: this.dataPacienteSolicitud.tipodocpac,
         numeroidentificacion: this.dataPacienteSolicitud.numdocpac,
-        buscasolicitud: "Solicitud_Paciente"
-
+        buscasolicitud: "Solicitud_Paciente",
+        descprod: this.descprod,
+        codprod: this.codprod,
+        paginaorigen: 10
       }
     };
     return dtModal;
@@ -1468,45 +2091,42 @@ export class SolicitudpacienteComponent implements OnInit {
   ImprimirSolicitud() {
 
     if (this.imprimesolins == true) {
-
-
       this._imprimesolicitudService.RPTImprimeSolicitud(this.servidor, this.hdgcodigo, this.esacodigo,
         this.cmecodigo, "pdf", this.numsolicitud, this.FormDatosPaciente.value.ambito).subscribe(
           response => {
-            this.solic1 = response[0].url;
-            this._imprimesolicitudService.RPTImprimeSolicitud(this.servidor, this.hdgcodigo, this.esacodigo,
+            if (response != null) {
+              this.solic1 = response[0].url;
+              this._imprimesolicitudService.RPTImprimeSolicitud(this.servidor, this.hdgcodigo, this.esacodigo,
               this.cmecodigo, "pdf", this.numsolins, this.FormDatosPaciente.value.ambito).subscribe(
-                data => {
+              data => {
+                if (response != null) {
                   this.solic2 = data[0].url;
                   var i = 0;
                   while (i < 2) {
-
                     if (i == 0) {
-
-                      window.open(this.solic1, "", "", true);
-
+                      window.open(this.solic1, "", "");
                     } else
                       if (i == 1) {
-
-                        window.open(this.solic2, "", "", true);
-
+                        window.open(this.solic2, "", "");
                       }
                     i++;
                   }
-                },
-                error => {
-                  this.alertSwalError.title = "Error al Imprimir Solicitud";
-                  this.alertSwalError.show();
-                  this._BSModalRef.content.onClose.subscribe((RetornoExito: any) => {
-                  })
                 }
-              );
+              },error => {
+                this.alertSwalError.title = "Error al Imprimir Solicitud";
+                this.alertSwalError.show();
+                this._BSModalRef.content.onClose.subscribe((RetornoExito: any) => {
+                })
+              });
+            }
           });
     } else {
       this._imprimesolicitudService.RPTImprimeSolicitud(this.servidor, this.hdgcodigo, this.esacodigo,
         this.cmecodigo, "pdf", this.dataPacienteSolicitud.soliid, this.dataPacienteSolicitud.codambito).subscribe(
           response => {
-            window.open(response[0].url, "", "", true);
+            if (response != null) {
+              window.open(response[0].url, "", "");
+            }
           },
           error => {
             this.alertSwalError.title = "Error al Imprimir Solicitud";
@@ -1518,7 +2138,11 @@ export class SolicitudpacienteComponent implements OnInit {
     }
   }
 
-  /**funcion revisa si existen codmei duplicados@MLobos */
+  /**
+   * funcion revisa si existen codmei duplicados pero no evita que grabe/modifique
+   * author: @MLobos
+   * 11-03-2021
+   * */
   async checkDuplicados(esgrabar: boolean) {
     let arrProductos: Array<DetalleSolicitud> = [];
     // une ambas grillas
@@ -1526,7 +2150,7 @@ export class SolicitudpacienteComponent implements OnInit {
     // si existen datos
     if (arrProductos.length) {
       // define var locales
-      let esDuplicado: boolean;
+      let esDuplicado : boolean;
       let codprod = null;
       var arrValue = arrProductos.map(x => x.codmei);
       arrValue.some((item, idx) => {
@@ -1546,26 +2170,699 @@ export class SolicitudpacienteComponent implements OnInit {
             }
           }
         });
-      } else {
+      }
+      else {
         if (esgrabar === true) {
           this.onGrabar();
         } else {
           this.onModificar();
         }
       }
-    }
+    } else{ return; }
   }
 
   desactivabtneliminar(){
-    if ( this.dataPacienteSolicitud.estadosolicitud !== 10 
-    // && this.solicitudesgrilla.length >0
-    ) {
-     return true
-    
+    if ( this.dataPacienteSolicitud.estadosolicitud !== 10 ) {
+     return true;
     } else {
-     return false
-    
+     return false;
     }
-    
   }
+
+  /**
+   * funcion revisa si existen codmei duplicados y evita insertarlo en grilla
+   * miguel.lobos@
+   * 11-03-2021
+   * */
+  async validaCodigo(valorCodigo: any){
+    this.alertSwal.title = null;
+    this.alertSwal.text = null;
+    let arrProductos: Array<DetalleSolicitud> = [];
+    arrProductos = this.arrdetalleMedicamentos.concat(this.arrdetalleInsumos);
+    const resultado_medicamnto = arrProductos.find( registro => registro.codmei === valorCodigo );
+    if  ( resultado_medicamnto != undefined )
+    {
+      this.alertSwalError.title = 'Código de artículo repetido';
+      this.alertSwalError.show();
+      this.FormDatosProducto.controls.codigo.setValue('');
+      return false;
+    } else { return true; }
+  }
+
+  validaCantidadDispensada(cantidad: number) {
+
+    this.alertSwal.title = null;
+    this.alertSwal.text = null;
+    // if  ( cantidad <= 0 )
+    // {
+    //   this.alertSwalError.title = 'Cantidad debe ser mayor a cero';
+    //   this.alertSwalError.show();
+    //   // this.FormDatosProducto.controls.cantidad.setValue(1);
+    //   return;
+    // }
+  }
+
+  async CambioCheckMed(registro: DetalleSolicitud,id:number,event:any,marcacheckgrilla: boolean){
+    if(event.target.checked){
+      registro.marcacheckgrilla = true;
+      this.desactivabtnelimmed = true;
+      await this.isEliminaMedGrilla(registro)
+      await this.arrdetalleMedicamentos.forEach(d=>{
+        if(d.marcacheckgrilla === true){
+          this.desactivabtnelimmed = true;
+        }
+      });
+    }else{
+      registro.marcacheckgrilla = false;
+      this.desactivabtnelimmed = false;
+      await this.isEliminaMedGrilla(registro);
+      await this.arrdetalleMedicamentos.forEach(d=>{
+        if(d.marcacheckgrilla === true){
+          this.desactivabtnelimmed = true;
+        }
+      });
+    }
+  }
+
+  isEliminaMedGrilla(registro: DetalleSolicitud) {
+    let indice = 0;
+    for (const articulo of this.arrdetalleMedicamentos) {
+      if (registro.codmei === articulo.codmei && registro.sodeid === articulo.sodeid) {
+        articulo.marcacheckgrilla = registro.marcacheckgrilla;
+        return indice;
+      }
+      indice++;
+    }
+    return -1;
+  }
+
+  ConfirmaEliminaProductoDeLaGrilla2() {
+    const Swal = require('sweetalert2');
+    Swal.fire({
+      title: '¿ Confirme eliminación de producto de la solicitud ?',
+      text: "Confirmar la eliminación del producto",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Aceptar'
+    }).then((result) => {
+      if (result.value) {
+        this.EliminaProductoDeLaGrilla2();
+      }
+    });
+  }
+
+  async EliminaProductoDeLaGrilla2() {
+    var id
+    this.loading = true;
+    this.arrMedicamentopaginacion.forEach(detalle=>{
+      if (detalle.soliid == 0 && detalle.sodeid == 0) {
+        detalle.acciond = 'I';
+        id = this.IdgrillaProductosMed(detalle)
+        if (detalle.acciond == "I" && id >= 0 && detalle.sodeid == 0) {
+          if(detalle.marcacheckgrilla === true){
+            // Eliminar registro nuevo la grilla
+            this.desactivabtnelimmed = false;
+            this.arrdetalleMedicamentos.splice(id, 1);
+            this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0, 20);
+            this.optMed = "DESC"
+            this.arrMedicamentopaginacion.sort(function (a, b) {
+              if (a.meindescri > b.meindescri) {
+              return 1;
+              }
+              if (a.meindescri < b.meindescri) {
+              return -1;
+              }
+              // a must be equal to b
+              return 0;
+            });
+            this.logicaVacios();
+            this.loading = false;
+            this.alertSwal.title = "Producto eliminado exitosamente";
+            this.alertSwal.show();
+            this.checkMedicamentonuevo();
+            this.checkInsumosnuevo();
+          }
+        }
+      }
+      else {
+        if (detalle.soliid > 0 && detalle.sodeid > 0) {
+          id = this.IdgrillaProductosMed(detalle);
+          if(detalle.marcacheckgrilla === true){
+            this.accionsolicitud = 'M';
+            this.desactivabtnelimmed = false;
+            this.setCabeceramedicamentos();
+            this.solicitudMedicamento.accion = "M"
+            this.solicitudMedicamento.soliid = detalle.soliid;
+            this.solicitudMedicamento.usuariomodifica = this.usuario;
+            this.solicitudMedicamento.usuariocreacion = null;
+            this.solicitudMedicamento.fechacreacion = null;
+            this.solicitudMedicamento.solicitudesdet[id].acciond = 'E';
+            this.solicitudMedicamento.solicitudesdet[id].codmei = detalle.codmei;
+            this.solicitudMedicamento.solicitudesdet[id].meindescri = detalle.meindescri;
+            this.solicitudMedicamento.solicitudesdet[id].meinid = detalle.meinid;
+            this.solicitudMedicamento.solicitudesdet[id].sodeid = detalle.sodeid;
+            this.solicitudMedicamento.solicitudesdet[id].soliid = detalle.soliid;
+            this.solicitudMedicamento.solicitudesdet[id].usuarioelimina = this.usuario;
+            this.loading = false;
+            /** Luego de setear el producto a eliminar procede a grabar solicitud//@ML */
+            this.guardaProdeliminado(this.solicitudMedicamento);
+          }
+        }
+      }
+    })
+
+  }
+
+  IdgrillaProductosMed(registro: DetalleSolicitud) {
+    let indice = 0;
+    for (const articulo of this.arrdetalleMedicamentos) {
+      if (registro.codmei === articulo.codmei) {
+        return indice;
+      }
+      indice++;
+    }
+    return -1;
+  }
+
+  async CambioCheckIns(registro: DetalleSolicitud,id:number,event:any,marcacheckgrilla: boolean){
+    if(event.target.checked){
+      registro.marcacheckgrilla = true;
+      this.desactivabtnelimins = true;
+      await this.isEliminaInsGrilla(registro)
+      await this.arrdetalleInsumos.forEach(d=>{
+        if(d.marcacheckgrilla === true){
+          this.desactivabtnelimins = true;
+        }
+      });
+    }else{
+      registro.marcacheckgrilla = false;
+      this.desactivabtnelimins = false;
+      await this.isEliminaInsGrilla(registro);
+      await this.arrdetalleInsumos.forEach(d=>{
+        if(d.marcacheckgrilla === true){
+          this.desactivabtnelimins = true;
+        }
+      });
+    }
+  }
+
+  isEliminaInsGrilla(registro: DetalleSolicitud) {
+    let indice = 0;
+    for (const articulo of this.arrdetalleInsumos) {
+      if (registro.codmei === articulo.codmei && registro.sodeid === articulo.sodeid) {
+        articulo.marcacheckgrilla = registro.marcacheckgrilla;
+        return indice;
+      }
+      indice++;
+    }
+    return -1;
+  }
+
+  ConfirmaEliminaInsumoDeLaGrilla2() {
+    const Swal = require('sweetalert2');
+    Swal.fire({
+      title: '¿ Confirme eliminación de producto de la solicitud ?',
+      text: "Confirmar la eliminación del producto",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Aceptar'
+    }).then((result) => {
+      if (result.value) {
+        this.EliminaInsumoDeLaGrilla2();
+      }
+    })
+  }
+
+  async EliminaInsumoDeLaGrilla2() {
+    var id
+    this.loading = true;
+    this.arrInsumospaginacion.forEach(detalle=>{
+      if (detalle.soliid == 0 && detalle.sodeid == 0) {
+        detalle.acciond = 'I';
+        id = this.IdgrillaProductosIns(detalle)
+        if (detalle.acciond == "I" && id >= 0 && detalle.sodeid == 0) {
+          if(detalle.marcacheckgrilla === true){
+            // Eliminar registro nuevo la grilla
+            this.desactivabtnelimins = false;
+            this.arrdetalleInsumos.splice(id, 1);
+            this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0, 20);
+            this.optIns = "DESC"
+            this.arrInsumospaginacion.sort(function (a, b) {
+              if (a.meindescri > b.meindescri) {
+              return 1;
+              }
+              if (a.meindescri < b.meindescri) {
+              return -1;
+              }
+              // a must be equal to b
+              return 0;
+            });
+            this.logicaVacios();
+            this.loading = false;
+            this.alertSwal.title = "Producto eliminado exitosamente";
+            this.alertSwal.show();
+          }
+        }
+      }
+      else {
+        if (detalle.soliid > 0 && detalle.sodeid > 0) {
+          id = this.IdgrillaProductosIns(detalle)
+          if(detalle.marcacheckgrilla === true){
+            this.accionsolicitud = 'M';
+            this.desactivabtnelimins = false;
+            this.setCabecerainsumos();
+            this.solicitudInsumo.accion = "M";
+            this.solicitudInsumo.soliid = detalle.soliid
+            this.solicitudInsumo.usuariomodifica = this.usuario;
+            this.solicitudInsumo.usuariocreacion = null;
+            this.solicitudInsumo.fechacreacion = null;
+            this.solicitudInsumo.solicitudesdet[id].acciond = 'E';
+            this.solicitudInsumo.solicitudesdet[id].codmei = detalle.codmei;
+            this.solicitudInsumo.solicitudesdet[id].meindescri = detalle.meindescri;
+            this.solicitudInsumo.solicitudesdet[id].meinid = detalle.meinid;
+            this.solicitudInsumo.solicitudesdet[id].sodeid = detalle.sodeid;
+            this.solicitudInsumo.solicitudesdet[id].soliid = detalle.soliid;
+            this.solicitudInsumo.solicitudesdet[id].usuarioelimina = this.usuario;
+            /** Luego de setear el producto a eliminar procede a grabar solicitud//@ML */
+            this.guardaProdeliminado(this.solicitudInsumo);
+          }
+        }
+      }
+    })
+  }
+
+  IdgrillaProductosIns(registro: DetalleSolicitud) {
+    let indice = 0;
+    for (const articulo of this.arrdetalleInsumos) {
+      if (registro.codmei === articulo.codmei) {
+        return indice;
+      }
+      indice++;
+    }
+    return -1;
+  }
+
+  async findArticuloGrillaMedicamento() {
+    this.loading = true;
+    if ( this.FormDatosProducto.controls.codigo.touched &&
+        this.FormDatosProducto.controls.codigo.status !== 'INVALID') {
+        var codProdAux = this.FormDatosProducto.controls.codigo.value.toString();
+        this.arrdetalleMedicamentos_2 = [];
+          this._solicitudService.BuscarProductoPorLike(this.hdgcodigo, this.esacodigo,
+            this.cmecodigo,codProdAux,1,this.usuario,this.servidor,
+            this.arrdetalleMedicamentos,null,null,null,null).subscribe(response => {
+              if(response != null){
+                this.arrdetalleMedicamentos_2=response;
+
+                this.arrdetalleMedicamentos = [];
+                this.arrMedicamentopaginacion = [];
+
+                this.arrdetalleMedicamentos = this.arrdetalleMedicamentos_2;
+                this.arrMedicamentopaginacion = this.arrdetalleMedicamentos.slice(0,20);
+                this.ActivaBotonLimpiaBusca = true;
+                this.loading = false;
+              }else{
+                this.FormDatosProducto.reset();
+                this.loading = false;
+              }
+            })
+        this.loading = false;
+    }else{
+      this.limpiarCodigoMedicamento();
+      this.loading = false;
+      return;
+    }
+  }
+
+  limpiarCodigoMedicamento() {
+    this.loading = true;
+
+    this.FormDatosProducto.controls.codigo.reset();
+    var codProdAux = '';
+
+    this.arrdetalleMedicamentos = [];
+    this.arrMedicamentopaginacion = [];
+
+
+    // Llenar Array Auxiliares
+    this.arrdetalleMedicamentos = this.arrdetalleMedicamentos_aux;
+    this.arrMedicamentopaginacion = this.arrMedicamentopaginacion_aux;
+    this.ActivaBotonLimpiaBusca = false;
+
+    this.loading = false;
+  }
+
+  async findArticuloGrillaInsumo() {
+    this.loading = true;
+    if ( this.FormDatosProducto.controls.codigo.touched &&
+        this.FormDatosProducto.controls.codigo.status !== 'INVALID') {
+      var codProdAux = this.FormDatosProducto.controls.codigo.value.toString();
+      this.arrdetalleMedicamentos_2 = [];
+      this._solicitudService.BuscarProductoPorLike(this.hdgcodigo, this.esacodigo,
+      this.cmecodigo,codProdAux,1,this.usuario,this.servidor,this.arrdetalleInsumos,
+      null,null,null,null).subscribe(response => {
+        if (response != null) {
+          this.arrdetalleInsumos_2=response;
+
+          this.arrdetalleInsumos = [];
+          this.arrInsumospaginacion = [];
+
+          this.arrdetalleInsumos = this.arrdetalleInsumos_2;
+          this.arrInsumospaginacion = this.arrdetalleInsumos.slice(0,20);
+          this.ActivaBotonLimpiaBuscaInsumo = true;
+        }
+        this.loading = false;
+      });
+      this.loading = false;
+    }else{
+      this.limpiarCodigoInsumo();
+      this.loading = false;
+      return;
+    }
+  }
+
+  limpiarCodigoInsumo() {
+    this.loading = true;
+
+    this.FormDatosProducto.controls.codigo.reset();
+    var codProdAux = '';
+
+    this.arrdetalleInsumos = [];
+    this.arrInsumospaginacion = [];
+
+    // Llenar Array Auxiliares
+    this.arrdetalleInsumos = this.arrdetalleInsumos_aux;
+    this.arrInsumospaginacion = this.arrInsumospaginacion_aux;
+    this.ActivaBotonLimpiaBuscaInsumo = false;
+
+    this.loading = false;
+  }
+
+  getProductoDescrip(){
+    this.loading = true;
+    this.descprod = this.FormDatosProducto.controls.descripcion.value;
+    if (this.descprod === null || this.descprod === '') {
+      this.loading = false;
+      return;
+      // this.addArticuloGrilla();
+    } else {
+
+      this.onBuscarProducto();
+      this.loading = false;
+    }
+  }
+
+  BuscaProducto(tipo: number){
+    this.descprod = this.FormDatosProducto.controls.descripcion.value;
+    this.codprod = this.FormDatosProducto.controls.codigo.value;
+
+    if(this.codprod === null && this.descprod === null ){
+      this.onBuscarProducto();
+    }else{
+      if(this.codprod != null ) {
+
+        this.getProducto(tipo);
+
+      }else{
+        if (this.descprod != null ) {
+
+          this.getProductoDescrip();
+        }else{
+          if(this.codprod != null && this.descprod != null ){
+
+            this.onBuscarProducto();
+          }
+        }
+      }
+    }
+  }
+
+  getPacienteTipoDoc(){
+
+    this._PacientesService.BuscaPacientesAmbito(this.hdgcodigo, this.cmecodigo, this.esacodigo,
+      this.FormDatosPaciente.controls.tipodocumento.value,
+      this.FormDatosPaciente.controls.numidentificacion.value,null,null, null,null,null,null,
+      this.servidor,null,0).subscribe(
+        response => {
+          if (response != null) {
+            if(response.length === 1){
+              this.dataPacienteSolicitud = response[0];
+              this.imprimirsolicitud = false;
+              this.tipobusqueda = 'Paciente';
+              this.FormDatosProducto.controls.codigo.enable();
+              this.FormDatosProducto.controls.descripcion.enable();
+              this.FormDatosProducto.controls.cantidad.enable();
+              this.FormDatosPaciente.controls.tipodocumento.disable();
+              this.FormDatosPaciente.controls.numidentificacion.disable();
+              this.activaagregar = true;
+
+              this.logicaVacios();
+              this.setDatos();
+            }else{
+              if(response.length===0){
+                this.docsidentis.forEach(element => {
+                  if(element.docidentcodigo === this.FormDatosPaciente.get('tipodocumento').value ){
+                    //this.alertSwalAlert.title = "No existe Paciente para el tipo de documento ingresado";
+                    this.alertSwalAlert.title = "No existe Paciente para el tipo de documento ingresado";
+                    this.alertSwalAlert.show();
+                  }
+                });
+              }
+            }
+          }
+        });
+  }
+
+  ValidaEstadoSolicitud(bandera: number, nada:string){
+    var recetaid : number = 0;
+    var soliid   : number = 0;
+    if(this.dataPacienteSolicitud != undefined){
+      if(this.dataPacienteSolicitud.soliid === undefined){
+        soliid = 0;
+      }else{
+        soliid = this.dataPacienteSolicitud.soliid;
+      }
+    } else {
+      soliid = 0;
+    }
+
+    if(this.numsolmedicamento != undefined || this.numsolmedicamento != null){
+      soliid = this.numsolmedicamento;
+      this._solicitudService.ValidaEstadoSolicitudCargada(soliid,0,this.servidor,
+      ' ',recetaid,bandera).subscribe(
+      response => { });
+    }
+
+    if(this.numsolinsumo != undefined || this.numsolinsumo != null){
+      soliid = this.numsolinsumo;
+      this._solicitudService.ValidaEstadoSolicitudCargada(soliid,0,this.servidor,
+      ' ',recetaid,bandera).subscribe(
+      response => { });
+    }
+
+    if(this.numsolmedicamento != undefined || this.numsolmedicamento != null ||
+       this.numsolinsumo === undefined || this.numsolinsumo === null){
+      this._solicitudService.ValidaEstadoSolicitudCargada(soliid,0,this.servidor,
+        ' ',recetaid,bandera).subscribe(
+        response => { });
+    }
+  }
+
+  salir(){
+    if(this.dataPacienteSolicitud != undefined){
+      if(this.dataPacienteSolicitud.bandera != 2){
+        this.ValidaEstadoSolicitud(1,'salir');
+      }
+    }
+    this.route.paramMap.subscribe(param => {
+      this.router.navigate(['home']);
+    })
+  }
+
+  @HostListener("window:beforeunload", ["$event"]) unloadHandler(event: Event) {​​​​​​​​
+    if(this.dataPacienteSolicitud != undefined){
+      if(this.dataPacienteSolicitud.bandera != 2){
+        this.ValidaEstadoSolicitud(1,'destroy');
+      }
+    }
+  }​​​​​​​​
+
+  sortbyMed(opt: string){
+    var rtn1 : number;
+    var rtn2 : number;
+    if(this.optIns === "ASC"){
+      rtn1 = 1;
+      rtn2 = -1;
+      this.optIns = "DESC"
+    } else {
+      rtn1 = -1;
+      rtn2 = 1;
+      this.optIns = "ASC"
+    }
+
+    switch (opt) {
+      case 'descripcion':
+      this.arrMedicamentopaginacion.sort(function (a, b) {
+        if (a.meindescri > b.meindescri) {
+        return rtn1;
+        }
+        if (a.meindescri < b.meindescri) {
+        return rtn2;
+        }
+        // a must be equal to b
+        return 0;
+      });
+      break;
+      case 'codigo':
+      this.arrMedicamentopaginacion.sort(function (a, b) {
+        if (a.codmei > b.codmei) {
+        return rtn1;
+        }
+        if (a.codmei < b.codmei) {
+        return rtn2;
+        }
+        // a must be equal to b
+        return 0;
+      });
+      break;
+      default:
+      break;
+    }
+  }
+
+  sortbyIns(opt: string){
+    var rtn1 : number;
+    var rtn2 : number;
+    if(this.optIns === "ASC"){
+      rtn1 = 1;
+      rtn2 = -1;
+      this.optIns = "DESC"
+    } else {
+      rtn1 = -1;
+      rtn2 = 1;
+      this.optIns = "ASC"
+    }
+
+    switch (opt) {
+      case 'descripcion':
+      this.arrInsumospaginacion.sort(function (a, b) {
+        if (a.meindescri > b.meindescri) {
+        return rtn1;
+        }
+        if (a.meindescri < b.meindescri) {
+        return rtn2;
+        }
+        // a must be equal to b
+        return 0;
+      });
+      break;
+      case 'codigo':
+      this.arrInsumospaginacion.sort(function (a, b) {
+        if (a.codmei > b.codmei) {
+        return rtn1;
+        }
+        if (a.codmei < b.codmei) {
+        return rtn2;
+        }
+        // a must be equal to b
+        return 0;
+      });
+      break;
+      default:
+      break;
+    }
+  }
+
+  SeleccionaBodega(){
+
+    this.FormDatosProducto.controls.codigo.enable();
+    this.FormDatosProducto.controls.descripcion.enable();
+    if(this.FormDatosPaciente.controls.bodcodigo.value != 0){
+      this.origensolicitud = 41;
+    } else {
+      this.origensolicitud = 40;
+    }
+    this.activaagregar = true;
+    this.FormDatosProducto.controls.codigo.enable();
+    this.FormDatosProducto.controls.descripcion.enable();
+  }
+
+  BuscaBodegaDestino() {
+    this._BodegasService.listaBodegaDestinoSucursal(this.hdgcodigo, this.esacodigo, this.cmecodigo,this.usuario, this.servidor).subscribe(
+      response => {
+        if (response != null) {
+          this.bodegasdestino = response;
+        }
+      },
+      error => {
+        alert("Error al Buscar Bodegas de Destino");
+      }
+    );
+  }
+
+  async eliminarSolMedicamento() {
+
+    this.arrdetalleMedicamentos.forEach(element => {
+      element.acciond = "E";
+      element.usuarioelimina = this.usuario;
+    })
+
+    await this.setSolicitud();
+    this.solicitudMedicamento.usuarioelimina = this.usuario;
+    this.solicitudMedicamento.estadosolicitud = 110;
+    this.solicitudMedicamento.soliid = this.dataPacienteSolicitud.soliid;
+    this.solicitudMedicamento.accion = "E";
+    this.solicitudMedicamento.bandera = 1;
+    this.solicitudMedicamento.solicitudesdet = this.arrdetalleMedicamentos;
+    if(this.dataPacienteSolicitud != undefined){
+      if(this.dataPacienteSolicitud.bandera != 2){
+        this.ValidaEstadoSolicitud(1,'destroy');
+      }
+    }
+    this._solicitudService.crearSolicitud(this.solicitudMedicamento).subscribe(data => {
+      this.alertSwal.title = "Solicitud Eliminada";
+      this.alertSwal.show();
+      this.loading = false;
+      this.cargaSolicitud(data.solbodid);
+    }, err => {
+      this.loading = false;
+      this.alertSwalError.title = "Error";
+      this.alertSwalError.text = err.message;
+      this.alertSwalError.show();
+    });
+
+  }
+
+  async eliminarSolInsumo() {
+
+      this.arrdetalleInsumos.forEach(element => {
+        element.acciond = "E";
+        element.usuarioelimina = this.usuario;
+      })
+      await this.setSolicitud();
+      this.solicitudInsumo.usuarioelimina = this.usuario;
+      this.solicitudInsumo.estadosolicitud = 110;
+      this.solicitudInsumo.soliid = this.dataPacienteSolicitud.soliid;
+      this.solicitudInsumo.accion = "E";
+      this.solicitudInsumo.solicitudesdet = this.arrdetalleInsumos;
+
+      this._solicitudService.crearSolicitud(this.solicitudInsumo).subscribe(data => {
+        this.alertSwal.title = "Solicitud Eliminada";
+        this.alertSwal.show();
+        this.loading = false;
+        this.cargaSolicitud(data.solbodid);
+      }, err => {
+        this.loading = false;
+        this.alertSwalError.title = "Error";
+        this.alertSwalError.text = err.message;
+        this.alertSwalError.show();
+      });
+
+  }
+
+
 }

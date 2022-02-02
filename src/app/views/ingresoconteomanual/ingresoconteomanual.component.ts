@@ -50,8 +50,8 @@ export class IngresoconteomanualComponent implements OnInit {
     private TiporegistroService : TiporegistroService
   ) {
 
-    this.FormIngresoConteoManual = this.formBuilder.group({      
-      
+    this.FormIngresoConteoManual = this.formBuilder.group({
+
       tiporegistro: [null],
       boddestino    : [null],
       periodo       : [null]
@@ -80,7 +80,7 @@ export class IngresoconteomanualComponent implements OnInit {
 
   getCmecodigo(event: any) {
     this.cmecodigo = event.cmecodigo;
-  
+
     this.BuscaBodegaDestino();
   }
 
@@ -93,16 +93,16 @@ export class IngresoconteomanualComponent implements OnInit {
 
   changeValue(id: number, property: string, event: any) {
     this.editField = event.target.textContent;
-    console.log(id, property, event);    
+    console.log(id, property, event);
   }
 
   BuscaBodegaDestino() {
-   
+
     this._BodegasService.listaBodegaDestinoSucursal(this.hdgcodigo,this.esacodigo,this.cmecodigo,
       this.usuario,this.servidor).subscribe(response => {
-        console.log(response);
-        this.bodegasdestino = response;
-
+        if (response != null) {
+          this.bodegasdestino = response;
+        }
       },
       error => {
         alert("Error al Buscar Bodegas de Destino");
@@ -112,11 +112,12 @@ export class IngresoconteomanualComponent implements OnInit {
 
   BuscaPeriodoInventario(codigobod: number){
     console.log("codigo bodega y ambiente servidor:", codigobod,environment.URLServiciosRest.ambiente);
-    
+
     this._inventarioService.BuscaPeriodo(codigobod,this.usuario,this.servidor).subscribe(
       response => {
-        console.log(response);
-        this.periodos=response
+        if (response != null) {
+          this.periodos=response
+        }
       },
       error => {
         console.log(error);
@@ -141,7 +142,7 @@ export class IngresoconteomanualComponent implements OnInit {
         this.BusquedaDeInventarios();
       }
     })*/
-  
+
   }
 
   setModalMensajeAceptar() {
@@ -167,10 +168,10 @@ export class IngresoconteomanualComponent implements OnInit {
       this.FormIngresoConteoManual.value.boddestino, this.FormIngresoConteoManual.value.tiporegistro,
       this.usuario,this.servidor).subscribe(
       response => {
-        console.log(response);
-        this.detallesinventarios=response;
-        this.detallesinventariosPaginacion = this.detallesinventarios.slice(0,8)
-
+        if (response != null) {
+          this.detallesinventarios=response;
+          this.detallesinventariosPaginacion = this.detallesinventarios.slice(0,8)
+        }
       },
       error => {
         console.log(error);
@@ -212,34 +213,31 @@ export class IngresoconteomanualComponent implements OnInit {
   }
 
   BuscaStockProductoDestino(mein: number, bodegadestino: number) {
-   
+
     this._inventarioService.BuscaStockProd(mein, bodegadestino, this.usuario, this.servidor).subscribe(
       response => {
-        if (response.length == 0) {
-          alert("No existe stock para el producto buscado, puede que el producto no exista en la bodega Solicitante");
-        }    
-        this.stockboddestino = response[0].stockactual;
+        if (response != null) {
+          if (response.length == 0) {
+            alert("No existe stock para el producto buscado, puede que el producto no exista en la bodega Solicitante");
+          }
+          this.stockboddestino = response[0].stockactual;
+          const DetalleInventario = new (InventarioDetalle);
+          DetalleInventario.codigomein     = this.retornoproducto.codigo;
+          DetalleInventario.productodesc   = this.retornoproducto.descripcion;
+          DetalleInventario.valorcosto     = 0;
+          DetalleInventario.stockinvent    = this.stockboddestino;
+          DetalleInventario.idmeinid       = this.retornoproducto.mein;
+          DetalleInventario.conteomanual   = 0;
+          DetalleInventario.iddetalleinven = this.retornoproducto.iddetalleinven
+          DetalleInventario.idinventario   = this.detallesinventarios[0].idinventario;
+          DetalleInventario.estadoajuste   = "";
+          DetalleInventario.fechacierre    = "";
+          DetalleInventario.ajusteinvent   = 0;
+          DetalleInventario.iddetalleinven = 0;
 
-        
-       
-        const DetalleInventario = new (InventarioDetalle);
-              
-        DetalleInventario.codigomein     = this.retornoproducto.codigo;
-        DetalleInventario.productodesc     = this.retornoproducto.descripcion;
-        DetalleInventario.valorcosto    = 0;
-        DetalleInventario.stockinvent   = this.stockboddestino;
-        DetalleInventario.idmeinid         = this.retornoproducto.mein;
-        DetalleInventario.conteomanual       = 0;
-        DetalleInventario.iddetalleinven   = this.retornoproducto.iddetalleinven
-        DetalleInventario.idinventario     = this.detallesinventarios[0].idinventario;
-        DetalleInventario.estadoajuste        = "";
-        DetalleInventario.fechacierre      = "";
-        DetalleInventario.ajusteinvent     = 0;
-        DetalleInventario.iddetalleinven   = 0;
-
-        this.detallesinventarios.push(DetalleInventario);
-        this.detallesinventariosPaginacion=this.detallesinventarios.slice(0,8);
-        console.log("el nuevo producto gregado a la grilla es:",this.detallesinventariosPaginacion)
+          this.detallesinventarios.push(DetalleInventario);
+          this.detallesinventariosPaginacion=this.detallesinventarios.slice(0,8);
+        }
       },
       error => {
         console.log(error);
@@ -268,10 +266,10 @@ export class IngresoconteomanualComponent implements OnInit {
   }
 
   GrabaIngresoConteoManual(){
-    //var fecha = this.datePipe.transform(this.FormIngresoConteoManual.value.fechamostrar, 'yyyy-MM-dd');  
+    //var fecha = this.datePipe.transform(this.FormIngresoConteoManual.value.fechamostrar, 'yyyy-MM-dd');
     console.log("Genera el inventario",this.FormIngresoConteoManual.value.boddestino,
     this.FormIngresoConteoManual.value.tiporegistro,this.servidor);
-    
+
    this.detallesinventarios.forEach(element=>{
      var temporal = new InventarioDetalle
      temporal.ajusteinvent  = element.ajusteinvent;
@@ -289,26 +287,26 @@ export class IngresoconteomanualComponent implements OnInit {
      temporal.campo         = "";
      temporal.usuario       = this.usuario;
      temporal.servidor      = this.servidor;
-     
+
 
      this.grabaconteomanual.push(temporal);
    })
 
-    console.log("El conteo manual a grabar es:",this.grabaconteomanual); 
-   
+    console.log("El conteo manual a grabar es:",this.grabaconteomanual);
+
     this._inventarioService.GrabaConteoManual(this.grabaconteomanual).subscribe(
       response => {
-        console.log(response);
-        this.alertSwal.title = "Ingreso Conteo Manual se realizó con éxito".concat();
-        this.alertSwal.show();
-       
+        if (response != null) {
+          this.alertSwal.title = "Ingreso Conteo Manual se realizó con éxito".concat();
+          this.alertSwal.show();
+        }
       },
       error => {
         console.log(error);
         this.alertSwalError.title="Ingreso Conteo Manual";
         this.alertSwalError.text = "Conteo Manual Generado Exitosamente";
         this.alertSwalError.show();
-       
+
       }
     );
   }

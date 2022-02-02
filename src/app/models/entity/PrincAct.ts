@@ -1,6 +1,6 @@
 export class PrincAct {
-    private idprinc: number;
-    private descriprinc: string;
+    public idprinc: number;
+    public descriprinc: string;
 
     constructor(idprinc: number, descriprinc: string) {
         this.idprinc = idprinc;

@@ -1,6 +1,6 @@
 export class Empresas {
-    private esacodigo: number;
-    private esanombre: string;
+    public esacodigo: number;
+    public esanombre: string;
 
     constructor(esacodigo: number, esanombre: string) {
         this.esacodigo = esacodigo;

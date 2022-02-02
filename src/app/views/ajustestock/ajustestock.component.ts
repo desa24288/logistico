@@ -44,7 +44,7 @@ export class AjustestockComponent implements OnInit {
   public activabtngrabar : boolean = false;
    descprod: any;
   codprod: any;
- 
+
 
   constructor(
     private formBuilder   : FormBuilder,
@@ -53,7 +53,7 @@ export class AjustestockComponent implements OnInit {
     private MotivoAjusteService: MotivoAjusteService,
     public _creaService   : CreasolicitudesService,
     public _BusquedaproductosService: BusquedaproductosService
-  ) { 
+  ) {
 
     this.FormAjusteStock = this.formBuilder.group({
       boddestino  : [{ value: null, disabled: false }, Validators.required],
@@ -62,7 +62,7 @@ export class AjustestockComponent implements OnInit {
       stockactual : [{ value: null, disabled: false }, Validators.required],
       stocknuevo  : [{ value: null, disabled: false }, Validators.required],
       motivoajuste  : [{ value: null, disabled: false }, Validators.required]
-      
+
     });
   }
 
@@ -81,17 +81,18 @@ export class AjustestockComponent implements OnInit {
         console.log(err.error);
       }
     );
-    
+
   }
 
 
 
   BuscaBodegaDestino() {
-   
+
     this._BodegasService.listaBodegaTodasSucursal(this.hdgcodigo, this.esacodigo, this.cmecodigo, this.usuario, this.servidor).subscribe(
       response => {
-        console.log(response);
-        this.bodegas = response;
+        if(response != null){
+          this.bodegas = response;
+        }
       },
       error => {
         alert("Error al Buscar Bodegas de cargo");
@@ -116,30 +117,27 @@ export class AjustestockComponent implements OnInit {
       var controlminimo = '';
       var idBodega = this.FormAjusteStock.value.boddestino;
       var consignacion = '';
-      
-      this._BusquedaproductosService.BuscarArituculosFiltros(this.hdgcodigo, this.esacodigo,
-        this.cmecodigo, this.codprod, null, null, null, null, tipodeproducto, idBodega, controlminimo, 
-        controlado, consignacion, this.usuario, this.servidor).subscribe(
-          response => {
-            if (response.length == 0) {
-              console.log('no existe el codigo');
-              
-              this.loading = false;
-              this.BuscaProducto();
-            }
-            else {
-              if (response.length > 0) {
-                this.productoselec = response[0];
-                // console.log("producto ingresado",response,this.productoselec)
-                this.loading = false;
-                this.FormAjusteStock.get('codigo').setValue(response[0].codigo);
-                this.FormAjusteStock.get('descripcion').setValue(response[0].descripcion);
-                this.prodsel = true;
-                this.BuscaStockProducto(response[0].mein,this.FormAjusteStock.value.boddestino);
-                this.desactivaCampos(true);
-                // this.muestracoddes = true;
 
-                // this.setProducto(response[0]);
+      this._BusquedaproductosService.BuscarArticulosFiltros(this.hdgcodigo, this.esacodigo,
+        this.cmecodigo, this.codprod, null, null, null, null, tipodeproducto, idBodega, controlminimo,
+        controlado, consignacion, this.usuario, null, this.servidor).subscribe(
+          response => {
+            if (response != null) {
+              if (response.length == 0) {
+                console.log('no existe el codigo');
+
+                this.loading = false;
+                this.BuscaProducto();
+              } else {
+                if (response.length > 0) {
+                  this.productoselec = response[0];
+                  this.loading = false;
+                  this.FormAjusteStock.get('codigo').setValue(response[0].codigo);
+                  this.FormAjusteStock.get('descripcion').setValue(response[0].descripcion);
+                  this.prodsel = true;
+                  this.BuscaStockProducto(response[0].mein,this.FormAjusteStock.value.boddestino);
+                  this.desactivaCampos(true);
+                }
               }
             }
           }, error => {
@@ -175,13 +173,12 @@ export class AjustestockComponent implements OnInit {
       if (response == undefined) { }
       else {
         this.productoselec=response;
-        // console.log("producto selec ingre",this.productoselec)
         this.FormAjusteStock.get('codigo').setValue(this.productoselec.codigo);
         this.FormAjusteStock.get('descripcion').setValue(this.productoselec.descripcion);
         this.prodsel = true;
         this.desactivaCampos(true);
         this.BuscaStockProducto(this.productoselec.mein, this.FormAjusteStock.value.boddestino);
-        
+
       }
     });
   }
@@ -223,20 +220,19 @@ export class AjustestockComponent implements OnInit {
   // }
 
   BuscaStockProducto(mein,boddestino){
-    
+
     this._creaService.BuscaStockProd(mein,boddestino, this.usuario, this.servidor).subscribe(
       response => {
-        
-        if (response.length == 0) {
-          // console.log("trae stock prod",response)
-          this.alertSwalAlert.title = "No existe stock en bodega para el producto buscado";
-          this.alertSwalAlert.text ="Puede que el producto no exista en la bodega de Suministro";
-          this.alertSwalAlert.show();
-        } else {
-          this.stockbodega = response[0].stockactual;
-          this.FormAjusteStock.get('stockactual').setValue(this.stockbodega);
-          this.ActivaBotonGrabar();
-          // console.log("stock prod",this.stockbodega)
+        if (response != null) {
+          if (response.length == 0) {
+            this.alertSwalAlert.title = "No existe stock en bodega para el producto buscado";
+            this.alertSwalAlert.text ="Puede que el producto no exista en la bodega de Suministro";
+            this.alertSwalAlert.show();
+          } else {
+            this.stockbodega = response[0].stockactual;
+            this.FormAjusteStock.get('stockactual').setValue(this.stockbodega);
+            this.ActivaBotonGrabar();
+          }
         }
       },
       error => {
@@ -258,17 +254,15 @@ export class AjustestockComponent implements OnInit {
   }
 
   validaStock(stock: number) {
-    // console.log("valida stock",stock)
     if(stock <= 0){
       this.alertSwalAlert.title ="El stock no puede ser menor que 1"
       this.alertSwalAlert.show();
     }
-   
+
   }
 
   ActivaBotonGrabar(){
     var motivo = true;
-    // console.log("Selecciona el motivo y activa el btn grabar")
     if(this.prodsel === true && this.FormAjusteStock.value.stocknuevo>0 && motivo ==true){
       this.activabtngrabar = true;
     }
@@ -292,29 +286,25 @@ export class AjustestockComponent implements OnInit {
   }
 
   GrabaAjusteStock(){
-    // console.log("Grabará ajuste stock",this.FormAjusteStock.value);
-    // console.log("DAtos a grabar:",this.hdgcodigo,this.esacodigo,this.cmecodigo,
-    //   this.servidor, this.usuario,this.FormAjusteStock.value.boddestino, this.productoselec.mein,
-    //   this.FormAjusteStock.value.codigo,this.productoselec.codigo,
-    //   this.FormAjusteStock.value.stockactual,
-    //   this.FormAjusteStock.value.stocknuevo, this.FormAjusteStock.value.motivoajuste);
       this._BodegasService.GrabarAjusteStock(this.hdgcodigo,this.esacodigo,this.cmecodigo,
       this.servidor, this.usuario,this.FormAjusteStock.value.boddestino, this.productoselec.mein,
       this.productoselec.codigo,this.FormAjusteStock.value.stockactual,
       this.FormAjusteStock.value.stocknuevo, this.FormAjusteStock.value.motivoajuste ).subscribe(
       response => {
-        // console.log("busqueda stock",response)
-        this.alertSwal.title = "Ajuste Grabado Exitosamente";
-        this.alertSwal.show();
+        if (response != null){
+          this.alertSwal.title = "Ajuste Grabado Exitosamente";
+          this.alertSwal.show();
 
-        this._creaService.BuscaStockProd(this.productoselec.mein, this.FormAjusteStock.value.boddestino,
-          this.usuario, this.servidor).subscribe(
-            response => {
-              this.FormAjusteStock.get('stockactual').setValue(response[0].stockactual);
-              this.FormAjusteStock.get('stocknuevo').setValue(null);
-              
-            }
-          )
+          this._creaService.BuscaStockProd(this.productoselec.mein, this.FormAjusteStock.value.boddestino,
+            this.usuario, this.servidor).subscribe(
+              response => {
+                if (response != null) {
+                  this.FormAjusteStock.get('stockactual').setValue(response[0].stockactual);
+                  this.FormAjusteStock.get('stocknuevo').setValue(null);
+                }
+              }
+            );
+        }
       },
       error => {
         console.log(error);

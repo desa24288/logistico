@@ -29,7 +29,7 @@ export class EventosSolicitudComponent implements OnInit {
   @Input() titulo   : string;
   @Input() _Solicitud: Solicitud;
 
-  public onClose: Subject<any>; 
+  public onClose: Subject<any>;
   public lForm: FormGroup;
   public locale = 'es';
   public bsConfig: Partial<BsDatepickerConfig>;
@@ -54,8 +54,8 @@ export class EventosSolicitudComponent implements OnInit {
     private PrioridadesService             : PrioridadesService,
     public _BodegasService                 : BodegasService,
     public _solicitudService               : SolicitudService,
-          
-    ) { 
+
+    ) {
 
       this.lForm = this.formBuilder.group({
         estadosolicitudde: [{ value: null, disabled: false }, Validators.required],
@@ -73,18 +73,18 @@ export class EventosSolicitudComponent implements OnInit {
         desorigensolicitud:  [{ value: null, disabled: false }, Validators.required],
         bodorigendesc:  [{ value: null, disabled: false }, Validators.required],
         boddestinodesc:  [{ value: null, disabled: false }, Validators.required],
-        
+
       });
     }
 
   ngOnInit() {
     this.onClose = new Subject();
-    
+
     this.setDate();
 
     this.usuario = environment.privilegios.usuario;
-    this.servidor = environment.URLServiciosRest.ambiente; 
-    this.lForm.get('desorigensolicitud').setValue(this._Solicitud.desorigensolicitud); 
+    this.servidor = environment.URLServiciosRest.ambiente;
+    this.lForm.get('desorigensolicitud').setValue(this._Solicitud.desorigensolicitud);
 
     this.lForm.get('tiposolicitud').setValue(this._Solicitud.tiposolicitud);
     this.lForm.get('numerosolicitud').setValue(this._Solicitud.soliid);
@@ -92,7 +92,7 @@ export class EventosSolicitudComponent implements OnInit {
     this.lForm.get('bodorigendesc').setValue(this._Solicitud.bodorigendesc);
     this.lForm.get('boddestinodesc').setValue(this._Solicitud.boddestinodesc);
     this.lForm.get('estadosolicitudde').setValue(this._Solicitud.estadosolicitudde);
-    this.lForm.get('fecha').setValue(new Date(this._Solicitud.fechacreacion)); 
+    this.lForm.get('fecha').setValue(new Date(this._Solicitud.fechacreacion));
 
     this.BuscaEventosSolictudes();
   }
@@ -104,7 +104,7 @@ export class EventosSolicitudComponent implements OnInit {
   }
 
   onCerrarSalir() {
- 
+
     this.onClose.next();
     this.bsModalRef.hide();
   };
@@ -124,8 +124,10 @@ export class EventosSolicitudComponent implements OnInit {
   BuscaEventosSolictudes () {
     this._solicitudService.BuscaEventosSolicitud(this._Solicitud.soliid, this.servidor).subscribe(
       response => {
-        this.listaEventosSolicitud = response;
-        this.listaEventosSolicitudPaginacion = this.listaEventosSolicitud.slice(0,8)
+        if (response != null) {
+          this.listaEventosSolicitud = response;
+          this.listaEventosSolicitudPaginacion = this.listaEventosSolicitud.slice(0,8);
+        }
       },
       error => {
         alert("Error al Buscar Eventos")

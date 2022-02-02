@@ -1,6 +1,7 @@
 export class ConsultaKardex {
     constructor(
 
+        public soliid           ?: number,
         public kadeid           ?: number,
         public codbodega        ?: number,
         public meinid           ?: number,
@@ -18,7 +19,9 @@ export class ConsultaKardex {
         public cantidadentrada  ?: number,
         public cantidadsalida   ?: number,
         public cantidadsaldo    ?: number,
-        public fbodexternadesc  ?: string
+        public fbodexternadesc  ?: string,
+        public referencia       ?: number,
+        public lote             ?: string
 
     ) { }
 }

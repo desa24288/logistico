@@ -8,7 +8,7 @@ import { TipoDocumentoIdentificacion } from '../models/entity/TipoDocumentoIdent
 @Injectable()
 export class TipodocumentoidentService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/tipodocumentoident');
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/tipodocumentoident');
 
   constructor(private httpClient: HttpClient)
    { }

@@ -1,7 +1,8 @@
 import { DetalleSolicitudConsumo } from './detalle-solicitud-consumo';
 
 export class SolicitudConsumo {
-    accion               : string ; 
+	accion               : string ; 
+	marca                :boolean;
 	id                  : number; 
 	hdgcodigo            : number; 
 	esacodigo            : number; 
@@ -25,4 +26,5 @@ export class SolicitudConsumo {
 	glosacentrocosto     : string;
 	glosaestado          : string;
 	glosaprioridad       : string;
+	errorerp             : string;
 }

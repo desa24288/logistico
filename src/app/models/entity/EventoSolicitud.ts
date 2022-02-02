@@ -6,5 +6,6 @@ export class EventoSolicitud{
     public fecha     ?: string,
     public observacion ?: string,
     public usuario     ?: string,
+    public nombreusuario?: string
     ) {}
 }

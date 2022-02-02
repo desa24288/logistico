@@ -10,12 +10,12 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class DevolucioncomprasService {
-    public urlbuscaproveedorrut     : string = environment.URLServiciosRest.URLConexion.concat('/buscaproveedorporrut');//"http://172.25.108.236:8183/buscaproveedorporrut"; //buscaproveedores
-    public urlbuscaproveedornombre  : string = environment.URLServiciosRest.URLConexion.concat('/buscaproveedorpornombre');//"http://172.25.108.236:8183/buscaproveedorpornombre"; //buscaproveedores
-    public urlbuscadocto            : string = environment.URLServiciosRest.URLConexion.concat('/datoscabeceraoc');//"http://172.25.108.236:8184/datoscabeceraoc";
-    public urldetalledocto          : string = environment.URLServiciosRest.URLConexion.concat('/datosdetalleocdevo');//"http://172.25.108.236:8184/datosdetalleocdevo";
-    public urledetalleocdevo        : string = environment.URLServiciosRest.URLConexion.concat('/detalleocdevo');//"http://172.25.108.236:8184/detalleocdevo";
-    public urlgrabadevolcompra      : string = environment.URLServiciosRest.URLConexion.concat('/grabadevolucionesoc');//"http://172.25.108.236:8184/grabadevoluciones"
+    public urlbuscaproveedorrut     : string = sessionStorage.getItem('enlace').toString().concat('/buscaproveedorporrut');//"http://172.25.108.236:8183/buscaproveedorporrut"; //buscaproveedores
+    public urlbuscaproveedornombre  : string = sessionStorage.getItem('enlace').toString().concat('/buscaproveedorpornombre');//"http://172.25.108.236:8183/buscaproveedorpornombre"; //buscaproveedores
+    public urlbuscadocto            : string = sessionStorage.getItem('enlace').toString().concat('/datoscabeceraoc');//"http://172.25.108.236:8184/datoscabeceraoc";
+    public urldetalledocto          : string = sessionStorage.getItem('enlace').toString().concat('/datosdetalleocdevo');//"http://172.25.108.236:8184/datosdetalleocdevo";
+    public urledetalleocdevo        : string = sessionStorage.getItem('enlace').toString().concat('/detalleocdevo');//"http://172.25.108.236:8184/detalleocdevo";
+    public urlgrabadevolcompra      : string = sessionStorage.getItem('enlace').toString().concat('/grabadevolucionesoc');//"http://172.25.108.236:8184/grabadevoluciones"
 
     constructor(public _http: HttpClient) {
 

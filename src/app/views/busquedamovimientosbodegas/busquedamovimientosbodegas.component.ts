@@ -8,7 +8,7 @@ import { MovimientosFarmacia } from '../../models/entity/MovimientosFarmacia'
 import { MovimientosfarmaciaService } from '../../servicios/movimientosfarmacia.service'
 import { environment } from 'src/environments/environment';
 import { PageChangedEvent } from 'ngx-bootstrap';
-// uso de fechas 
+// uso de fechas
 import { DatePipe } from '@angular/common';
 import { defineLocale } from 'ngx-bootstrap/chronos';
 import { esLocale } from 'ngx-bootstrap/locale';
@@ -44,7 +44,7 @@ export class BusquedamovimientosbodegasComponent implements OnInit {
   public movimfecha                   : string;
   public servidor                     = environment.URLServiciosRest.ambiente;
   public usuario                      = environment.privilegios.usuario;
-  public loading                      = false; 
+  public loading                      = false;
 
 
   constructor(
@@ -74,11 +74,11 @@ export class BusquedamovimientosbodegasComponent implements OnInit {
     this.onClose = new Subject();
     this.setDate();
 
-  
+
     this._TipomovimientoService.list(this.usuario, this.servidor).subscribe(
       data => {
         this.Arreglotiposmovimientos = data;
-      
+
       }, err => {
         console.log(err.error);
       }
@@ -96,7 +96,7 @@ export class BusquedamovimientosbodegasComponent implements OnInit {
     this.onClose.next(movimientoseleccionado);
     this.bsModalRef.hide();
   };
-  
+
   onCerrarSalir() {
     this.onClose.next();
     this.bsModalRef.hide();
@@ -106,17 +106,20 @@ export class BusquedamovimientosbodegasComponent implements OnInit {
     in_fecha_termino   :string)
   {
     console.log("USuario:",this.usuario,"Servidor:",this.servidor);
-    var x_fecha_inicio = this.datePipe.transform(in_fecha_inicio, 'yyyy-MM-dd'); 
-    var x_fecha_termino = this.datePipe.transform(in_fecha_termino, 'yyyy-MM-dd'); 
+    var x_fecha_inicio = this.datePipe.transform(in_fecha_inicio, 'yyyy-MM-dd');
+    var x_fecha_termino = this.datePipe.transform(in_fecha_termino, 'yyyy-MM-dd');
 
     this.loading=true;
     this._movimientosfarmaciaService.BuscaListaMovimietos(this.hdgcodigo ,this.esacodigo,this.cmecodigo,
       in_tipomovimiento,x_fecha_inicio,x_fecha_termino,in_numeromovimiento," ",0,this.usuario,this.servidor).subscribe(
-      response => {       
-        console.log(response)
-        this.listadomovimientos = response;
-        this.listadomovimientospaginacion = this.listadomovimientos.slice(0, 8);
-        this.loading=false;
+      response => {
+        if (response != null){
+          this.listadomovimientos = response;
+          this.listadomovimientospaginacion = this.listadomovimientos.slice(0, 8);
+          this.loading=false;
+        } else {
+          this.loading = false;
+        }
       },
       error => {
         console.log(error);
@@ -126,8 +129,8 @@ export class BusquedamovimientosbodegasComponent implements OnInit {
         //alert("Error al Buscar el detalle del movimiento de farmacia, No  encuentra detalle, puede que no exista");
         this.loading=false;
       }
-    )      
-  } 
+    )
+  }
 
   /* Función búsqueda con paginación */
 

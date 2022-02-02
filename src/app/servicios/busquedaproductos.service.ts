@@ -6,21 +6,39 @@ import { Observable } from 'rxjs';
 import { Articulos } from '../../app/models/entity/mantencionarticulos';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { Reglas } from '../models/entity/reglas';
+import { SaldosProductosBodegas } from '../models/entity/SaldosProductosBodegas';
+import { ProductosBodegas } from '../models/entity/productos-bodegas';
 
 @Injectable()
 export class BusquedaproductosService {
     
-    public urlBuscarpordescripcion  : string = environment.URLServiciosRest.URLConexion.concat('/buscaprodpordescripcion');
-    public urlBuscarporcodigo       : string = environment.URLServiciosRest.URLConexion.concat('/buscaprodporcodigo');
-    public urlBuscarPpoPresForma    : string = environment.URLServiciosRest.URLConexion.concat('/buscaprodporprincipio');
+    public urlBuscarpordescripcion  : string = sessionStorage.getItem('enlace').toString().concat('/buscaprodpordescripcion');
+    public urlBuscarporcodigo       : string = sessionStorage.getItem('enlace').toString().concat('/buscaprodporcodigo');
+    public urlBuscarPpoPresForma    : string = sessionStorage.getItem('enlace').toString().concat('/buscaprodporprincipio');
+    public urlBuscarReglasServicio  : string = sessionStorage.getItem('enlace').toString().concat('/buscareglasservicios');
+    public urlBuscasaldosporbodega  : string = sessionStorage.getItem('enlace').toString().concat('/buscastockbodegas');
+
     constructor(public _http: HttpClient) {
 
     }
-
     
-    
-    BuscarArticulosPorCodigo(hdgcodigo: number,esacodigo:number,cmecodigo:number,codigo: string,usuario:string,servidor:string): Observable<Articulos[]> {
-
+    BuscarReglasServicio(hdgcodigo: number,esacodigo:number,cmecodigo:number,reglatipo: string,reglatipobodega:string, bodegacodigo:number,codigoservicio:string,id_producto:number, servidor:string): Observable<Reglas[]> {
+        return this._http.post<Reglas[]>(this.urlBuscarReglasServicio, {
+            'hdgcodigo':hdgcodigo,
+	        'cmecodigo':cmecodigo,
+	        'reglatipo' : reglatipo,
+	        'reglatipobodega' : reglatipobodega,
+	        'bodegacodigo' : bodegacodigo,
+	        'codigoservicio': codigoservicio,
+	        'id_producto' : id_producto,
+	        'servidor' : servidor,
+            'esacodigo': esacodigo
+        });
+    }                      
+        
+    BuscarArticulosPorCodigo(hdgcodigo: number,esacodigo:number,cmecodigo:number,
+        codigo: string,usuario:string,servidor:string): Observable<Articulos[]> {
         return this._http.post<Articulos[]>(this.urlBuscarporcodigo, {
             'hdgcodigo' : hdgcodigo,
             'esacodigo' : esacodigo,
@@ -30,30 +48,28 @@ export class BusquedaproductosService {
             'servidor'  : servidor
         });
     }                      
-    
-    
-    
 
-    BuscarArituculosFiltros(hdgcodigo: number,esacodigo:number,cmecodigo:number,codigo: string,
+    BuscarArticulosFiltros(hdgcodigo: number,esacodigo:number,cmecodigo:number,codigo: string,
         descripcion: string,codpact:number,codpres:number,codffar:number, tipodeproducto:string,
         idbodega:number,controlminimo:string,controlado:string, consignacion:string, usuario:string,
-        servidor:string): Observable<Articulos[]> {
+        bodegaproductos:  ProductosBodegas[],servidor:string): Observable<Articulos[]> {
         return this._http.post<Articulos[]>(this.urlBuscarpordescripcion, {
-            'hdgcodigo'  : hdgcodigo,
-            'esacodigo'  : esacodigo,
-            'cmecodigo'  : cmecodigo,
-            'descripcion': descripcion,
+            'hdgcodigo'     : hdgcodigo,
+            'esacodigo'     : esacodigo,
+            'cmecodigo'     : cmecodigo,
+            'descripcion'   : descripcion,
             'tipodeproducto': tipodeproducto,
-            'princactivo' :codpact,
-            'presentacion':codpres,
-            'FormaFarma' : codffar,
-            'codigo'     : codigo, 
-            'idbodega' : idbodega,
-            'controlminimo':controlminimo,
-            'controlado': controlado,
-            'consignacion': consignacion,
-            'usuario'    : usuario,
-            'servidor'   : servidor
+            'princactivo'   :codpact,
+            'presentacion'  :codpres,
+            'FormaFarma'    : codffar,
+            'codigo'        : codigo, 
+            'idbodega'      : idbodega,
+            'controlminimo' :controlminimo,
+            'controlado'    : controlado,
+            'consignacion'  : consignacion,
+            'usuario'       : usuario,
+            'bodegaproductos': bodegaproductos,
+            'servidor'      : servidor
         });
     }
 
@@ -68,5 +84,39 @@ export class BusquedaproductosService {
         });
     }
 
-    
+    BuscarSaldosPorBodegas(meinid: number,servidor:string,hdgcodigo: number,esacodigo:number,
+        cmecodigo: number, usuario: string): Observable<SaldosProductosBodegas[]> {
+        return this._http.post<SaldosProductosBodegas[]>(this.urlBuscasaldosporbodega, {
+            'meinid'     : meinid, 
+            'servidor'   : servidor,
+            'hdgcodigo'  : hdgcodigo,
+            'esacodigo'  : esacodigo,
+            'cmecodigo'  : cmecodigo,
+            'usuario'    : usuario
+        });
+    }
+
+    BuscarArticulosFiltroDevol(hdgcodigo: number,esacodigo:number,cmecodigo:number,codigo: string,
+        descripcion: string,codpact:number,codpres:number,codffar:number, tipodeproducto:string,
+        idbodega:number,controlminimo:string,controlado:string, consignacion:string, usuario:string,
+        servidor:string,clinumidentificacion:string): Observable<Articulos[]> {
+        return this._http.post<Articulos[]>(this.urlBuscarpordescripcion, {
+            'hdgcodigo'            : hdgcodigo,
+            'esacodigo'            : esacodigo,
+            'cmecodigo'            : cmecodigo,
+            'descripcion'          : descripcion,
+            'tipodeproducto'       : tipodeproducto,
+            'princactivo'          :codpact,
+            'presentacion'         :codpres,
+            'FormaFarma'           : codffar,
+            'codigo'               : codigo, 
+            'idbodega'             : idbodega,
+            'controlminimo'        :controlminimo,
+            'controlado'           : controlado,
+            'consignacion'         : consignacion,
+            'usuario'              : usuario,
+            'servidor'             : servidor,
+            'clinumidentificacion' : clinumidentificacion
+        });
+    }
 }

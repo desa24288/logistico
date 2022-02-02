@@ -1,6 +1,6 @@
 export class EstadoSolicitud {
-    private estsolcodigo     : number;
-    private estsoldescripcion: string;
+    public estsolcodigo     : number;
+    public estsoldescripcion: string;
 
     constructor(estsolcodigo : number,estsoldescripcion: string) {
         this.estsolcodigo  = estsolcodigo ;

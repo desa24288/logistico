@@ -15,24 +15,24 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class IngresoordenescompraService {
-    public url                      : string = environment.URLServiciosRest.URLConexion.concat('/buscaproveedor');//"http://172.25.108.236:8183/buscaproveedor"; //buscaproveedores
-    public urlbuscaproveedorrut     : string = environment.URLServiciosRest.URLConexion.concat('/buscaproveedorporrut');//"http://172.25.108.236:8183/buscaproveedorporrut"; //buscaproveedores
-    public urlbuscaproveedornombre  : string = environment.URLServiciosRest.URLConexion.concat('/buscaproveedorpornombre');//"http://172.25.108.236:8183/buscaproveedorpornombre"; //buscaproveedores
-    public urlBuscarordencompra     : string = environment.URLServiciosRest.URLConexion.concat('/buscaordendecompra');//"http://172.25.108.236:8184/buscaordendecompra"; //busca ordencompra
-    public urlDetalle               : string = environment.URLServiciosRest.URLConexion.concat('/buscadetalleoc');//"http://172.25.108.236:8184/buscadetalleoc"; //Busca detalle Orden compra
-    public urlBuscaFechaEstado      : string = environment.URLServiciosRest.URLConexion.concat('/buscaordenesdecompra');//"http://172.25.108.236:8184/buscaordenesdecompra" // busca OC Fecha y Estado
-    public urlBuscaPalabraClave     : string = environment.URLServiciosRest.URLConexion.concat('/buscamedicamentos');//"http://172.25.108.236:8182/buscamedicamentos" //Busca palabra clave
-    public urlBuscapordescripcion   : string = environment.URLServiciosRest.URLConexion.concat('/buscaprodpordescripcion');//"http://172.25.108.236:8182/buscaprodpordescripcion"
-    public urlIngresocantidad       : string = environment.URLServiciosRest.URLConexion.concat('/ocvaloranterior');//"http://172.25.108.236:8184/ocvaloranterior"// Ingreso cantidad
-    public urlcierreoc              : string = environment.URLServiciosRest.URLConexion.concat('/cerrarordendecompra');//"http://172.25.108.236:8184/cerrarordendecompra"
-    public urlcostoanterior         : string = environment.URLServiciosRest.URLConexion.concat('/valorcostoanterior');//"http://172.25.108.236:8184/valorcostoanterior"
-    public urlgrabaencabezado       : string = environment.URLServiciosRest.URLConexion.concat('/grabarencabezadooc');//"http://172.25.108.236:8184/grabarencabezadooc"
-    public urldetalleingresooc      : string = environment.URLServiciosRest.URLConexion.concat('/grabardetalleoc');//"http://172.25.108.236:8184/grabardetalleoc"
-    public urlimprimecambiaestadooc : string = environment.URLServiciosRest.URLConexion.concat('/imprimiroc');//"http://172.25.108.236:8184/imprimiroc";
-    public urldoctosasoc            : string = environment.URLServiciosRest.URLConexion.concat('/buscadoctosasococ');//"http://172.25.108.236:8184/buscadoctosasococ";
-    public urlbuscaempresa          : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
-    public urlbuscasucursal         : string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal";
-    public urlrptoc                 : string = environment.URLServiciosRest.URLConexionInformes.concat('/obtieneurlinfordencompra');//"http://172.25.108.236:8194/obtieneurlinfordencompra";//obtiene reporte ordencompra
+    public url                      : string = sessionStorage.getItem('enlace').toString().concat('/buscaproveedor');//"http://172.25.108.236:8183/buscaproveedor"; //buscaproveedores
+    public urlbuscaproveedorrut     : string = sessionStorage.getItem('enlace').toString().concat('/buscaproveedorporrut');//"http://172.25.108.236:8183/buscaproveedorporrut"; //buscaproveedores
+    public urlbuscaproveedornombre  : string = sessionStorage.getItem('enlace').toString().concat('/buscaproveedorpornombre');//"http://172.25.108.236:8183/buscaproveedorpornombre"; //buscaproveedores
+    public urlBuscarordencompra     : string = sessionStorage.getItem('enlace').toString().concat('/buscaordendecompra');//"http://172.25.108.236:8184/buscaordendecompra"; //busca ordencompra
+    public urlDetalle               : string = sessionStorage.getItem('enlace').toString().concat('/buscadetalleoc');//"http://172.25.108.236:8184/buscadetalleoc"; //Busca detalle Orden compra
+    public urlBuscaFechaEstado      : string = sessionStorage.getItem('enlace').toString().concat('/buscaordenesdecompra');//"http://172.25.108.236:8184/buscaordenesdecompra" // busca OC Fecha y Estado
+    public urlBuscaPalabraClave     : string = sessionStorage.getItem('enlace').toString().concat('/buscamedicamentos');//"http://172.25.108.236:8182/buscamedicamentos" //Busca palabra clave
+    public urlBuscapordescripcion   : string = sessionStorage.getItem('enlace').toString().concat('/buscaprodpordescripcion');//"http://172.25.108.236:8182/buscaprodpordescripcion"
+    public urlIngresocantidad       : string = sessionStorage.getItem('enlace').toString().concat('/ocvaloranterior');//"http://172.25.108.236:8184/ocvaloranterior"// Ingreso cantidad
+    public urlcierreoc              : string = sessionStorage.getItem('enlace').toString().concat('/cerrarordendecompra');//"http://172.25.108.236:8184/cerrarordendecompra"
+    public urlcostoanterior         : string = sessionStorage.getItem('enlace').toString().concat('/valorcostoanterior');//"http://172.25.108.236:8184/valorcostoanterior"
+    public urlgrabaencabezado       : string = sessionStorage.getItem('enlace').toString().concat('/grabarencabezadooc');//"http://172.25.108.236:8184/grabarencabezadooc"
+    public urldetalleingresooc      : string = sessionStorage.getItem('enlace').toString().concat('/grabardetalleoc');//"http://172.25.108.236:8184/grabardetalleoc"
+    public urlimprimecambiaestadooc : string = sessionStorage.getItem('enlace').toString().concat('/imprimiroc');//"http://172.25.108.236:8184/imprimiroc";
+    public urldoctosasoc            : string = sessionStorage.getItem('enlace').toString().concat('/buscadoctosasococ');//"http://172.25.108.236:8184/buscadoctosasococ";
+    public urlbuscaempresa          : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
+    public urlbuscasucursal         : string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal";
+    public urlrptoc                 : string = sessionStorage.getItem('enlace').toString().concat('/obtieneurlinfordencompra');//"http://172.25.108.236:8194/obtieneurlinfordencompra";//obtiene reporte ordencompra
 
     constructor(public _http: HttpClient) {
 

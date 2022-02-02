@@ -12,10 +12,10 @@ import { Familia } from '../models/entity/Familia';
 
 @Injectable()
 export class InfconsumoporbodegasService {
-    public urlconsumobodega :string= environment.URLServiciosRest.URLConexionInformes.concat('/obtieneurlinfconsumobodega');//"http://172.25.108.236:8194/obtieneurlinfconsumobodegavalo";
-    public urlbuscaempresa  : string = environment.URLServiciosRest.URLConexion.concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
-    public urlbuscasucursal : string = environment.URLServiciosRest.URLConexion.concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal";
-    public urlbuscafamilia  : string = environment.URLServiciosRest.URLConexion.concat('/familia');//"http://172.25.108.236:8181/familia"
+    public urlconsumobodega :string= sessionStorage.getItem('enlace').toString().concat('/obtieneurlinfconsumobodega');//"http://172.25.108.236:8194/obtieneurlinfconsumobodegavalo";
+    public urlbuscaempresa  : string = sessionStorage.getItem('enlace').toString().concat('/buscaempresa');//"http://172.25.108.236:8181/buscaempresa";
+    public urlbuscasucursal : string = sessionStorage.getItem('enlace').toString().concat('/buscasucursal');//"http://172.25.108.236:8181/buscasucursal";
+    public urlbuscafamilia  : string = sessionStorage.getItem('enlace').toString().concat('/familia');//"http://172.25.108.236:8181/familia"
     
     constructor(public _http: HttpClient) {
 

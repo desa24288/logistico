@@ -1,5 +1,6 @@
 export class Detallelote {
     constructor(
+        public row               ?: number,
         public sodeid            ?: number,
         public soliid            ?: number,
         public fechavto          ?: string,
@@ -13,7 +14,7 @@ export class Detallelote {
         public meinid            ?: number,
         public meintiporeg       ?: string,
         public tipobodorigen     ?: string,
-        public tipoboddestino    ?: string
-    
+        public tipoboddestino    ?: string,
+        public glscombo          ?: string
     ) { }
 }

@@ -52,14 +52,14 @@
                     <tr>
                         <th>Fecha-Hora</th>
                         <th>Tipo Evento</th>
-                        <th>Usuario</th>
+                        <th>Nombre Usuario</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let registrosolicitud of listaEventosSolicitudPaginacion">
                         <td>{{registrosolicitud.fecha | date:'dd/MM/yyyy HH:mm:ss' }}</td>
                         <td>{{registrosolicitud.desevento}}</td>
-                        <td>{{registrosolicitud.usuario}}</td>
+                        <td>{{registrosolicitud.nombreusuario}}</td>
                     </tr>
                 </tbody>
             </table>

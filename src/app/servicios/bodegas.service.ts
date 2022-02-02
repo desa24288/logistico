@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { BodegaDestino } from '../models/entity/BodegaDestino'; 
+import { BodegaDestino } from '../models/entity/BodegaDestino';
 import { BodegaCargo } from '../models/entity/BodegaCargo';
 import { BodegasTodas } from '../models/entity/BodegasTodas';
 import { BodegasrelacionadaAccion } from '../models/entity/BodegasRelacionadas';
@@ -29,64 +29,80 @@ import { TipoRelacionBodega } from '../models/entity/tipo-relacion-bodega';
 import { EstructuraRelacionBodega } from '../models/entity/estructura-relacion-bodega';
 import { LibroControlado } from '../models/entity/LibroControlado';
 import { EstructuraBodegaServicio } from '../models/entity/estructura-bodega-servicio';
+import { ConsultaFraccionado } from '../models/entity/ConsultaFraccionamiento';
+import { BodegasFraccionables } from '../models/entity/BodegasFraccionables';
+import { DevolucionFraccionado } from '../models/entity/DevolucionFraccionado';
+import { DevolucionFraccionamiento } from '../models/entity/DevolucionFraccionamiento';
+import { TipoPedidoPlantillaBodega } from '../models/entity/TipoPedidoPlantillaBodega';
+import { BuscaLotesSistema } from '../models/entity/BuscaLotesSistema';
+import { DetalleConsultaConsumoLote } from '../models/entity/DetalleConsultaConsumoLote';
+import { ListaCobros } from '../models/entity/ListaCobro';
+import { Mensaje } from '../models/entity/Mensaje';
 
 
 @Injectable()
-  
+
 export class BodegasService {
 
-  public urltodos: string = environment.URLServiciosRest.URLConexion.concat('/bodegascargo');
-  public urlbodegacargo: string = environment.URLServiciosRest.URLConexion.concat('/selbodegasolicitante');
-  public urlbodegadestino: string = environment.URLServiciosRest.URLConexion.concat('/selbodegasuministro');
-  public urlbodegasTodas: string = environment.URLServiciosRest.URLConexion.concat('/selbodegasolicitante');
+  public urltodos: string = sessionStorage.getItem('enlace').toString().concat('/bodegascargo');
+  public urlbodegacargo: string = sessionStorage.getItem('enlace').toString().concat('/selbodegasolicitante');
+  public urlbodegadestino: string = sessionStorage.getItem('enlace').toString().concat('/selbodegasuministro');
+  public urlbodegasTodas: string = sessionStorage.getItem('enlace').toString().concat('/selbodegasolicitante');
 
-  public urlbodegasSuministro: string = environment.URLServiciosRest.URLConexion.concat('/selbodegasuministro');
-  public urlSuminostroaorigen: string = environment.URLServiciosRest.URLConexion.concat('/selsuministroaorigen');
-  
-  public urlprodxbodega      : string = environment.URLServiciosRest.URLConexion.concat('/productosxbodega');
-  public urlservicio         : string = environment.URLServiciosRest.URLConexion.concat('/servicios');
-  public urlgrababodeganueva : string = environment.URLServiciosRest.URLConexion.concat('/grababodega');
-  public urlasociabodservi   : string = environment.URLServiciosRest.URLConexion.concat('/asociaservicioabodega');
+  public urlbodegasSuministro: string = sessionStorage.getItem('enlace').toString().concat('/selbodegasuministro');
+  public urlSuminostroaorigen: string = sessionStorage.getItem('enlace').toString().concat('/selsuministroaorigen');
 
-  public urlgrabaprodabod    : string = environment.URLServiciosRest.URLConexion.concat('/grabarproductosabod');
-  public urlcreaplantilla :string =  environment.URLServiciosRest.URLConexion.concat('/grabarplantillas');
-  
-  public urlbuscaplant :string =  environment.URLServiciosRest.URLConexion.concat('/buscaplantillas');
-  public urlbuscaplantillascabecera :string =  environment.URLServiciosRest.URLConexion.concat('/buscaplantillascabecera');
-  
+  public urlprodxbodega      : string = sessionStorage.getItem('enlace').toString().concat('/productosxbodega');
+  public urlservicio         : string = sessionStorage.getItem('enlace').toString().concat('/servicios');
+  public urlgrababodeganueva : string = sessionStorage.getItem('enlace').toString().concat('/grababodega');
+  public urlasociabodservi   : string = sessionStorage.getItem('enlace').toString().concat('/asociaservicioabodega');
 
-  public urlbuscaboddespachadora: string = environment.URLServiciosRest.URLConexion.concat('/bodegasdespachadoras');
-  public urlproductosafraccionar: string = environment.URLServiciosRest.URLConexion.concat('/productosafraccionar');
-  public urlproductosafraccionados : string = environment.URLServiciosRest.URLConexion.concat('/productosfraccionados');
-  public urlfraccion   :string = environment.URLServiciosRest.URLConexion.concat('/grabafraccionados');
-  public urleliminafraccionado : string = environment.URLServiciosRest.URLConexion.concat('/eliminafraccionados');
-  public urlajustestock     : string = environment.URLServiciosRest.URLConexion.concat('/creaajustestockmanual');
-  public urlbodegaxservicio : string = environment.URLServiciosRest.URLConexion.concat('/traebodegasxservicios');
-  
-  public urleliminaprodabod     : string = environment.URLServiciosRest.URLConexion.concat('/eliminarproductosabod');
+  public urlgrabaprodabod    : string = sessionStorage.getItem('enlace').toString().concat('/grabarproductosabod');
+  public urlcreaplantilla :string =  sessionStorage.getItem('enlace').toString().concat('/grabarplantillas');
 
-  public urlbuscarEstructuraBodegas : string = environment.URLServiciosRest.URLConexion.concat('/buscarEstructuraBodegas');
-  public urlbuscarCabeceraBodegas : string = environment.URLServiciosRest.URLConexion.concat('/buscarcabecerabodegas'); 
+  public urlbuscaplant :string =  sessionStorage.getItem('enlace').toString().concat('/buscaplantillas');
+  public urlbuscaplantillascabecera :string =  sessionStorage.getItem('enlace').toString().concat('/buscaplantillascabecera');
 
-  public urlguardarEstructuraBodegas: string = environment.URLServiciosRest.URLConexion.concat('/grabarestructurabodega')
-  public urllistatipobodega         : string = environment.URLServiciosRest.URLConexion.concat('/listatipobodega');
-  public urllistatipoproducto       : string = environment.URLServiciosRest.URLConexion.concat('/listatipoproducto');
-  public urlbuscabodcontrolada      : string = environment.URLServiciosRest.URLConexion.concat('/bodegascontrolados');
-  public urldesasociaServicioBodega : string = environment.URLServiciosRest.URLConexion.concat('/desasociaservicioabodega');
+  public urlbuscaboddespachadora: string = sessionStorage.getItem('enlace').toString().concat('/bodegasdespachadoras');
+  public urlproductosafraccionar: string = sessionStorage.getItem('enlace').toString().concat('/productosafraccionar');
+  public urlproductosafraccionados : string = sessionStorage.getItem('enlace').toString().concat('/productosfraccionados');
+  public urlfraccion   :string = sessionStorage.getItem('enlace').toString().concat('/grabafraccionados');
+  public urleliminafraccionado : string = sessionStorage.getItem('enlace').toString().concat('/eliminafraccionados');
+  public urlajustestock     : string = sessionStorage.getItem('enlace').toString().concat('/creaajustestockmanual');
+  public urlbodegaxservicio : string = sessionStorage.getItem('enlace').toString().concat('/traebodegasxservicios');
 
-  public urlbuscabodegacontrolSyckminimo : string = environment.URLServiciosRest.URLConexion.concat('/buscabodegacontrolstockminimo');
+  public urleliminaprodabod     : string = sessionStorage.getItem('enlace').toString().concat('/eliminarproductosabod');
 
-  public urldesasociaUsuarioBodega: string = environment.URLServiciosRest.URLConexion.concat('/desasociausuarioabodega');
+  public urlbuscarEstructuraBodegas : string = sessionStorage.getItem('enlace').toString().concat('/buscarEstructuraBodegas');
+  public urlbuscarCabeceraBodegas : string = sessionStorage.getItem('enlace').toString().concat('/buscarcabecerabodegas');
 
-  public urlistaTipoRelacionBodega: string = environment.URLServiciosRest.URLConexion.concat('/listartiporelacionbodegas');
+  public urlguardarEstructuraBodegas: string = sessionStorage.getItem('enlace').toString().concat('/grabarestructurabodega')
+  public urllistatipobodega         : string = sessionStorage.getItem('enlace').toString().concat('/listatipobodega');
+  public urllistatipoproducto       : string = sessionStorage.getItem('enlace').toString().concat('/listatipoproducto');
+  public urlbuscabodcontrolada      : string = sessionStorage.getItem('enlace').toString().concat('/bodegascontrolados');
+  public urldesasociaServicioBodega : string = sessionStorage.getItem('enlace').toString().concat('/desasociaservicioabodega');
 
-  public urldesasociaRelacionBodega: string = environment.URLServiciosRest.URLConexion.concat('/desasociarelacionbodega');
-  public urlprodbodegakardex  : string = environment.URLServiciosRest.URLConexion.concat('/selcierrekardexbodinv');
-  
-  public urlbodegadespachareceta : string = environment.URLServiciosRest.URLConexion.concat('/selbodegadespachareceta');
+  public urlbuscabodegacontrolSyckminimo : string = sessionStorage.getItem('enlace').toString().concat('/buscabodegacontrolstockminimo');
 
-  public urlListaEstructuraServicioBodegas : string = environment.URLServiciosRest.URLConexion.concat('/ListaEstructuraServicioBodegas');
+  public urldesasociaUsuarioBodega: string = sessionStorage.getItem('enlace').toString().concat('/desasociausuarioabodega');
 
+  public urlistaTipoRelacionBodega: string = sessionStorage.getItem('enlace').toString().concat('/listartiporelacionbodegas');
+
+  public urldesasociaRelacionBodega: string = sessionStorage.getItem('enlace').toString().concat('/desasociarelacionbodega');
+  public urlprodbodegakardex  : string = sessionStorage.getItem('enlace').toString().concat('/selcierrekardexbodinv');
+
+  public urlbodegadespachareceta : string = sessionStorage.getItem('enlace').toString().concat('/selbodegadespachareceta');
+
+  public urlListaEstructuraServicioBodegas : string = sessionStorage.getItem('enlace').toString().concat('/ListaEstructuraServicioBodegas');
+  public urlconsultafraccion : string = sessionStorage.getItem('enlace').toString().concat('/selConsultaFraccionamiento')
+  public urlbuscabodfraccionable:string = sessionStorage.getItem('enlace').toString().concat('/selbodegafraccionable');
+  public urldevolfraccion : string = sessionStorage.getItem('enlace').toString().concat('/devolucionfraccionado')
+  public urlbuscapedido   : string = sessionStorage.getItem('enlace').toString().concat('/tipopedidoplantillabodega');
+  public urlbuscalotessist : string = sessionStorage.getItem('enlace').toString().concat('/buscalotes');
+  public urlbuscaprodporlote: string = sessionStorage.getItem('enlace').toString().concat('/buscaprodporlote');
+  public urlconsumolote : string = sessionStorage.getItem('enlace').toString().concat('/consultaconsumolotes');
+  public urlbuscalistacobros : string = sessionStorage.getItem('enlace').toString().concat('/obtenerlistacobromedicamento');
+  public urlfactorconversionproducto : string = sessionStorage.getItem('enlace').toString().concat('/grabarfactorconversionproducto');
 
 
   constructor(private _http: HttpClient) {
@@ -95,10 +111,10 @@ export class BodegasService {
 
 
   ListaEstructuraServicioBodegas(BodegaServivio: EstructuraBodegaServicio): Observable<EstructuraBodegaServicio[]> {
-    return this._http.post<EstructuraBodegaServicio[]>(this.urlListaEstructuraServicioBodegas,BodegaServivio);   
+    return this._http.post<EstructuraBodegaServicio[]>(this.urlListaEstructuraServicioBodegas,BodegaServivio);
 }
 
-  
+
   listarTipoRelacionBodegas(hdgcodigo:number,cmecodigo : number,servidor : string, usuario:string): Observable<TipoRelacionBodega[]> {
     return this._http.post<TipoRelacionBodega[]>(this.urlistaTipoRelacionBodega,{
     hdgcodigo: hdgcodigo,
@@ -108,8 +124,8 @@ export class BodegasService {
     });
   }
 
-  buscabodegacontrolstockminimo(hdgcodigo:number, esacodigo:number,cmecodigo:number,usuario:string,servidor:string,fechainicio:string,fechatermino:string,idbodegasolicita:number, idbodegasuministro:number,idarticulo:number): 
-  Observable<ControlStockMinimo[]> { return  this._http.post<ControlStockMinimo[]>(this.urlbuscabodegacontrolSyckminimo,{ 
+  buscabodegacontrolstockminimo(hdgcodigo:number, esacodigo:number,cmecodigo:number,usuario:string,servidor:string,fechainicio:string,fechatermino:string,idbodegasolicita:number, idbodegasuministro:number,idarticulo:number):
+  Observable<ControlStockMinimo[]> { return  this._http.post<ControlStockMinimo[]>(this.urlbuscabodegacontrolSyckminimo,{
     hdgcodigo: hdgcodigo,
     esacodigo: esacodigo,
     cmecodigo: cmecodigo,
@@ -159,7 +175,7 @@ desasociaUsuarioEstructuraBodegas(hdgcodigo:number,cmecodigo : number,bodegacodi
     servidor : servidor
     });
   }
-  
+
 
   listatipobodega(hdgcodigo:number,usuario : string, servidor : string): Observable<TipoParametro[]> {
     return this._http.post<TipoParametro[]>(this.urllistatipobodega,{
@@ -177,28 +193,33 @@ desasociaUsuarioEstructuraBodegas(hdgcodigo:number,cmecodigo : number,bodegacodi
     });
   }
 
-  listaEstructuraBodegas(hdgcodigo:number,cmecodigo : number,codbodega : number,desbodega : string,estado : string,tipoproducto : string,tipobodega : string, usaurio : string,servidor : string
+  listaEstructuraBodegas(hdgcodigo:number,cmecodigo : number,codbodega : number,
+    fbocodigobodega:string, desbodega : string,estado : string,tipoproducto : string,
+    tipobodega : string, usaurio : string,servidor : string, codmei : string
     ): Observable<EstructuraBodega[]> {
     return this._http.post<EstructuraBodega[]>(this.urlbuscarEstructuraBodegas,{
     hdgcodigo: hdgcodigo,
     cmecodigo: cmecodigo,
     codbodega: codbodega,
+    fbocodigobodega: fbocodigobodega,
     desbodega: desbodega,
     estado   : estado,
     tipoproducto : tipoproducto,
     tipobodega : tipobodega,
     usuario   : usaurio,
-    servidor : servidor
+    servidor : servidor,
+    codmei: codmei
     });
   }
 
 
-  listaCabeceraBodegas(hdgcodigo:number,cmecodigo : number,codbodega : number,desbodega : string,estado : string,tipoproducto : string,tipobodega : string, usaurio : string,servidor : string
+  listaCabeceraBodegas(hdgcodigo:number,cmecodigo : number,codbodega : number,fbocodigobodega: string,desbodega : string,estado : string,tipoproducto : string,tipobodega : string, usaurio : string,servidor : string
     ): Observable<EstructuraBodega[]> {
     return this._http.post<EstructuraBodega[]>(this.urlbuscarCabeceraBodegas,{
     hdgcodigo: hdgcodigo,
     cmecodigo: cmecodigo,
     codbodega: codbodega,
+    fbocodigobodega: fbocodigobodega,
     desbodega: desbodega,
     estado   : estado,
     tipoproducto : tipoproducto,
@@ -209,7 +230,7 @@ desasociaUsuarioEstructuraBodegas(hdgcodigo:number,cmecodigo : number,bodegacodi
   }
 
   guardarEstructuraBodegas(Bodega: EstructuraBodega): Observable<any> {
-    return this._http.post(this.urlguardarEstructuraBodegas,Bodega);   
+    return this._http.post(this.urlguardarEstructuraBodegas,Bodega);
 }
 
 
@@ -273,7 +294,7 @@ desasociaUsuarioEstructuraBodegas(hdgcodigo:number,cmecodigo : number,bodegacodi
     });
   }
 
-  listaBodegaDespachoReceta(hdgcodigo: number, esacodigo: number, cmecodigo: number, usuario: string, 
+  listaBodegaDespachoReceta(hdgcodigo: number, esacodigo: number, cmecodigo: number, usuario: string,
     servidor: string,): Observable<BodegasTodas[]> {
     return this._http.post<BodegasTodas[]>(this.urlbodegadespachareceta, {
    'hdgcodigo': hdgcodigo,
@@ -297,7 +318,7 @@ desasociaUsuarioEstructuraBodegas(hdgcodigo:number,cmecodigo : number,bodegacodi
   }
 
 
-  
+
   listaBodegaOrigenAccion(hdgcodigo: number, esacodigo: number, cmecodigo: number, usuario: string, servidor: string, bodcodigosolicita:number, tiporegori:number): Observable<BodegaSolicitante[]> {
     return this._http.post<BodegaSolicitante[]>(this.urlSuminostroaorigen, {
       'hdgcodigo'         : hdgcodigo,
@@ -316,25 +337,25 @@ desasociaUsuarioEstructuraBodegas(hdgcodigo:number,cmecodigo : number,bodegacodi
     return this._http.post<Bodegas[]>(this.urlprodxbodega, {
         'hdgcodigo': hdgcodigo,
         'esacodigo': esacodigo,
-        'cmecodigo': cmecodigo, 
+        'cmecodigo': cmecodigo,
         'codbodega': codbodega,
         'usuario'  : usuario,
         'servidor' : servidor
-    });        
+    });
   }
 
   BuscaServicios(hdgcodigo: number,esacodigo:number,cmecodigo:number, bodegacodigo: number,usuario:string,servidor:string):Observable<Servicio[]> {
     return this._http.post<Servicio[]>(this.urlservicio, {
         'hdgcodigo'   : hdgcodigo,
         'esacodigo'   : esacodigo,
-        'cmecodigo'   : cmecodigo, 
+        'cmecodigo'   : cmecodigo,
         'bodegacodigo': bodegacodigo,
         'usuario'     : usuario,
         'servidor'    : servidor
     });
   }
 
-  CreaBodegaNueva(hdgcodigo: number,esacodigo: number,cmecodigo:number,codbodega:number, 
+  CreaBodegaNueva(hdgcodigo: number,esacodigo: number,cmecodigo:number,codbodega:number,
     desbodega: string,codnuevo:string,usuario:string,servidor:string): Observable<Bodegas[]> {
     return this._http.post<Bodegas[]>(this.urlgrababodeganueva, {
         'hdgcodigo' : hdgcodigo,
@@ -346,7 +367,7 @@ desasociaUsuarioEstructuraBodegas(hdgcodigo:number,cmecodigo : number,bodegacodi
         'usuario'   : usuario,
         'servidor'  : servidor
     });
-  } 
+  }
 
   AsociaBodegaServicio(hdgcodigo: number,esacodigo: number,cmecodigo:number,codbodega: number,
     codserbodperi: number,usuario:string,servidor:string):Observable<Bodegas[]> {
@@ -359,12 +380,12 @@ desasociaUsuarioEstructuraBodegas(hdgcodigo:number,cmecodigo : number,bodegacodi
         'usuario'       : usuario,
         'servidor'      : servidor
     });
-    
+
   }
 
 
   EliminaProductodeBodega(registroeliminar:ProductosBodegas):Observable<any> {
-    return this._http.post(this.urleliminaprodabod, registroeliminar);        
+    return this._http.post(this.urleliminaprodabod, registroeliminar);
   }
 
   GrabaProductosaBodega(paramgrabaproductosabod):Observable<ParamGrabaproductosaBodega[]>{
@@ -375,20 +396,20 @@ desasociaUsuarioEstructuraBodegas(hdgcodigo:number,cmecodigo : number,bodegacodi
   }
 
   crearPlantilla(plantillas: Plantillas):Observable<any>{
-    return this._http.post(this.urlcreaplantilla, plantillas              
+    return this._http.post(this.urlcreaplantilla, plantillas
     );
-  }  
-  
+  }
+
 
 
   BuscaPlantillasCabecera(servidor: string,usuario:string,phdgcodigo:number,pesacodigo:number,pcmecodigo:number,
     pplanid: number,pplandescrip:string,
     pfechaini:string,pfechafin:string,pbodegaorigen:number,
-    pbodegadestino:number,pplanvigente:string,pserviciocod:string, pplantipo:number
-    ):Observable<Plantillas[]>{
+    pbodegadestino:number,pplanvigente:string,pserviciocod:string, pplantipo:number,
+    tipopedido: number):Observable<Plantillas[]>{
     return this._http.post<Plantillas[]>(this.urlbuscaplantillascabecera, {
       'servidor'      : servidor,
-      'usuario'       : usuario, 
+      'usuario'       : usuario,
       'phdgcodigo'    : phdgcodigo,
       'pesacodigo'    : pesacodigo,
       'pcmecodigo'    : pcmecodigo,
@@ -397,10 +418,11 @@ desasociaUsuarioEstructuraBodegas(hdgcodigo:number,cmecodigo : number,bodegacodi
       'pfechaini'     : pfechaini,
       'pfechafin'     : pfechafin,
       'pbodegaorigen' : pbodegaorigen,
-      'pbodegadestino': pbodegadestino, 
+      'pbodegadestino': pbodegadestino,
       'pplanvigente'  : pplanvigente,
       'pserviciocod'  : pserviciocod,
-      'pplantipo'     : pplantipo
+      'pplantipo'     : pplantipo,
+      'tipopedido'    : tipopedido
 
     });
   }
@@ -408,11 +430,11 @@ desasociaUsuarioEstructuraBodegas(hdgcodigo:number,cmecodigo : number,bodegacodi
   BuscaPlantillas(servidor: string,usuario:string,phdgcodigo:number,pesacodigo:number,pcmecodigo:number,
     pplanid: number,pplandescrip:string,
     pfechaini:string,pfechafin:string,pbodegaorigen:number,
-    pbodegadestino:number,pplanvigente:string,pserviciocod:string, pplantipo:number
-    ):Observable<Plantillas[]>{
+    pbodegadestino:number,pplanvigente:string,pserviciocod:string,
+    pplantipo:number, codmei:string):Observable<Plantillas[]>{
     return this._http.post<Plantillas[]>(this.urlbuscaplant, {
       'servidor'      : servidor,
-      'usuario'       : usuario, 
+      'usuario'       : usuario,
       'phdgcodigo'    : phdgcodigo,
       'pesacodigo'    : pesacodigo,
       'pcmecodigo'    : pcmecodigo,
@@ -421,10 +443,11 @@ desasociaUsuarioEstructuraBodegas(hdgcodigo:number,cmecodigo : number,bodegacodi
       'pfechaini'     : pfechaini,
       'pfechafin'     : pfechafin,
       'pbodegaorigen' : pbodegaorigen,
-      'pbodegadestino': pbodegadestino, 
+      'pbodegadestino': pbodegadestino,
       'pplanvigente'  : pplanvigente,
       'pserviciocod'  : pserviciocod,
-      'pplantipo'     : pplantipo
+      'pplantipo'     : pplantipo,
+      'codmei'        : codmei
 
     });
   }
@@ -433,11 +456,11 @@ desasociaUsuarioEstructuraBodegas(hdgcodigo:number,cmecodigo : number,bodegacodi
     return this._http.post(this.urlcreaplantilla, Plantillas
     );
   }
-  
+
   EliminarSolicitud(Plantillas: Plantillas): Observable<any> {
-      return this._http.post(this.urlcreaplantilla, Plantillas              
+      return this._http.post(this.urlcreaplantilla, Plantillas
       );
-    
+
   }
 
   BuscaBodegasDespachadora(hdgcodigo:number,esacodigo:number,cmecodigo:number,usuario: string,
@@ -540,7 +563,124 @@ desasociaUsuarioEstructuraBodegas(hdgcodigo:number,cmecodigo : number,bodegacodi
       'esacodigo': esacodigo,
       'cmecodigo': cmecodigo,
       'codbodega': codbodega
-      
+
+    });
+  }
+
+  ConsultaFraccionamiento(hdgcodigo: number,esacodigo:number,cmecodigo: number,usuario:string,
+    servidor:string,fbodcodigo:number, fechadesde:string, fechahasta:string,idprodorigen:number,
+    idproddestino:number ):Observable<ConsultaFraccionado[]>{
+    return this._http.post<ConsultaFraccionado[]>(this.urlconsultafraccion, {
+      'hdgcodigo': hdgcodigo,
+      'esacodigo': esacodigo,
+      'cmecodigo': cmecodigo,
+      'usuario'  : usuario,
+      'servidor' : servidor,
+      'fbodcodigo': fbodcodigo,
+      'fechadesde': fechadesde,
+      'fechahasta': fechahasta,
+      'idprodorigen': idprodorigen,
+      'idproddestino': idproddestino
+    });
+  }
+
+  BuscaBodegasFraccionable(hdgcodigo:number,esacodigo:number,cmecodigo:number,usuario: string,
+    servidor: string):Observable<BodegasFraccionables[]>{
+    return this._http.post<BodegasFraccionables[]>(this.urlbuscabodfraccionable, {
+      'hdgcodigo' : hdgcodigo,
+      'esacodigo' : esacodigo,
+      'cmecodigo' : cmecodigo,
+      'usuario'   : usuario,
+      'servidor'  : servidor
+    });
+  }
+
+  DevolucionFraccionamiento(servidor: string,usuario: string,hdgcodigo:number,esacodigo:number,
+    cmecodigo: number,codbodega: number,devolucionfraccionamiento: DevolucionFraccionamiento[]):Observable<GrabaProductoFraccionado[]>{
+    return this._http.post<GrabaProductoFraccionado[]>(this.urldevolfraccion, {
+      'servidor'  : servidor,
+      'usuario'   : usuario,
+      'hdgcodigo' : hdgcodigo,
+      'esacodigo' : esacodigo,
+      'cmecodigo' : cmecodigo,
+      'codbodega' : codbodega,
+      'devolucionfraccionamiento': devolucionfraccionamiento
+    });
+  }
+
+  BuscaTipoPedido(servidorbd: string):Observable<TipoPedidoPlantillaBodega[]>{
+    return this._http.post<TipoPedidoPlantillaBodega[]>(this.urlbuscapedido, {
+      'servidorbd'  : servidorbd
+    });
+  }
+
+  BuscaLotesDelSistema(servidor: string,hdgcodigo:number,esacodigo:number,cmecodigo: number,
+    lote: string, meinid:number, codbodega: string, fechainicio:string, fechatermino: string,
+    saldo: number):Observable<BuscaLotesSistema[]>{
+    return this._http.post<BuscaLotesSistema[]>(this.urlbuscalotessist, {
+      'servidor'  : servidor,
+      'hdgcodigo' : hdgcodigo,
+      'esacodigo' : esacodigo,
+      'cmecodigo' : cmecodigo,
+      'lote'      : lote,
+      'meinid'    : meinid,
+      'codbodega' : codbodega,
+      'fechainicio': fechainicio,
+      'fechatermino': fechatermino,
+      'saldo'      : saldo
+    });
+  }
+
+  BuscaProductoporLotes(servidor: string,hdgcodigo:number,esacodigo:number,cmecodigo: number,
+    usuario: string, lote: string, fechavencimiento: string ):Observable<any>{
+    return this._http.post<any>(this.urlbuscaprodporlote, {
+      'servidor'  : servidor,
+      'hdgcodigo' : hdgcodigo,
+      'esacodigo' : esacodigo,
+      'cmecodigo' : cmecodigo,
+      'usuario' : usuario,
+      'lote'      : lote,
+      'fechavencimiento' : fechavencimiento
+    });
+  }
+
+  ConsumoLotes(servidor: string,usuario: string,phdgcodigo: number,pesacodigo: number,
+    pcmecodigo: number,Lote: string,MeinID: number,FechaInicio: string,
+    FechaTermino: string,TipoConsulta: number):Observable<DetalleConsultaConsumoLote[]>{
+    return this._http.post<DetalleConsultaConsumoLote[]>(this.urlconsumolote, {
+      'servidor'     : servidor,
+      'usuario'      : usuario,
+      'phdgcodigo'   : phdgcodigo,
+      'pesacodigo'   : pesacodigo,
+      'pcmecodigo'   : pcmecodigo,
+      'Lote'         : Lote,
+      'MeinID'       : MeinID,
+      'FechaInicio'  : FechaInicio,
+      'FechaTermino' : FechaTermino,
+      'TipoConsulta' : TipoConsulta,
+    });
+  }
+
+  listaCobros(hdgcodigo: number, esacodigo: number, cmecodigo: number, usuario: string,
+    servidor: string,): Observable<ListaCobros[]> {
+    return this._http.post<ListaCobros[]>(this.urlbuscalistacobros, {
+   'hdgcodigo': hdgcodigo,
+   'esacodigo': esacodigo,
+   'cmecodigo': cmecodigo,
+   'usuario': usuario,
+   'servidor': servidor
+    });
+  }
+
+  GrabaFactorConversionProducto(servidor : string,hdgcodigo : number,esacodigo : number,
+    cmecodigo : number,usuario : string,factorconversionproductodetalle: GrabaProductoFraccionado[]):Observable<Mensaje>{
+    return this._http.post<Mensaje>(this.urlfactorconversionproducto, {
+        'servidor'  : servidor,
+        'hdgcodigo' : hdgcodigo,
+        'esacodigo' : esacodigo,
+        'cmecodigo' : cmecodigo,
+        'usuario'   : usuario,
+        'factorconversionproductodetalle' : factorconversionproductodetalle
     });
   }
 }

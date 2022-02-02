@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 @Injectable()
 export class TipomovimientoService {
 
-  private target_url = environment.URLServiciosRest.URLConexion.concat('/tipomovimientofarmacia');//tipodespacho, ese servicio muestra mas datos en el combo
+  private target_url = sessionStorage.getItem('enlace').toString().concat('/tipomovimientofarmacia');//tipodespacho, ese servicio muestra mas datos en el combo
 
   constructor(private httpClient: HttpClient) {
 

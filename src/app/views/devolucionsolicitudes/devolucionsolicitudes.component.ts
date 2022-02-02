@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild,HostListener } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { PageChangedEvent } from 'ngx-bootstrap/pagination';
@@ -7,21 +7,24 @@ import { esLocale } from 'ngx-bootstrap/locale';
 import { DatePipe } from '@angular/common';
 import { BsDatepickerConfig, BsLocaleService } from 'ngx-bootstrap/datepicker';
 import { environment } from '../../../environments/environment';
-import { BusquedasolicitudesComponent } from '../busquedasolicitudes/busquedasolicitudes.component';
+import { Router, ActivatedRoute } from '@angular/router';
+import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { DetalleSolicitud } from 'src/app/models/entity/DetalleSolicitud';
 import { DevolucionDetalleSolicitud } from 'src/app/models/entity/DevolucionDetalleSolicitud';
-import { SolicitudService } from 'src/app/servicios/Solicitudes.service';
-import { EventosDetallesolicitudComponent } from '../eventos-detallesolicitud/eventos-detallesolicitud.component';
 import { Solicitud } from 'src/app/models/entity/Solicitud';
-import { EventosSolicitudComponent } from '../eventos-solicitud/eventos-solicitud.component';
-import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { DespachoDetalleSolicitud } from 'src/app/models/entity/DespachoDetalleSolicitud';
 import { Detallelote } from '../../models/entity/Detallelote';
 import { ProductoRecepcionBodega } from 'src/app/models/entity/ProductoRecepcionBodega';
 import { ParamDetDevolBodega } from '../../models/entity/ParamDetDevolBodega';
 import { ParamDevolBodega } from '../../models/entity/ParamDevolBodega';
-import { InformesService } from '../../servicios/informes.service';
 import { Permisosusuario } from '../../permisos/permisosusuario';
+import { BusquedasolicitudesComponent } from '../busquedasolicitudes/busquedasolicitudes.component';
+import { EventosDetallesolicitudComponent } from '../eventos-detallesolicitud/eventos-detallesolicitud.component';
+import { EventosSolicitudComponent } from '../eventos-solicitud/eventos-solicitud.component';
+import { SolicitudService } from 'src/app/servicios/Solicitudes.service';
+import { InformesService } from '../../servicios/informes.service';
+import { CreasolicitudesService } from 'src/app/servicios/creasolicitudes.service';
+import { StockProducto } from 'src/app/models/entity/StockProducto';
 
 @Component({
   selector: 'app-devolucionsolicitudes',
@@ -38,16 +41,20 @@ export class DevolucionsolicitudesComponent implements OnInit {
   public modelopermisos                   : Permisosusuario = new Permisosusuario();
   public FormDevolucionSolicitud          : FormGroup;
   public FormDevolucionDetalle            : FormGroup;
+  public FormDatosProducto                : FormGroup;
   public arreegloDetalleSolicitud         : Array<DetalleSolicitud> = [];
   public arreegloDetalleSolicitudpaginacion: Array<DetalleSolicitud> = [];
+  public arreegloDetalleSolicitud_aux     : Array<DetalleSolicitud> = [];
+  public arreegloDetalleSolicitudpaginacion_aux: Array<DetalleSolicitud> = [];
+  public arreegloDetalleSolicitud_2         : Array<DetalleSolicitud> = [];
   public listadetallesolicitud            : Array<DetalleSolicitud> = [];
   public DevolucionBodega                 : ParamDevolBodega;
   public arregloDetalleDevolucionSolicitud: Array<DevolucionDetalleSolicitud> = [];
   public ListaDevolucionDetalleSolicitud  : Array<DevolucionDetalleSolicitud> = [];
   public paramdevolucion                  : DespachoDetalleSolicitud[]=[];
   public varDevolucionDetalleSolicitud    : DevolucionDetalleSolicitud;
-  public detallessolicitudes              : Array<DespachoDetalleSolicitud> = [];  
-  public detallessolicitudespaginacion    : Array<DespachoDetalleSolicitud> = []; 
+  public detallessolicitudes              : Array<DespachoDetalleSolicitud> = [];
+  public detallessolicitudespaginacion    : Array<DespachoDetalleSolicitud> = [];
   public productosrecepcionadospaginacion : Array<ProductoRecepcionBodega> =[];
   public productosrecepcionados           : Array<ParamDetDevolBodega> =[];
   public arrParamDetDevolBodega           : Array<ParamDetDevolBodega> = [];
@@ -73,8 +80,20 @@ export class DevolucionsolicitudesComponent implements OnInit {
   public bsConfig                         : Partial<BsDatepickerConfig>;
   public colorTheme                       = 'theme-blue';
   private _BSModalRef                     : BsModalRef;
-  public loading                          : boolean= false;
+  public loading                          : boolean = false;
   public activabtnimprime                 : boolean = false;
+  public activabtndevoltotal              : boolean = false;
+  public desactivabtnelim                 : boolean = false;
+  public vacios                           : boolean = true;
+  public verificanull                     : boolean = false;
+  public bloqbtnagregar                   : boolean = false;
+  public ActivaBotonBuscaGrilla           : boolean = false;
+  public ActivaBotonLimpiaBusca           : boolean = false;
+  public descprod                         = null;
+  public estado_aux                       : number;
+
+  public valida             : boolean;
+  public respPermiso        : string;
 
   cantpendiente           : number = 10;
   retornosolicitud        : any;
@@ -84,14 +103,16 @@ export class DevolucionsolicitudesComponent implements OnInit {
   editField               : any;
 
   constructor(
-    private formBuilder           : FormBuilder,
-    public _BsModalService        : BsModalService,
-    public datePipe               : DatePipe,
-    public localeService          : BsLocaleService,
-    public _SolicitudService      : SolicitudService,
-    public _buscasolicitudService : SolicitudService,
-    private _imprimesolicitudService  : InformesService
-
+    private formBuilder             : FormBuilder,
+    public _BsModalService          : BsModalService,
+    public datePipe                 : DatePipe,
+    public localeService            : BsLocaleService,
+    public _SolicitudService        : SolicitudService,
+    public _buscasolicitudService   : SolicitudService,
+    private _imprimesolicitudService: InformesService,
+    private router                  : Router,
+    private route                   : ActivatedRoute,
+    public _creaService             : CreasolicitudesService,
   ) {
 
     this.FormDevolucionSolicitud = this.formBuilder.group({
@@ -108,7 +129,13 @@ export class DevolucionsolicitudesComponent implements OnInit {
 
     this.FormDevolucionDetalle = this.formBuilder.group({
       codigo  : [{ value: null, disabled: false }, Validators.required],
-      
+      descripcion : [{ value: null, disabled: false }, Validators.required],
+
+    });
+
+    this.FormDatosProducto = this.formBuilder.group({
+      codigo  : [{ value: null, disabled: false }, Validators.required],
+      descripcion : [{ value: null, disabled: false }, Validators.required],
     });
   }
 
@@ -121,46 +148,120 @@ export class DevolucionsolicitudesComponent implements OnInit {
 
   }
 
+  ngOnDestroy(){
+    if(this._Solicitud != undefined){
+      if(this._Solicitud.bandera != 2){
+        this.ValidaEstadoSolicitud(1,'destroy');
+      }
+    }
+  }
+
   setDate() {
     defineLocale(this.locale, esLocale);
     this.localeService.use(this.locale);
     this.bsConfig = Object.assign({}, { containerClass: this.colorTheme });
   }
 
-  
+
   BuscarSolicitudes() {
+    this.loading = true;
     this.detallessolicitudespaginacion = [];
     this.detallessolicitudes = [];
+
+
+    if(this._Solicitud != undefined){
+
+      if(this._Solicitud.bandera === 1){  //Si bandera es =2 solicitud tomada
+        this.ValidaEstadoSolicitud(1,'BuscaSolicitudes');
+      }
+    }
     this._BSModalRef = this._BsModalService.show(BusquedasolicitudesComponent, this.setModalBusquedaSolicitud());
     this._BSModalRef.content.onClose.subscribe((RetornoSolicitudes: Solicitud) => {
       if (RetornoSolicitudes == undefined) { }
       else {
 
-        
-             this._SolicitudService.BuscaSolicitud(RetornoSolicitudes.soliid, this.hdgcodigo,
-             this.esacodigo, this.cmecodigo, 0,"","", 0,0,0,this.servidor, 0,0,0,0,0,0,"",0).subscribe(
-             response => {
-                          this._Solicitud = response[0];
-                          if (this._Solicitud.soliid > 0) {
-                            this.numsolic = true;
-                          }
-                        
-                          this.existsolicitud = true;
-                          var fechacreacion;
-                          this.FormDevolucionSolicitud.get('numsolicitud').setValue(this._Solicitud.soliid);
-                          this.FormDevolucionSolicitud.get('boddestino').setValue(this._Solicitud.boddestinodesc);
-                          this.FormDevolucionSolicitud.get('bodorigen').setValue(this._Solicitud.bodorigendesc);
-                          fechacreacion= this.datePipe.transform(this._Solicitud.fechacreacion, 'dd-MM-yyyy');
-                          
-                          this.FormDevolucionSolicitud.get('fechamostrar').setValue(fechacreacion);
-                          this.FormDevolucionSolicitud.get('esticod').setValue(this._Solicitud.estadosolicitudde);
-                          this.FormDevolucionSolicitud.get('prioridad').setValue(this._Solicitud.desprioridadsoli);
-                          this.solicitud= this._Solicitud.soliid;
-                          this.arreegloDetalleSolicitud = response[0].solicitudesdet;
-                          this.arreegloDetalleSolicitudpaginacion = this.arreegloDetalleSolicitud.slice(0, 20);
-             });
+        this._SolicitudService.BuscaSolicitud(RetornoSolicitudes.soliid, this.hdgcodigo,
+          this.esacodigo, this.cmecodigo, 0, "", "", 0, 0, 0, this.servidor, 0, 0, 0, 0, 0,
+          0, "", 0, "","").subscribe(
+            response => {
+              if (response != null) {
+                this._Solicitud = response[0];
+                if (this._Solicitud.soliid > 0) {
+                  this.numsolic = true;
+                }
+                this.estado_aux = this._Solicitud.estadosolicitud;
+                this.existsolicitud = true;
+                var fechacreacion;
+                if(this._Solicitud.estadosolicitud ==70 && this.detallessolicitudes.length==0){
+                  this.activabtndevoltotal = true;
+                }
+                this.FormDevolucionSolicitud.get('numsolicitud').setValue(this._Solicitud.soliid);
+                this.FormDevolucionSolicitud.get('boddestino').setValue(this._Solicitud.boddestinodesc);
+                this.FormDevolucionSolicitud.get('bodorigen').setValue(this._Solicitud.bodorigendesc);
+                fechacreacion = this.datePipe.transform(this._Solicitud.fechacreacion, 'dd-MM-yyyy');
+                this.FormDevolucionSolicitud.get('fechamostrar').setValue(fechacreacion);
+                this.FormDevolucionSolicitud.get('esticod').setValue(this._Solicitud.estadosolicitudde);
+                this.FormDevolucionSolicitud.get('prioridad').setValue(this._Solicitud.desprioridadsoli);
+                this.solicitud = this._Solicitud.soliid;
+
+                if(this._Solicitud.estadosolicitud == 10 || this._Solicitud.estadosolicitud == 50 ||
+                  this._Solicitud.estadosolicitud == 40 || this._Solicitud.estadosolicitud == 110){
+                  this.bloqbtnagregar = true;
+                  this.FormDevolucionDetalle.controls.codigo.disable();
+                }
+                this.arreegloDetalleSolicitud = response[0].solicitudesdet;
+                this.arreegloDetalleSolicitudpaginacion = this.arreegloDetalleSolicitud.slice(0, 20);
+                this.arreegloDetalleSolicitud_aux = this.arreegloDetalleSolicitud;
+                this.arreegloDetalleSolicitudpaginacion_aux = this.arreegloDetalleSolicitudpaginacion;
+                this.ActivaBotonBuscaGrilla = true;
+
+                if(this._Solicitud.bandera === 2){ //Si bandera es =2 solicitud tomada
+                  this.verificanull = false;
+                  this.bloqbtnagregar = true;
+                  this.FormDevolucionDetalle.disable();
+                  if(this.detallessolicitudes.length > 0){
+                    this.detallessolicitudes.forEach(x=>{
+                      x.bloqcampogrilla = false;
+                      x.bloqcampogrilla2 = false;
+                    });
+                    this.detallessolicitudespaginacion = this.detallessolicitudes.slice( 0,20);
+                    this.alertSwalAlert.title = "Solicitud en preparación";
+                    this.alertSwalAlert.text = "No puede ser modificada";
+                    this.alertSwalAlert.show();
+                  }else{
+                    this.detallessolicitudespaginacion = this.detallessolicitudes.slice( 0,20);
+                    this.alertSwalAlert.title = "Solicitud en preparación";
+                    this.alertSwalAlert.text = "No puede ser modificada";
+                    this.alertSwalAlert.show();
+                  }
+                }else{
+                  this.ValidaEstadoSolicitud(2,'BuscaSolicitudes');
+                }
+              }
+            });
       }
     });
+  }
+
+  ValidaEstadoSolicitud(bandera: number, nada:string){
+    // console.log("Valida estado solicitud",this._Solicitud)
+    var recetaid : number = 0;
+    var soliid   : number = 0;
+    if(this._Solicitud != undefined){
+      if(this._Solicitud.soliid === undefined){
+        soliid = 0;
+      }else{
+        soliid = this._Solicitud.soliid;
+      }
+    } else {
+      soliid = 0;
+    }
+
+
+    this._SolicitudService.ValidaEstadoSolicitudCargada(soliid,0,this.servidor,
+      ' ',recetaid,bandera).subscribe(
+      response => { });
+
   }
 
   setModalBusquedaSolicitud() {
@@ -175,15 +276,16 @@ export class DevolucionsolicitudesComponent implements OnInit {
         esacodigo: this.esacodigo,
         cmecodigo: this.cmecodigo,
         filtrodenegocio:"POR DEVOLVER",
-        origen: 'Otros'
+        origen: 'Otros',
+        paginaorigen: 4
       }
     };
     return dtModal;
   }
 
   BuscaproductoaDevolver(productos:any){
-    // console.log("Valida datps ", productos,this.validadato)
     const resultado = this.detallessolicitudes.find( registro => registro.codmei === productos.trim() );
+
       if  ( resultado != undefined )
       {
         this.alertSwalError.title = "Código Repetido";
@@ -191,74 +293,67 @@ export class DevolucionsolicitudesComponent implements OnInit {
         return
       }
 
-
-
-
-    this.arreegloDetalleSolicitud.forEach(element => {        
-      
-      if (element.codmei.trim() == productos.trim()) {
-        this.validadato= true;
-        // console.log("codigo element",element,"dato que llega",productos);
+    this.arreegloDetalleSolicitud.forEach(element => {
+      if (element.codmei.trim() === productos.trim()) {
+        this.validadato = true;
       }
-  
-      // se valida código epetidos dentro del arreglo
-      
-     
-
     });
     if(this.validadato == false){
       // console.log("No existe dato");
       this.FormDevolucionDetalle.reset();
       this.alertSwalError.title = "El valor del Código Ingresado No pertenece a la Solicitud";
       this.alertSwalError.show();
-
     }
-
     this.productosrecepcionados=[];
+    this.productosrecepcionadospaginacion = [];
     this._SolicitudService.BuscaProductoRecepcionBodega(this.hdgcodigo,this.esacodigo,this.cmecodigo,
       this.servidor,this.solicitud,this.FormDevolucionDetalle.value.codigo,
       this.lote,this.fechavto).subscribe(
       response => {
-        // if(response.length == 0){
-        //   this.alertSwalError.title = "El Código No tiene Datos para devolver";
-        //   this.alertSwalError.show();
-        // }
-        if(response.length > 1){
-          this.alertSwalGrilla.reverseButtons = true;
-          this.alertSwalGrilla.title = 'Seleccione Producto a Devolver';
-          this.alertSwalGrilla.show();
-          this.productosrecepcionados= response;
-          this.productosrecepcionadospaginacion = this.productosrecepcionados.slice(0,20)
-
-        }else{
-          if(response.length == 1){
-            this.solicitudseleccion=[];
-            // console.log("debe cargar el dato en la grilla");
-            this.solicitudseleccion=response;
-            // console.log("Dato a llenar a la grilla con el producto o lete que venia", this.solicitudseleccion);
-            this.onConfirm();
+        if (response != null) {
+          this.activabtndevoltotal = false;
+          if(response.length > 1){
+            this.alertSwalGrilla.reverseButtons = true;
+            this.alertSwalGrilla.title = 'Seleccione Producto a Devolver';
+            this.alertSwalGrilla.show();
+            this.productosrecepcionados= response;
+            this.productosrecepcionados.forEach(dat=>{
+              if(dat.cantpendientedevolver ==0){
+                dat.checkgrilla =true;
+              }else{
+                if(dat.cantpendientedevolver >0){
+                  dat.checkgrilla =false;
+                }
+              }
+            });
+            this.productosrecepcionadospaginacion = this.productosrecepcionados.slice(0,20)
+          }else{
+            if(response.length == 1){
+              this.solicitudseleccion=[];
+              this.solicitudseleccion=response;
+              this.onConfirm();
+            }
           }
         }
-        
-      },
-      error => {
+      },error => {
         console.log(error);
         this.alertSwalError.title="Error al Buscar productos recepcionados";
         this.alertSwalError.text = error;
-        this.alertSwalError.show(); 
+        this.alertSwalError.show();
       }
     );
     this.validadato = false;
     this.FormDevolucionDetalle.reset();
-    
   }
 
   onCheck(event: any, productorecepcionado: ProductoRecepcionBodega) {
-    this.solicitudseleccion=[];
+
+    // this.solicitudseleccion=[];
     if (event.target.checked) {
-      if (this.inArray( productorecepcionado) < 0) {
+      // if (this.inArray( productorecepcionado) < 0) {
         this.solicitudseleccion.push(productorecepcionado);
-      } else { 
+        // console.log("producto guardado con el check",this.solicitudseleccion)
+      // } else {
           // if(this.inArray(productorecepcionado) ==0)// && productorecepcionado.cantdevuelta< productorecepcionado.cantrecepcionada)
           // {
           //   console.log("Existe",productorecepcionado.cantdevuelta, productorecepcionado.cantrecepcionada)
@@ -266,59 +361,59 @@ export class DevolucionsolicitudesComponent implements OnInit {
           //   console.log("agregar d nuevo", this.solicitudseleccion);
           // }
           // else{
-          return;//}
-      }
+          // return;//}
+      // }
     } else {
-      
+      // console.log("check no seleccionado")
       this.solicitudseleccion.splice(this.inArray( productorecepcionado), 1);
     }
   }
+
   onConfirm() {
-    this.arreegloDetalleSolicitudpaginacion.forEach(element =>{
-     
-      if(element.sodeid==this.solicitudseleccion[0].sodeid){
-        var temporal = new DespachoDetalleSolicitud;
-        temporal.codmei         = element.codmei;
-        temporal.meindescri     = element.meindescri;
-        temporal.cantrecepcionado= element.cantrecepcionado;
-        temporal.cantsoli       = element.cantsoli;
-        temporal.cantdespachada = element.cantdespachada;
-        temporal.cantdevolucion = element.cantdevolucion;
-        temporal.sodeid         = element.sodeid;       
-        this.solicitudseleccion.forEach(datos =>{          
-          temporal.lote = datos.lote;
-          temporal.fechavto     = datos.fechavto;
-          temporal.cantidadadevolver= (datos.cantrecepcionada-datos.cantdevuelta);
-          temporal.mfdeid         = datos.mfdeid;
-          temporal.cantrecepcionada= datos.cantrecepcionada;
-          temporal.cantdevuelta   = datos.cantdevuelta;
-         
-        })
+    // console.log("datos a ingresar a la grilla 2",this.solicitudseleccion)
 
-        if (temporal.cantidadadevolver>0){
-          this.detallessolicitudes.unshift(temporal);
-        } else {
-          
-          this.alertSwalError.title="Producto no tiene cantidad suficiente para devolver";
-          this.alertSwalError.text = "Error"  ;
-          this.alertSwalError.show(); 
-          return
-        }
-       
+    this.solicitudseleccion.forEach(data => {
+      var temporal = new DespachoDetalleSolicitud;
+      temporal.lote = data.lote;
+      temporal.fechavto = data.fechavto;
+      temporal.cantidadadevolver = (data.cantrecepcionada - data.cantdevuelta);
+      temporal.mfdeid = data.mfdeid;
+      temporal.cantrecepcionado = data.cantrecepcionada;
+      temporal.cantdevolucion = data.cantdevuelta;
+      temporal.codmei = data.codmei;
+      temporal.meindescri = data.meindescri;
+      temporal.meinid = data.meinid;
+      temporal.cantsoli = data.cantsoli;
+      temporal.cantdespachada = data.cantdespachada;
+      temporal.sodeid = data.sodeid;
+      temporal.cantrecepcionada = data.cantrecepcionada;
+      temporal.bloqcampogrilla = true;
+      // console.log("solictud seleccion",this.solicitudseleccion);
+      if (temporal.cantidadadevolver > 0) {
+        this.detallessolicitudes.unshift(temporal);
+      } else {
 
+        this.alertSwalError.title = "Producto no tiene cantidad suficiente para devolver";
+        this.alertSwalError.text = "Error";
+        this.alertSwalError.show();
+        return
       }
-    });
-    
+      // this.detallessolicitudes.unshift(temporal);
+    })
+    // console.log("Datos a la grillaaaa 2",this.detallessolicitudes)
+
     this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0,20);
+    this.logicaVacios();
     this.FormDevolucionDetalle.reset(); this.detalleslotes=[];
     this.productosrecepcionadospaginacion=[]
     this.productosrecepcionados=[]
+    this.solicitudseleccion = [];
   }
 
   onCancel() {
     this.solicitudseleccion = [];
   }
-  
+
   inArray( seleccion: any) {
     /* devuelve index si objeto existe en array
      0= objeto a devolver
@@ -333,44 +428,45 @@ export class DevolucionsolicitudesComponent implements OnInit {
     return -1;
   }
 
-  validacantidadgrilla(id: number,despacho: DetalleSolicitud){
+  validacantidadgrilla(id: number,despacho: DespachoDetalleSolicitud){
     var idg =0;
-    
+
     if(despacho.sodeid>0){
       if(this.IdgrillaDevolucion(despacho)>=0){
         idg = this.IdgrillaDevolucion(despacho)
-        
-        if(this.detallessolicitudes[idg].cantidadadevolver > this.detallessolicitudespaginacion[idg].cantrecepcionado- this.detallessolicitudespaginacion[idg].cantdevolucion ){
-          
+
+        if(this.detallessolicitudes[idg].cantidadadevolver > this.detallessolicitudes[idg].cantrecepcionado- this.detallessolicitudes[idg].cantdevolucion ){
+
           this.alertSwalAlert.text = "La cantidad a devolver debe ser menor o igual a la cantidad Recepcionada";
           this.alertSwalAlert.show();
           // this.listaDetalleDespacho[idg].cantidadarecepcionar = this.listaDetalleDespacho[idg].cantdespachada- this.listaDetalleDespacho[idg].cantrecepcionada;
-          this.detallessolicitudes[idg].cantidadadevolver = this.detallessolicitudespaginacion[idg].cantrecepcionado   - this.detallessolicitudespaginacion[idg].cantdevolucion
-
-
+          this.detallessolicitudes[idg].cantidadadevolver = this.detallessolicitudes[idg].cantrecepcionado   - this.detallessolicitudes[idg].cantdevolucion
+          this.detallessolicitudespaginacion[idg].cantidadadevolver = this.detallessolicitudes[idg].cantidadadevolver;
+          this.logicaVacios();
         }else{
           if(this.detallessolicitudes[idg].cantidadadevolver <=0){
             this.alertSwalAlert.text = "La cantidad a despachar debe ser mayor a 0";
             this.alertSwalAlert.show();
-            this.detallessolicitudes[idg].cantidadadevolver = this.detallessolicitudespaginacion[idg].cantrecepcionado   - this.detallessolicitudespaginacion[idg].cantdevolucion
-
+            this.detallessolicitudes[idg].cantidadadevolver = this.detallessolicitudes[idg].cantrecepcionado   - this.detallessolicitudes[idg].cantdevolucion
+            this.detallessolicitudespaginacion[idg].cantidadadevolver = this.detallessolicitudes[idg].cantidadadevolver;
+            this.logicaVacios();
           }else{
             if(despacho.cantidadadevolver < despacho.cantrecepcionado- despacho.cantdevolucion || despacho.cantidadarecepcionar >0){
-              
+              this.logicaVacios();
             }
-          }        
+          }
 
         }
       }
     }
   }
 
-  IdgrillaDevolucion(registro: DetalleSolicitud) {
-   
+  IdgrillaDevolucion(registro: DespachoDetalleSolicitud) {
+
     let indice = 0;
     for (const articulo of this.detallessolicitudes) {
       if (registro.codmei === articulo.codmei) {
-        
+
         return indice;
       }
       indice++;
@@ -392,15 +488,24 @@ export class DevolucionsolicitudesComponent implements OnInit {
       confirmButtonText: 'Aceptar'
     }).then((result) => {
       if (result.value) {
-        this.DevolucionSolictud(this.detallessolicitudes);
+        if(this.valida){
+          this.DevolucionSolictud(this.detallessolicitudes);
+        }else{
+          var text = "`<h2>No puede Generar Despacho</h2><br/>" + this.respPermiso + "`";
+          Swal.fire({
+            html: text,
+          });
+        }
       }
-    })
+    });
+
+    this.validaStock();
   }
-  
+
   /* Guardar movimimientos */
   DevolucionSolictud(datos: any) {
     this.paramdevolucion=[];
-    this.detallessolicitudes.forEach(element => { 
+    this.detallessolicitudes.forEach(element => {
       var temporal = new ParamDetDevolBodega  // new DespachoDetalleSolicitud
       temporal.soliid            = this.solicitud;
       temporal.sodeid            = element.sodeid;
@@ -416,66 +521,89 @@ export class DevolucionsolicitudesComponent implements OnInit {
       temporal.fechavto          = element.fechavto;
       this.paramdevolucion.push(temporal);
     });
-    
+
     this.DevolucionBodega = new (ParamDevolBodega);
     this.DevolucionBodega.hdgcodigo = this.hdgcodigo;
     this.DevolucionBodega.esacodigo = this.esacodigo;
     this.DevolucionBodega.cmecodigo = this.cmecodigo;
     this.DevolucionBodega.servidor = this.servidor;
     this.DevolucionBodega.usuariodespacha = this.usuario;
-    
+
     this.DevolucionBodega.paramdetdevolbodega = this.paramdevolucion;
+    // console.log("datos a devolvr final", this.DevolucionBodega)
     try {
       this._SolicitudService.DevolucionSolicitud(this.DevolucionBodega).subscribe(
         response => {
-          //if (response.respuesta == 'OK') {
-            
+          if (response != null) {
             this.alertSwal.title = "Devolución exitosa";
             this.alertSwal.show();
             this.detallessolicitudespaginacion =[];
             this.detallessolicitudes=[];
-            this._buscasolicitudService.BuscaSolicitud(this.solicitud, this.hdgcodigo, this.esacodigo, this.cmecodigo, null, null, null, null, null, null, this.servidor, 0, 0, 0, 0, 0, 0, "",0).subscribe(
+            this._buscasolicitudService.BuscaSolicitud(this.solicitud, this.hdgcodigo, this.esacodigo, this.cmecodigo, null, null, null, null, null, null, this.servidor, 0, 0, 0, 0, 0, 0, "",0, "","").subscribe(
               response => {
-                
-                var fechacreacion;
-                this.FormDevolucionSolicitud.get('numsolicitud').setValue(response[0].soliid);
-                this.FormDevolucionSolicitud.get('boddestino').setValue(response[0].boddestinodesc);
-                this.FormDevolucionSolicitud.get('bodorigen').setValue(response[0].bodorigendesc);
-                fechacreacion= this.datePipe.transform(response[0].fechacreacion, 'dd-MM-yyyy');
-                this.FormDevolucionSolicitud.get('fechamostrar').setValue(fechacreacion);
-                this.FormDevolucionSolicitud.get('esticod').setValue(response[0].estadosolicitudde);
-                this.FormDevolucionSolicitud.get('prioridad').setValue(response[0].desprioridadsoli);
-                this.activabtnimprime = true;
-                this.numsolic = false;
-                this.arreegloDetalleSolicitud= response[0].solicitudesdet;
-                this.arreegloDetalleSolicitudpaginacion = this.arreegloDetalleSolicitud.slice(0,20);
-              },
-              error => {
-                console.log(error);
-                this.alertSwalError.title="Error al Buscar la Solicitud, puede que no exista";
-                this.alertSwalError.text = error;
-                this.alertSwalError.show();
-              }
-            ); 
-         // }
-         this.productosrecepcionados=[]; this.productosrecepcionadospaginacion=[];
-         this.solicitudseleccion = [];
+                if (response != null) {
+                  var fechacreacion;
+                  this.estado_aux = this._Solicitud.estadosolicitud;
+                  this.FormDevolucionSolicitud.get('numsolicitud').setValue(response[0].soliid);
+                  this.FormDevolucionSolicitud.get('boddestino').setValue(response[0].boddestinodesc);
+                  this.FormDevolucionSolicitud.get('bodorigen').setValue(response[0].bodorigendesc);
+                  fechacreacion= this.datePipe.transform(response[0].fechacreacion, 'dd-MM-yyyy');
+                  this.FormDevolucionSolicitud.get('fechamostrar').setValue(fechacreacion);
+                  this.FormDevolucionSolicitud.get('esticod').setValue(response[0].estadosolicitudde);
+                  this.FormDevolucionSolicitud.get('prioridad').setValue(response[0].desprioridadsoli);
+                  this.activabtnimprime = true;
+                  this.numsolic = true;
+                  this.arreegloDetalleSolicitud= response[0].solicitudesdet;
+                  this.arreegloDetalleSolicitudpaginacion = this.arreegloDetalleSolicitud.slice(0,20);
+                  this.logicaVacios();
+                  if(this._Solicitud.bandera === 2){
+                    this.verificanull = false;
+                    this.activabtndevoltotal = false;
+                    this.bloqbtnagregar = false;
+                    this.FormDevolucionDetalle.disable();
+                    if(this.detallessolicitudes.length >0){
+                      this.detallessolicitudes.forEach(x=>{
+                        x.bloqcampogrilla = false;
+                        x.bloqcampogrilla2 = false;
+                      })
+                      this.detallessolicitudespaginacion = this.detallessolicitudes.slice( 0,20);
+                      this.alertSwalAlert.title = "Solicitud en preparación";
+                      this.alertSwalAlert.text = "No puede ser modificada";
+                      this.alertSwalAlert.show();
+                    }
+                  }else{
+                    this.ValidaEstadoSolicitud(2,'BuscaSolicitudes');
+                  }
+                }
+          }, error => {
+            console.log(error);
+            this.alertSwalError.title="Error al Buscar la Solicitud, puede que no exista";
+            this.alertSwalError.text = error;
+            this.alertSwalError.show();
+          });
+          this.productosrecepcionados=[]; this.productosrecepcionadospaginacion=[];
+          this.solicitudseleccion = [];
           this.detallessolicitudes=[];
-        },
-        error => {
-          console.log(error);
-          this.alertSwalError.title="Error al Devolver la Solicitud";
-          this.alertSwalError.text = error;
-          this.alertSwalError.show(); 
-        }        
-      );
-    } 
+          this.paramdevolucion =[];
+        }
+      },error => {
+        console.log(error);
+        this.alertSwalError.title="Error al Devolver la Solicitud";
+        this.alertSwalError.text = error;
+        this.alertSwalError.show();
+      });
+    }
     catch (err) {
       alert("Error : " + err)
     }
   }
 
   Limpiar() {
+    if(this._Solicitud != undefined){
+      if(this._Solicitud.bandera != 2){
+        this.ValidaEstadoSolicitud(1,'limpiar');
+      }
+    }
     this.FormDevolucionSolicitud.reset();
     this.FormDevolucionDetalle.reset();
     this.detallessolicitudespaginacion  = [];
@@ -488,6 +616,12 @@ export class DevolucionsolicitudesComponent implements OnInit {
     this.existsolicitud                 = false;
     this.validadato                     = false;
     this.activabtnimprime               = false;
+    this.solicitudseleccion             = [];
+    this.activabtndevoltotal            = false;
+    this.desactivabtnelim               = false;
+    this.bloqbtnagregar                 = false;
+    this.ActivaBotonBuscaGrilla         = false;
+    this._Solicitud                     = undefined;
   }
   cambio_cantidad(id: number, property: string, registro:DespachoDetalleSolicitud ) {
     if (this.detallessolicitudespaginacion[id]["sodeid"] == 0) {
@@ -497,17 +631,17 @@ export class DevolucionsolicitudesComponent implements OnInit {
       this.detallessolicitudespaginacion[id]["acciond"] = "M";
     }
     this.detallessolicitudespaginacion[id][property] = this.detallessolicitudespaginacion[id][property]
-    
+
   }
-  
+
   updateList(id: number, property: string, event: any) {
     var editField = event.target.textContent;
     if (property == 'cantidadadevolver') {
       if (this.detallessolicitudes[id].cantdespachada - this.detallessolicitudes[id].cantdevolucion >= parseInt(editField)) {
         this.detallessolicitudespaginacion[id][property] = parseInt(editField);
         this.detallessolicitudes[id][property] = this.detallessolicitudespaginacion[id][property];
-       
-      } else { console.log("entra al else")
+
+      } else { //console.log("entra al else")
 
       }
     }
@@ -590,7 +724,7 @@ export class DevolucionsolicitudesComponent implements OnInit {
     const Swal = require('sweetalert2');
     Swal.fire({
       title: '¿Desea Imprimir Devolución De Solicitud ?',
-      text: "Confirmar Búsqueda",
+      text: "Confirmar Impresión",
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -600,18 +734,18 @@ export class DevolucionsolicitudesComponent implements OnInit {
       if (result.value) {
         this.ImprimirSolicitud();
       }
-    })    
+    })
 
   }
 
   ImprimirSolicitud() {
 
-    this._imprimesolicitudService.RPTImprimeDevolucionSolicitudBodega(this.servidor,this.hdgcodigo,this.esacodigo, 
+    this._imprimesolicitudService.RPTImprimeDevolucionSolicitudBodega(this.servidor,this.hdgcodigo,this.esacodigo,
     this.cmecodigo,"pdf",this._Solicitud.soliid).subscribe(
       response => {
-        window.open(response[0].url, "", "", true);
-        // this.alertSwal.title = "Reporte Impreso Correctamente";
-        // this.alertSwal.show();
+        if (response != null) {
+          window.open(response[0].url, "", "");
+        }
       },
       error => {
         console.log(error);
@@ -630,10 +764,10 @@ export class DevolucionsolicitudesComponent implements OnInit {
       return true
      } else {
       return false
-     }        
+     }
   }
 
-  
+
   ActivaBotonImprimir()
   {
     let cantidad_devuelta =0;
@@ -648,8 +782,8 @@ export class DevolucionsolicitudesComponent implements OnInit {
      } else {
       return false
      }
-     
-    
+
+
   }
 
   ConfirmaEliminaProductoDeLaGrilla(registro: DespachoDetalleSolicitud, id: number) {
@@ -669,14 +803,365 @@ export class DevolucionsolicitudesComponent implements OnInit {
     })
   }
 
-
-  
   EliminaProductoDeLaGrilla(registro: DespachoDetalleSolicitud, id: number) {
 
-
-        this.detallessolicitudes.splice(id, 1);
-        this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0,20);
+    this.detallessolicitudes.splice(id, 1);
+    this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0,20);
+    this.activabtndevoltotal = true;
   }
 
+  ConfirmarDevolucionCompleta(){
 
+    const Swal = require('sweetalert2');
+    Swal.fire({
+      title: '¿Desea Devolver la Solicitud Completa?',
+      text: "Confirmar Recepción",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Aceptar'
+    }).then((result) => {
+      if (result.value) {
+        this.DevolverSolicitudCompleta();
+      }
+    })
+  }
+
+  async DevolverSolicitudCompleta(){
+
+    this.paramdevolucion=[];
+
+    await this._SolicitudService.BuscaProductoRecepcionBodegaTotal(this.hdgcodigo,this.esacodigo,this.cmecodigo,
+      this.servidor,this.solicitud).subscribe(res => {
+        this.solicitudseleccion=res;
+        // console.log("dato buscado que se recepciono",res,this.solicitudseleccion)
+          // var temporal = new DespachoDetalleSolicitud;
+        this.onConfirm2(this.solicitudseleccion);
+        }
+    )
+
+  }
+
+  onConfirm2(solicitudseleccion:ProductoRecepcionBodega[]){
+    // console.log("solictud seleccion",solicitudseleccion);
+    solicitudseleccion.forEach(data => {
+
+      var temporal = new DespachoDetalleSolicitud;
+      temporal.lote = data.lote;
+      temporal.fechavto = data.fechavto;
+      temporal.cantidadadevolver = (data.cantrecepcionada - data.cantdevuelta);
+      temporal.mfdeid = data.mfdeid;
+      temporal.cantrecepcionado = data.cantrecepcionada;
+      temporal.cantdevolucion = data.cantdevuelta;
+      temporal.codmei = data.codmei;
+      temporal.meindescri = data.meindescri;
+      temporal.meinid = data.meinid;
+      temporal.cantsoli = data.cantsoli;
+      temporal.cantdespachada = data.cantdespachada;
+      temporal.sodeid = data.sodeid;
+      temporal.cantrecepcionada = data.cantrecepcionada;
+      temporal.soliid = data.soliid;
+      temporal.bloqcampogrilla = true;
+
+      if (temporal.cantidadadevolver > 0) {
+        this.detallessolicitudes.unshift(temporal);
+      } else {
+
+        this.alertSwalError.title = "Producto no tiene cantidad suficiente para devolver";
+        this.alertSwalError.text = "Error";
+        this.alertSwalError.show();
+        return
+      }
+
+    })
+    // console.log("datos devolver",this.detallessolicitudes)
+    this.DevolucionSolictud(this.detallessolicitudes);
+  }
+
+  async CambioCheck(registro: DespachoDetalleSolicitud,id:number,event:any,marcacheckgrilla: boolean){
+    // console.log("registro de chec",registro)
+    if(event.target.checked){
+      registro.marcacheckgrilla = true;
+      this.desactivabtnelim = true;
+      await this.isEliminaIdGrilla(registro)
+      await this.detallessolicitudes.forEach(d=>{
+        if(d.marcacheckgrilla === true){
+          this.desactivabtnelim = true;
+          // console.log("recorre la grilla para ver si hay check",d.marcacheckgrilla,this.desactivabtnelim)
+        }
+      })
+     }else{
+      registro.marcacheckgrilla = false;
+      this.desactivabtnelim = false;
+      await this.isEliminaIdGrilla(registro);
+      await this.detallessolicitudes.forEach(d=>{
+        if(d.marcacheckgrilla === true){
+          this.desactivabtnelim = true;
+
+        }
+      })
+
+    }
+    // console.log("chec modificado",registro)
+  }
+
+  isEliminaIdGrilla(registro: DespachoDetalleSolicitud) {
+
+    let indice = 0;
+    for (const articulo of this.detallessolicitudes) {
+      if (registro.codmei === articulo.codmei && registro.sodeid === articulo.sodeid) {
+        articulo.marcacheckgrilla = registro.marcacheckgrilla;
+
+        return indice;
+      }
+      indice++;
+    }
+    return -1;
+  }
+
+  ConfirmaEliminaProductoDeLaGrilla2() {
+
+    const Swal = require('sweetalert2');
+    Swal.fire({
+      title: '¿ Confirme eliminación de producto de la solicitud ?',
+      text: "Confirmar la eliminación del producto",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Aceptar'
+    }).then((result) => {
+      if (result.value) {
+        this.EliminaProductoDeLaGrilla2();
+      }
+    })
+  }
+
+  EliminaProductoDeLaGrilla2() {
+    // console.log("Valor a eliminar:")
+
+    this.detallessolicitudespaginacion.forEach(registro=>{
+      if (registro.acciond == "" && this.IdgrillaDevolucion(registro) >= 0 && registro.sodeid > 0) {
+        // Elominar registro nuevo la grilla
+        if(registro.marcacheckgrilla === true){
+
+          this.desactivabtnelim = false;
+          this.detallessolicitudes.splice(this.IdgrillaDevolucion(registro), 1);
+          this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0, 20);
+          this.logicaVacios();
+        }
+      } else {
+        // elimina uno nuevo pero que se ha modificado la cantidad
+        if(registro.marcacheckgrilla === true){
+
+          this.desactivabtnelim = false;
+          this.detallessolicitudes.splice(this.IdgrillaDevolucion(registro), 1);
+          this.detallessolicitudespaginacion = this.detallessolicitudes.slice(0, 20);
+          this.logicaVacios();
+          // elimina uno que ya existe
+          //this.arregloDetalleProductoSolicitud[id].acciond = 'E';
+          //this.ModificarSolicitud("M");
+        }
+      }
+    })
+    if(this.detallessolicitudespaginacion.length===0){
+      this.activabtndevoltotal = true;
+    }
+  }
+
+  async logicaVacios() {
+    this.vaciosProductos();
+    if (this.vacios === true) {
+      this.verificanull = false;
+    }
+    else {
+      this.verificanull = true;
+    }
+
+  }
+
+  vaciosProductos() {
+    if (this.detallessolicitudespaginacion.length) {
+      for (var data of this.detallessolicitudespaginacion) {
+
+          if (data.cantidadadevolver <= 0 || data.cantidadadevolver === null) {
+            this.vacios = true;
+
+            return;
+          }else{
+            this.vacios = false;
+
+          }
+      }
+    }else{
+
+      this.vacios = true;
+    }
+  }
+
+  async findArticuloGrilla() {
+    this.loading = true;
+    var codProdAux = "";
+    var descProdAux = "";
+    let _DetalleDespacho  : DespachoDetalleSolicitud;
+    // console.log('this.FormDatosProducto.controls.codigo.value : ' , this.FormDatosProducto.controls.codigo);
+    if ( this.FormDatosProducto.controls.codigo.touched &&
+    this.FormDatosProducto.controls.codigo.status !== 'INVALID') {
+
+      codProdAux = this.FormDatosProducto.controls.codigo.value.toString();
+    }
+    if ( this.FormDatosProducto.controls.descripcion.touched &&
+    this.FormDatosProducto.controls.descripcion.status !== 'INVALID') {
+
+      descProdAux = this.FormDatosProducto.controls.descripcion.value.toString();
+    }
+
+      if(this.FormDevolucionSolicitud.controls.numsolicitud.value >0){
+
+
+        this._SolicitudService.BuscaSolicitud(this.FormDevolucionSolicitud.controls.numsolicitud.value,
+          this.hdgcodigo,this.esacodigo, this.cmecodigo, 0, "", "", 0, 0, 0, this.servidor, 0, 0,
+          0, 0, 0, 0, "", 0,codProdAux,descProdAux).subscribe(response => {
+
+            if(response[0].solicitudesdet.length > 0 ){
+              this.arreegloDetalleSolicitud = [];
+              this.arreegloDetalleSolicitudpaginacion = [];
+              this._Solicitud = response[0];
+              if (this._Solicitud.soliid > 0) {
+                this.numsolic = true;
+              }
+
+              this.existsolicitud = true;
+              this.FormDatosProducto.reset();
+              var fechacreacion;
+              if(this._Solicitud.estadosolicitud ==70 && this.detallessolicitudes.length==0){
+                this.activabtndevoltotal = true;
+              }
+              this.FormDevolucionSolicitud.get('numsolicitud').setValue(this._Solicitud.soliid);
+              this.FormDevolucionSolicitud.get('boddestino').setValue(this._Solicitud.boddestinodesc);
+              this.FormDevolucionSolicitud.get('bodorigen').setValue(this._Solicitud.bodorigendesc);
+              fechacreacion = this.datePipe.transform(this._Solicitud.fechacreacion, 'dd-MM-yyyy');
+
+              this.FormDevolucionSolicitud.get('fechamostrar').setValue(fechacreacion);
+              this.FormDevolucionSolicitud.get('esticod').setValue(this._Solicitud.estadosolicitudde);
+              this.FormDevolucionSolicitud.get('prioridad').setValue(this._Solicitud.desprioridadsoli);
+              this.solicitud = this._Solicitud.soliid;
+
+              if(this._Solicitud.estadosolicitud == 10 || this._Solicitud.estadosolicitud == 50 ||
+                this._Solicitud.estadosolicitud == 40 || this._Solicitud.estadosolicitud == 110){
+                this.bloqbtnagregar = true;
+                this.FormDevolucionDetalle.controls.codigo.disable();
+              }
+              this.arreegloDetalleSolicitud = response[0].solicitudesdet;
+              this.arreegloDetalleSolicitudpaginacion = this.arreegloDetalleSolicitud.slice(0, 20);
+
+              this.ActivaBotonLimpiaBusca = true;
+            }else{
+              this.FormDatosProducto.reset();
+              this.ActivaBotonLimpiaBusca = false;
+            }
+
+          }
+        );
+
+        this.ActivaBotonBuscaGrilla = true;
+        // this.ActivaBotonLimpiaBusca = true;
+        this.loading = false;
+        return;
+      }else{ //Cuando la plantilla aún no se crea
+        this.arreegloDetalleSolicitud_2 = [];
+        if(this.FormDevolucionSolicitud.controls.numsolicitud.value === null){
+          this.arreegloDetalleSolicitud.forEach(x=>{
+            if(x.codmei === codProdAux){
+              this.arreegloDetalleSolicitud_2.unshift(x);
+            }
+          })
+          this.arreegloDetalleSolicitud = [];
+          this.arreegloDetalleSolicitudpaginacion = [];
+          this.arreegloDetalleSolicitud = this.arreegloDetalleSolicitud_2;
+          this.arreegloDetalleSolicitudpaginacion = this.arreegloDetalleSolicitudpaginacion.slice(0,20);
+          this.ActivaBotonLimpiaBusca = true;
+        }
+      }
+
+  }
+
+  limpiarCodigo() {
+    this.loading = true;
+
+    this.FormDatosProducto.controls.codigo.reset();
+    var codProdAux = '';
+
+    this.arreegloDetalleSolicitud = [];
+    this.arreegloDetalleSolicitudpaginacion = [];
+
+
+    // Llenar Array Auxiliares
+    this.arreegloDetalleSolicitud = this.arreegloDetalleSolicitud_aux;
+    this.arreegloDetalleSolicitudpaginacion = this.arreegloDetalleSolicitudpaginacion_aux;
+    this.ActivaBotonLimpiaBusca = false;
+
+    this.loading = false;
+  }
+
+  getProductoDescrip(){
+    this.loading = true;
+    this.descprod = this.FormDatosProducto.controls.descripcion.value;
+    if (this.descprod === null || this.descprod === '') {
+      return;
+      // this.addArticuloGrilla();
+    } else {
+
+      // this.onBuscarProducto();
+      this.loading = false;
+
+      // console.log("bodcodigo", idBodega);
+    }
+  }
+
+  salir(){
+    if(this._Solicitud != undefined){
+      if(this._Solicitud.bandera != 2){
+        this.ValidaEstadoSolicitud(1,'salir');
+      }
+    }
+
+    this.route.paramMap.subscribe(param=>{
+      if (param.has("id_solicitud")) {
+        this.router.navigate(['monitorejecutivo']);
+      } else {
+        this.router.navigate(['home']);
+      }
+    })
+  }
+
+  @HostListener("window:beforeunload", ["$event"]) unloadHandler(event: Event) {​​​​​​​​
+    console.log("Processing beforeunload...");
+    if(this._Solicitud != undefined){
+      if(this._Solicitud.bandera != 2){
+        this.ValidaEstadoSolicitud(1,'destroy');
+      }
+    }
+  }​​​​​​​​
+
+  async validaStock(){
+    this.valida = true;
+    var stock : StockProducto[];
+    var index : number = 0;
+    this.detallessolicitudes.forEach(async element =>  {
+      stock =  await this._creaService.BuscaStockProd(element.meinid, this._Solicitud.bodorigen, this.usuario, this.servidor).toPromise()
+        if(element.cantadespachar > stock[0].stockactual){
+          if (index === 0) {
+            this.respPermiso = "<p>Saldo del Artículo <strong>" + element.codmei + "</strong> es " + stock[0].stockactual + "</p>";
+          } else {
+            this.respPermiso = this.respPermiso + "<p>Saldo del Artículo <strong>" + element.codmei + "</strong> es " + stock[0].stockactual + "</p>";
+          }
+          index++;
+          this.valida = false;
+        }
+    });
+
+    return this.valida
+  }
 }

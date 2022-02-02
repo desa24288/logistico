@@ -10,5 +10,6 @@ export class EventoDetalleSolicitud{
     public lote        ?: string,
     public fechavto    ?: string,
     public cantidad   ?: number,
+    public nombreusuario?: string
     ) {}
 }

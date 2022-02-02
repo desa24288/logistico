@@ -106,7 +106,9 @@ export class UsuarioEstructuraConexionComponent implements OnInit {
 
     this._hesService.BuscaEmpresa(hdgcodigo, usuario, servidor).subscribe(
       response => {
-        this.empresas = response
+        if (response != null) {
+          this.empresas = response;
+        }
       },
       error => {
         console.log(error);
@@ -124,7 +126,9 @@ export class UsuarioEstructuraConexionComponent implements OnInit {
     var usuario = environment.privilegios.usuario;
     this._hesService.BuscaSucursal(hdgcodigo, esacodigo, usuario, servidor).subscribe(
       response => {
-        this.sucursales = response
+        if (response != null) {
+          this.sucursales = response;
+        }
       },
       error => {
         alert("Error al Buscar Sucursal por código")

@@ -12,7 +12,7 @@ import { environment } from '../../environments/environment';
 @Injectable()
 export class ListadoparainventariosService {
 
-    public urlrptcomprobante: string = environment.URLServiciosRest.URLConexionInformes.concat('/obtieneurlinflistaconteoinventario');//"http://172.25.108.236:8194/obtieneurlinflistaconteoinventario"
+    public urlrptcomprobante: string = sessionStorage.getItem('enlace').toString().concat('/obtieneurlinflistaconteoinventario');//"http://172.25.108.236:8194/obtieneurlinflistaconteoinventario"
    
     constructor(public _http: HttpClient) {
 

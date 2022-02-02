@@ -10,15 +10,16 @@
 
   <div class="card m-2 border-primary" style="padding: 10px; background-color:azure;">
     <tabset>
-      <!-- Tab AMBULATORIO -->
-      <tab heading="AMBULATORIO" id="tab2">
+      <!-- Tab AMBULATORIO --> <!--Este código NO BORRARLO-->
+      <tab heading="AMBULATORIO" id="tab2" *ngIf="activatipobusquedaamb">
         <form novalidate [formGroup]='lForm' autocomplete="off" spellcheck="false">
           <div class="form-row">
 
             <div class="form-group col-md-2">
               <label for="tipoidentificacion">Tipo Identificación *</label>
               <select name="tipoidentificacion" class='form-control form-control-sm'
-                formControlName='tipoidentificacion'>
+                formControlName='tipoidentificacion'
+                (change)="activarNumid(3)">
                 <option *ngFor='let listatipoidentificacion  of arreglotipodocumentoidentificacion'
                   [ngValue]='listatipoidentificacion.codtipodocumento'>
                   {{listatipoidentificacion.destipodocumento}}
@@ -30,13 +31,6 @@
               <label for="numeroidentificacion">Número identificación</label>
               <input type="text" class="form-control form-control-sm" formControlName="numeroidentificacion">
             </div>
-            <div class="form-group col-md-7                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            align-self-end">
-              <button type="button" id="btnbuscar" class="btn btn-primary btn-sm button-my-styles-busqueda_01" (click)="BuscarPacienteFiltro(
-                    lForm.value.tipoidentificacion, lForm.value.numeroidentificacion, lForm.value.apellidopaterno,
-                    lForm.value.apellidomaterno,lForm.value.nonbrespaciente)">Buscar <i class="fas fa-search ml-1"></i>
-              </button>
-            </div>
-            
           </div>
           <div class="form-row">
             <div class="form-group col-md-3">
@@ -48,16 +42,18 @@
               <input type="text" class="form-control form-control-sm" formControlName="apellidomaterno">
             </div>
             <div class="form-group col-md-3">
-              <label for="nonbrespaciente">Nombres</label>
-              <input type="text" class="form-control form-control-sm" formControlName="nonbrespaciente">
+              <label for="nombrespaciente">Nombres</label>
+              <input type="text" class="form-control form-control-sm" formControlName="nombrespaciente">
             </div>
-            <div class="form-group col-sm-3 align-self-end text-right">
-              <button type="button" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
-                (click)="Limpiar()">Limpiar <i class="fas fa-eraser ml-1"></i>
+            <div
+              class="form-group col-md-3 align-self-end">
+              <button type="button" id="btnbuscar" class="btn btn-primary btn-sm button-my-styles-busqueda_01" (click)="BuscarPacienteFiltro(
+                lForm.value.tipoidentificacion, lForm.value.numeroidentificacion, lForm.value.apellidopaterno,
+                lForm.value.apellidomaterno,lForm.value.nombrespaciente)"
+                [disabled]="findValidControls()">
+                Buscar <i class="fas fa-search ml-1"></i>
               </button>
             </div>
-            
-
             <table class="table table-stripped table-condensed table-hovered">
               <thead>
                 <tr>
@@ -75,11 +71,11 @@
                   style="cursor: pointer;">
                   <td>{{pacientes.descidentificacion}}</td>
                   <td>{{pacientes.docuidentificacion}}</td>
-                  <td>{{pacientes.paterno}}</td>
-                  <td>{{pacientes.materno}}</td>
-                  <td>{{pacientes.nombres}}</td>
+                  <td>{{pacientes.apepaternopac}}</td>
+                  <td>{{pacientes.apematernopac}}</td>
+                  <td>{{pacientes.nombrespac}}</td>
                   <td>
-                    {{pacientes.fechanacimiento  | date:'dd/MM/yyyy'}}
+                    {{pacientes.fechanacimiento | date:'dd/MM/yyyy'}}
                   </td>
                 </tr>
               </tbody>
@@ -96,28 +92,49 @@
 
       </tab>
       <!-- Tab HOSPITALIZADO -->
-      <tab heading="HOSPITALIZADO" id="tab2">
+      <tab heading="HOSPITALIZADO" id="tab2" *ngIf="activatipobusquedaurg">
         <form novalidate [formGroup]='hForm' autocomplete="off" spellcheck="false">
+
+          <div class="form-row">
+
+            <div class="form-group col-md-2">
+              <label for="tipoidentificacion">Tipo Identificación *</label>
+              <select name="tipoidentificacion" class='form-control form-control-sm'
+                formControlName='tipoidentificacion'
+                (change)="activarNumid(1)">
+                <option *ngFor='let listatipoidentificacion  of arreglotipodocumentoidentificacion'
+                  [ngValue]='listatipoidentificacion.codtipodocumento'>
+                  {{listatipoidentificacion.destipodocumento}}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group col-md-3">
+              <label for="numeroidentificacion">Número identificación</label>
+              <input type="text" class="form-control form-control-sm"
+                (input)="onSelectServicio($event.target.value)"
+                formControlName="numeroidentificacion"
+                (input)="onValidafiltro($event.target.value, 2)">
+            </div>
+          </div>
           <div class="form-row">
             <div class="form-group col-sm-3">
               <label for="nombrespaciente">Nombres *</label>
-              <input type="text" class="form-control form-control-sm" formControlName="nombrespaciente"
+              <input type="text" class="form-control form-control-sm"
+                formControlName="nombrespaciente"
                 (input)="onValidafiltro($event.target.value, 2)">
             </div>
             <div class="form-group col-sm-3">
               <label for="apellidopaterno">Apellido Paterno *</label>
-              <input type="text" class="form-control form-control-sm" formControlName="apellidopaterno"
+              <input type="text" class="form-control form-control-sm"
+                formControlName="apellidopaterno"
                 (input)="onValidafiltro($event.target.value, 2)">
             </div>
             <div class="form-group col-sm-3">
               <label for="apellidomaterno">Apellido Materno *</label>
-              <input type="text" class="form-control form-control-sm" formControlName="apellidomaterno"
+              <input type="text" class="form-control form-control-sm"
+                formControlName="apellidomaterno"
                 (input)="onValidafiltro($event.target.value, 2)">
-            </div>
-            <div class="form-group col-sm-3 align-self-end text-right">
-              <button [disabled]="!filtrohosp" type="button" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
-                (click)="BuscarPaciente('hospitalizado')">BUSCAR<i class="fas fa-search ml-1"></i>
-              </button>
             </div>
           </div>
           <div class="form-row">
@@ -142,14 +159,15 @@
             <div class="form-group col-sm-3">
               <label for="cama">Cama *</label>
               <select name="cama" class='form-control form-control-sm' formControlName='cama'>
-                <option *ngFor='let cama of camas' value='{{ cama.camid }}'>
+                <option *ngFor='let cama of camas' value='{{ cama.camaid }}'>
                   {{ cama.camadescripcion }}
                 </option>
               </select>
             </div>
             <div class="form-group col-sm-3 align-self-end text-right">
-              <button type="button" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
-                (click)="Limpiar()">Limpiar <i class="fas fa-eraser ml-1"></i>
+              <button [disabled]="!filtrohosp" type="button"
+                class="btn btn-primary btn-sm button-my-styles-busqueda_01"
+                (click)="BuscarPaciente('hospitalizado')">Buscar <i class="fas fa-search ml-1"></i>
               </button>
             </div>
           </div>
@@ -174,58 +192,109 @@
             </tbody>
           </table>
           <div class="row">
+
             <div class="col-md-6">
-                <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="6" 
-                    [totalItems]="listadopacienteshosp.length"
-                    [itemsPerPage]=8 [previousText]="'Anterior'" [nextText]="'Siguiente'" 
-                    [firstText]="'&laquo;'" [lastText]="'&raquo;'" (pageChanged)="pageChangedhosp($event)">
-                </pagination>
+              <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="6"
+                [totalItems]="listadopacienteshosp.length" [itemsPerPage]=8 [previousText]="'Anterior'"
+                [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
+                (pageChanged)="pageChangedhosp($event)">
+              </pagination>
             </div>
-            <!-- <div class="form-group col-sm-6 align-self-end text-right">
-                <button type="button" class="btn btn-primary btn-sm button-my-styles-busqueda_01 ml-1" tooltip="CERRAR"
-                    (click)="onCerrarSalir()">CERRAR<i class="fas fa-window-close ml-1"></i>
-                </button>
-            </div> -->
-        </div>
+
+          </div>
         </form>
       </tab>
       <!-- Tab Urgencia -->
- 
-        <tab heading="URGENCIA" id="tab3">
-          <form novalidate [formGroup]='uForm' autocomplete="off" spellcheck="false">
-              <table class="table table-stripped table-condensed table-hovered">
-                  <thead>
-                      <tr>
-                          <th>Rut Paciente</th>
-                          <th>Paciente</th>
-                          <th>Edad</th>
-                          <th>Sexo</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                       <tr *ngFor="let paciente of pacientes_urgencia_paginacion" (click)="onCerrar(paciente)"
-                          style="cursor: pointer;">
-                          <td>{{ paciente.numdocpac}}</td>
-                          <td>{{ paciente.apepaternopac}} {{ paciente.apematernopac}} {{ paciente.nombrespac}}  </td>
-                          <td>{{ paciente.edad}}</td>
-                          <td>{{ paciente.glsexo}}</td>
-                          <td></td>
-                      </tr> 
-                  </tbody>
-              </table>
-              <div class="row">
-                  <div class="col-md-6">
-                      <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8" [totalItems]="pacientes_urgencia.length"
-                          [itemsPerPage]=8 [previousText]="'Anterior'" [nextText]="'Siguiente'" [firstText]="'&laquo;'"
-                          [lastText]="'&raquo;'" (pageChanged)="pageChangedUrgencia($event)">
-                      </pagination>
-                  </div>
+      <!-- NO BORRAR ESTE CÓDIGO -->
+      <tab heading="URGENCIA" id="tab3" *ngIf="activatipobusquedahosp">
+        <form novalidate [formGroup]='uForm' autocomplete="off" spellcheck="false">
+          <div class="form-row">
+            <div class="form-group col-md-2">
+              <label for="tipoidentificacion">Tipo Identificación *</label>
+              <select name="tipoidentificacion" class='form-control form-control-sm'
+                formControlName='tipoidentificacion'
+                (change)="activarNumid(2)">
+                <option *ngFor='let listatipoidentificacion  of arreglotipodocumentoidentificacion'
+                  [ngValue]='listatipoidentificacion.codtipodocumento'>
+                  {{listatipoidentificacion.destipodocumento}}
+                </option>
+              </select>
+            </div>
+            <div class="form-group col-md-3">
+              <label for="numeroidentificacion">Número identificación</label>
+              <input type="text" class="form-control form-control-sm"
+                (input)="onSelectServicio($event.target.value)"
+                formControlName="numeroidentificacion"
+                (input)="onValidafiltro($event.target.value, 3)">
+            </div>
+          </div>
+          <div class="form-row">
+              <div class="form-group col-sm-3">
+                <label for="nombrespaciente">Nombres </label>
+                <input type="text" class="form-control form-control-sm"
+                  formControlName="nombrespaciente"
+                  (input)="onValidafiltro($event.target.value, 3)">
               </div>
-          </form>
+              <div class="form-group col-sm-3">
+                <label for="apellidopaterno">Apellido Paterno </label>
+                <input type="text" class="form-control form-control-sm"
+                  formControlName="apellidopaterno"
+                  (input)="onValidafiltro($event.target.value, 3)">
+              </div>
+              <div class="form-group col-sm-3">
+                <label for="apellidomaterno">Apellido Materno </label>
+                <input type="text" class="form-control form-control-sm"
+                  formControlName="apellidomaterno"
+                  (input)="onValidafiltro($event.target.value, 3)">
+              </div>
+            <div class="form-group col-sm-3 align-self-end text-right">
+              <button type="button" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
+                (click)="BuscarPaciente('urgencia')"
+                [disabled]="!filtrourg"
+                >Buscar <i class="fas fa-search ml-1"></i>
+              </button>
+            </div>
+          </div>
+          <table class="table table-stripped table-condensed table-hovered">
+            <thead>
+              <tr>
+                <th>Rut Paciente</th>
+                <th>Paciente</th>
+                <th>Edad</th>
+                <th>Sexo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let paciente of pacientes_urgencia_paginacion" (click)="onCerrar(paciente)"
+                style="cursor: pointer;">
+                <td>{{ paciente.numdocpac}}</td>
+                <td>{{ paciente.apepaternopac}} {{ paciente.apematernopac}} {{ paciente.nombrespac}} </td>
+                <td>{{ paciente.edad}}</td>
+                <td>{{ paciente.glsexo}}</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="row">
+            <div class="col-md-6">
+              <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
+                [totalItems]="pacientes_urgencia.length" [itemsPerPage]=8 [previousText]="'Anterior'"
+                [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
+                (pageChanged)="pageChangedUrgencia($event)">
+              </pagination>
+            </div>
+          </div>
+        </form>
       </tab>
 
     </tabset>
 
+    <div class="form-group col-sm-3 align-self-end text-right">
+      <button type="button" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
+        (click)="Limpiar()">Limpiar <i class="fas fa-eraser ml-1"></i>
+      </button>
+
+    </div>
   </div>
   <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '3px' }"> </ngx-loading>
 </div>

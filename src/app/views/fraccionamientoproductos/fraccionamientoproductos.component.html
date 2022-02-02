@@ -1,6 +1,8 @@
-<app-navbar ></app-navbar>
+<!-- <app-navbar ></app-navbar>
 <app-sidebar></app-sidebar>
-<div class="content-wrapper pl-2">
+<div class="content-wrapper pl-4"> -->
+<app-main-nav>
+  <div style="padding: 10px;">
     <div style="margin: 10px;">
         <form [formGroup]="FormFraccionamiento">
             <!-- Contenedor feneral de la página -->
@@ -12,29 +14,48 @@
             </div>
             <div class="card border-primary" style="padding: 5px;">
                 <div class="form-row mt-2">
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-2">
                         <label for="bodcodigo">Bodega *</label>
-                        <select name="bodcodigo" class='form-control form-control-sm' formControlName='bodcodigo' 
+                        <select name="bodcodigo" class='form-control form-control-sm' formControlName='bodcodigo'
                             (change)="ActivaBotonBusqueda()">
-                            <option *ngFor='let boddespachadora of bodegasdespachadoras'
-                                [ngValue]='boddespachadora.codbodegaperi'>
-                                {{ boddespachadora.desbodegaperi }}
+                            <option *ngFor='let bodfraccionable of bodegasfraccionables'
+                                [ngValue]='bodfraccionable.bodcodigo'>
+                                {{ bodfraccionable.boddescripcion }}
                             </option>
                         </select>
                     </div>
-                    <div class="form-group col-md-2">
+                    <div class="form-group col-md-1">
                         <label for="codigo">Código *</label>
                         <input type="text" class="form-control form-control-sm" formControlName="codigo"
-                        (focusout)="getProducto($event.target.value)">
+                        (keyup.enter)="getProducto($event.target.value)"
+                        (keydown.tab)="getProducto($event.target.value)">
                     </div>
                     <div class="form-group col-md-3">
                         <label for="descripcion">Descripción *</label>
                         <input type="text" class="form-control form-control-sm" formControlName="descripcion"
-                        (focusout)="setDatabusqueda($event.target.value, 2)">
+                        (keyup.enter)="setDatabusqueda($event.target.value, 2)"
+                        (keydown.tab)="setDatabusqueda($event.target.value, 2)">
+                    </div>
+                    <div class="form-group col-md-1">
+                        <label for="cantidad">Stock *</label>
+                        <input type="number" class="form-control form-control-sm" formControlName="cantidad">
+                    </div>
+                    <div class="form-group col-md-1" >
+                        <label for="lote">Lote *</label>
+                        <select name="lote" class='form-control form-control-sm' formControlName='lote'
+                        (change)="SeleccionaLote(FormFraccionamiento.value.lote,$event.target.value)">
+                          <option *ngFor="let detallelote  of detalleslotes" [ngValue]='detallelote.lote'
+                          [selected]='detallelote.row == 0'
+                            value= "{{ detallelote.fechavto }}/{{ detallelote.lote }}">
+                            {{detallelote.glscombo}}
+                          </option>
+                        </select>
                     </div>
                     <div class="form-group col-md-2">
-                        <label for="cantidad">Stock Origen *</label>
-                        <input type="number" class="form-control form-control-sm" formControlName="cantidad">
+                        <label for="fechavto">Fecha Vencimiento *</label>
+                        <input appSelecttext type="text" placeholder="DD/MM/YYYY"
+                            class="form-control form-control-sm" [bsConfig]="bsConfig" bsDatepicker
+                            formControlName="fechavto" />
                     </div>
                     <div class="form-group col-md-2 align-self-end text-right">
                         <button type="button" id="btnbuscar" class="btn btn-primary btn-sm button-my-styles-busqueda_01"
@@ -44,23 +65,39 @@
                 </div>
             </div>
         </form>
-        <div class="card border-primary" style="padding: 5px;margin-top: 10px;height: 990px;">
-            <div id="table" class="table-editable">
-                <a class="btn-floating btn-lg purple-gradient"></a>
-                <button type="button" class="btn btn-info btn-rounded btn-sm ml-2"[disabled]="!agregaprod"
-                    (click)="addArticuloGrilla()"> Agregar<i class="fas fa-plus ml-2" aria-hidden="true"></i>
-                </button>
-                <div id="table" class="table-editable table-responsive mt-2" style="height: 900px;">
+        <div class="card border-primary" style="padding: 5px;margin-top: 10px">
+            <div id="table" class="table-editable"  style="max-height: auto;min-height: 150px;">
+                <form [formGroup]="FormDatosProducto" autocomplete="off" spellcheck="false">
+                    <div class="row form-group align-self-end ml-1">
+                        <div class="form-group col-md-2">
+                            <label for="codigo">Código *</label>
+                            <input type="text" class="form-control form-control-sm" formControlName="codigo">
+                        </div>
+                        <div class="row form-group align-self-end ml-1">
+                            <a class="btn-floating btn-lg purple-gradient"></a>
+                            <button type="button" class="btn btn-info btn-rounded btn-sm ml-2"[disabled]="!agregaprod"
+                                (click)="getProductoGrilla()"> Agregar<i class="fas fa-plus ml-2" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <div id="table" class="table-editable table-responsive mt-2 "style="max-height: auto;min-height: 100px;">
                     <table
                         class="table table-sm table-condensed table-bordered table-responsive-md table-striped text-center">
                         <tr class="table table-sm  table-primary table-bordered ">
                             <th class="text-center">Código</th>
                             <th class="text-center">Descripción</th>
                             <th class="text-center">Stock Actual</th>
+                            <th class="text-center">Lote</th>
+                            <th class="text-center">Fecha Vencimiento</th>
                             <th class="text-center">Factor de Distribución*</th>
                             <th class="text-center">Cantidad a Fraccionar*</th>
                             <th class="text-center">Producción</th>
-                            <th class="text-center">Eliminar</th>
+                            <th class="text-center"><button type="button" id="btnElinaRegistro" class="btn btn-info btn-danger btn-sm ml-2 "
+                                (click)="ConfirmaEliminaProductoDeLaGrilla2()" [disabled]= "!desactivabtnelim">Eliminar
+                                <i class="fas fa-trash-restore-alt  ml-1"></i>
+                                </button>
+                            </th>
                         </tr>
                         <tr class="table-secondary"
                             *ngFor="let registro of detallefraccionamientopaginacion; let id = index">
@@ -73,11 +110,30 @@
                             <td>
                                 <small><span>{{registro.stockactual}}</span></small>
                             </td>
+                            <td>
+                                <!-- <select name="lote" class='form-control form-control-sm'
+                                (change)="SeleccionaLoteGrilla($event.target.value, id,registro)"
+                               >
+                                  <option *ngFor="let detalleprod of registro.detallelote"
+                                      [ngValue]='detalleprod'
+                                      value="{{ detalleprod.fechavto }}/{{ detalleprod.lote }}/{{ detalleprod.cantidad }}/{{ detalleprod.codmei }}"> -->
+                                      <small> {{ registro.lote }} </small>
+                                  <!-- </option>
+                                </select> -->
+                            </td>
+                            <td>
+                                <small> {{ registro.fechavto | date:'dd/MM/yyyy' }}
+                                     <!-- <input type="text" class="form-control form-control-sm text-right"
+                                        value="{{ detalle.fechavto | date:'dd/MM/yyyy' }} " disabled> -->
+                                </small>
+                            </td>
+
                             <td class="text-nowrap">
                                 <small>
                                     <input type="number" class="form-control form-control-sm text-right" min="1" max="100"
-                                    [(ngModel)]="registro.factordist"  
-                                    (input)="cambio_cantidad(id, 'factordist', $event)">
+                                    [(ngModel)]="registro.factordist"
+                                    (keyup.enter)="cambio_cantidad(id, 'factordist', $event,registro)"
+                                    (focusout)="cambio_cantidad(id, 'factordist', $event,registro)">
                                 </small>
                                 <!-- <span contenteditable="true" (keyup)="cambio_cantidad(id, 'factordist', $event)"
                                     (blur)="updateList(id, 'factordist', $event)"> {{registro.factordist}}
@@ -86,7 +142,8 @@
                             <td class="text-nowrap">
                                 <small>
                                     <input type="number" class="form-control form-control-sm text-right" min="1" max="100"
-                                    [(ngModel)]="registro.cantidad"  
+                                    [(ngModel)]="registro.cantidad"
+                                    (keyup.enter)="updateList2(id, 'cantidaddest', $event, registro)"
                                     (focusout)="updateList2(id, 'cantidaddest', $event, registro)">
                                     <!--(input)="cambio_cantidad2(id, 'cantidad', $event)"-->
                                 </small>
@@ -100,17 +157,21 @@
                                 </span></small>
                             </td>
                             <td>
-                                <small><span><button type="button" id="btnElinaRegistro"
+                                <small>
+                                    <input class="mr-2  " type="checkbox"  [disabled]="!registro.bloqcampogrilla"
+                                      (click)="CambioCheck(registro,id,$event,registro.marcacheckgrilla)">
+                                </small>
+                                <!-- <small><span><button type="button" id="btnElinaRegistro"
                                         class="btn btn-info btn-rounded btn-sm ml-2"
                                         (click)="ConfirmaEliminaProductoDeLaGrilla(registro,id)">Eliminar
                                         <i class="fas fa-trash-restore-alt  ml-1"></i>
                                     </button></span>
-                                </small>
+                                </small> -->
                             </td>
                         </tr>
                     </table>
                 </div>
-                <div class="row m-1">
+                <div class="row m-1"  *ngIf="detallefraccionamiento.length>20">
                     <pagination [boundaryLinks]="true" [directionLinks]="true" [maxSize]="8"
                         [totalItems]="detallefraccionamiento.length" [itemsPerPage]=20 [previousText]="'Anterior'"
                         [nextText]="'Siguiente'" [firstText]="'&laquo;'" [lastText]="'&raquo;'"
@@ -124,6 +185,13 @@
     <!--  Botones de página -->
     <div class="row float-right mr-1 mt-2">
         <!--Al agregarle col-md-3 queda el espacio entre botones cuando aparece generar solicitud-->
+        <div class="form-group  align-self-end" *ngIf="modelopermisos.btngrabafrac">
+          <button type="button" id="btnguardar"
+              class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
+              (click)="ConfirmaGuardado()"> GUARDAR FACTOR
+              <i class="fas fa-save ml-1"></i>
+          </button>
+      </div>
         <div class="form-group  align-self-end" *ngIf="modelopermisos.btngrabafrac">
             <button type="button" id="btnguardar" [disabled]="!activabtngraba"
                 class="btn mr-1 btn-primary btn-sm button-my-styles-busqueda_02"
@@ -150,11 +218,13 @@
         </div>
         <div class="form-group  align-self-end">
             <button type="button" id="btnsalir" class="btn btn-primary btn-sm button-my-styles-busqueda_02"
-                routerLink='../home'>SALIR <i class="fas fa-window-close ml-1"></i>
+            (click)="salir()">SALIR <i class="fas fa-window-close ml-1"></i>
             </button>
         </div>
     </div>
     <swal #alertSwal title="" text="" type="success" [showCancelButton]="false"> </swal>
     <swal #alertSwalAlert title="" text="" type="warning" [showCancelButton]="false"> </swal>
     <swal #alertSwalError title="" text="" type="error" [showCancelButton]="false"> </swal>
-</div>
+    <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '3px' }"> </ngx-loading>
+  </div>
+</app-main-nav>
